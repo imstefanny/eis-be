@@ -1,8 +1,9 @@
 package database
 
 import (
-	"fmt"
 	"eis-be/config"
+	"eis-be/models"
+	"fmt"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -12,9 +13,10 @@ var DB *gorm.DB
 
 func init() {
 	InitDB()
+	InitialMigration()
 }
 
-func InitDB() *gorm.DB{
+func InitDB() *gorm.DB {
 	dbconfig := config.ReadEnv()
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
 		dbconfig.DB_USERNAME,
@@ -30,4 +32,8 @@ func InitDB() *gorm.DB{
 		panic(err)
 	}
 	return DB
+}
+
+func InitialMigration() {
+	DB.AutoMigrate(&models.Blogs{})
 }
