@@ -19,4 +19,5 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eBlogs := e.Group("/blogs")
 	eBlogs.GET("", blogsController.GetAll)
+	eBlogs.POST("", blogsController.Create)
 }

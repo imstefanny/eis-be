@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"eis-be/usecase"
+	"eis-be/dto"
 
 	"github.com/labstack/echo/v4"
 )
@@ -34,15 +35,15 @@ func (u *blogsController) GetAll(c echo.Context) error {
 }
 
 func (u *blogsController) Create(c echo.Context) error {
-	studio := dto.CreateStudioRequest{}
+	blog := dto.CreateBlogsRequest{}
 
-	if err := c.Bind(&studio); err != nil {
+	if err := c.Bind(&blog); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": err,
 		})
 	}
 
-	err := u.useCase.Create(studio)
+	err := u.useCase.Create(blog)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -51,6 +52,6 @@ func (u *blogsController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": studio,
+		"data": blog,
 	})
 }
