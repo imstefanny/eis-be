@@ -40,7 +40,7 @@ func (u *blogsController) Create(c echo.Context) error {
 
 	if err := c.Bind(&blog); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 
@@ -48,7 +48,7 @@ func (u *blogsController) Create(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 
@@ -63,7 +63,7 @@ func (u *blogsController) Find(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 

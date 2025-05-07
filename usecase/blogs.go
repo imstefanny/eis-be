@@ -48,7 +48,7 @@ func (s *blogsUsecase) GetAll() (interface{}, error) {
 func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest) error {
 	e := validateCreateBlogsRequest(blog)
 	
-	if e!= nil {
+	if e != nil {
 		return e
 	}
 
