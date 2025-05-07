@@ -7,8 +7,6 @@ import (
 	"eis-be/helpers"
 	"reflect"
 	"errors"
-
-	"fmt"
 )
 
 type BlogsUsecase interface {
@@ -57,7 +55,6 @@ func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest) error {
 	}
 
 	blogData := models.Blogs{
-		Active: true,
 		Title: blog.Title,
 		Content:  blog.Content,
 		Thumbnail: blog.Thumbnail,
@@ -109,24 +106,11 @@ func (s *blogsUsecase) Update(id int, blog dto.CreateBlogsRequest) (models.Blogs
 }
 
 func (s *blogsUsecase) Delete(id int) error {
-	blogData, err := s.blogsRepository.Find(id)
+	err := s.blogsRepository.Delete(id)
 
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(blogData)
-	blogData.Active = false
-	fmt.Println(blogData)
-
-	e := s.blogsRepository.Update(id, blogData)
-
-	if e != nil {
-		return e
-	}
-
-	blogUpdated, err := s.blogsRepository.Find(id)
-	fmt.Println(blogUpdated)
 
 	return nil
 }

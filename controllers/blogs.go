@@ -98,6 +98,7 @@ func (u *blogsController) Update(c echo.Context) error {
 
 func (u *blogsController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
+
 	err := u.useCase.Delete(id)
 
 	if err != nil {
