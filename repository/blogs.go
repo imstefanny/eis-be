@@ -10,6 +10,7 @@ type BlogsRepository interface {
 	GetAll() ([]models.Blogs, error)
 	Create(blogs models.Blogs) error
 	Find(id int) (models.Blogs, error)
+	Update(id int, blog models.Blogs) error
 }
 
 type blogsRepository struct {
@@ -42,4 +43,11 @@ func (r *blogsRepository) Find(id int) (models.Blogs, error) {
 		return blog, err
 	}
 	return blog, nil
+}
+
+func (r *blogsRepository) Update(id int, blog models.Blogs) error {
+	if err := r.db.Model(&blog).Updates(blog).Error; err != nil {
+		return err
+	}
+	return nil
 }

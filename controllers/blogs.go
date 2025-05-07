@@ -71,3 +71,27 @@ func (u *blogsController) Find(c echo.Context) error {
 		"data": blogs,
 	})
 }
+
+func (u *blogsController) Update(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	blog := dto.CreateBlogsRequest{}
+
+	if err := c.Bind(&blog); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	blogUpdated, err := u.useCase.Update(id, blog)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": blogUpdated,
+		"message": "Data updated successfully",
+	})
+}

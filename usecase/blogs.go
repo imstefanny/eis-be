@@ -13,6 +13,7 @@ type BlogsUsecase interface {
 	GetAll() (interface{}, error)
 	Create(blog dto.CreateBlogsRequest) error
 	Find(id int) (interface{}, error)
+	Update(id int, blog dto.CreateBlogsRequest) (models.Blogs, error)
 }
 
 type blogsUsecase struct {
@@ -76,4 +77,29 @@ func (s *blogsUsecase) Find(id int) (interface{}, error) {
 	}
 
 	return blog, nil
+}
+
+func (s *blogsUsecase) Update(id int, blog dto.CreateBlogsRequest) (models.Blogs, error) {
+	blogData, err := s.blogsRepository.Find(id)
+
+	if err != nil {
+		return models.Blogs{}, err
+	}
+
+	blogData.Title = blog.Title
+	blogData.Content = blog.Content
+	blogData.Thumbnail = blog.Thumbnail
+	
+	e := s.blogsRepository.Update(id, blogData)
+
+	if e != nil {
+		return models.Blogs{}, e
+	}
+
+	blogUpdated, err := s.blogsRepository.Find(id)
+
+	if err != nil {
+		return models.Blogs{}, err
+	}
+	return blogUpdated, nil
 }
