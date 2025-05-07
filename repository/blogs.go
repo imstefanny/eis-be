@@ -4,6 +4,7 @@ import (
 	"eis-be/models"
 
 	"gorm.io/gorm"
+	"fmt"
 )
 
 type BlogsRepository interface {
@@ -46,8 +47,10 @@ func (r *blogsRepository) Find(id int) (models.Blogs, error) {
 }
 
 func (r *blogsRepository) Update(id int, blog models.Blogs) error {
+	fmt.Println("Blog data:", blog)
 	if err := r.db.Model(&blog).Updates(blog).Error; err != nil {
 		return err
 	}
+	fmt.Println("Blog data after:", blog)
 	return nil
 }

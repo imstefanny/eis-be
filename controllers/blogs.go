@@ -95,3 +95,18 @@ func (u *blogsController) Update(c echo.Context) error {
 		"message": "Data updated successfully",
 	})
 }
+
+func (u *blogsController) Delete(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	err := u.useCase.Delete(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data deleted successfully",
+	})
+}
