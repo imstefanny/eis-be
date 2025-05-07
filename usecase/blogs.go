@@ -12,6 +12,7 @@ import (
 type BlogsUsecase interface {
 	GetAll() (interface{}, error)
 	Create(blog dto.CreateBlogsRequest) error
+	Find(id int) (interface{}, error)
 }
 
 type blogsUsecase struct {
@@ -35,13 +36,13 @@ func validateCreateBlogsRequest(req dto.CreateBlogsRequest) error {
 }
 
 func (s *blogsUsecase) GetAll() (interface{}, error) {
-	blogss, err := s.blogsRepository.GetAll()
+	blogs, err := s.blogsRepository.GetAll()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return blogss, nil
+	return blogs, nil
 }
 
 func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest) error {
@@ -65,4 +66,14 @@ func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest) error {
 	}
 
 	return nil
+}
+
+func (s *blogsUsecase) Find(id int) (interface{}, error) {
+	blog, err := s.blogsRepository.Find(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return blog, nil
 }

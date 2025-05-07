@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"eis-be/usecase"
 	"eis-be/dto"
@@ -53,5 +54,20 @@ func (u *blogsController) Create(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data": blog,
+	})
+}
+
+func (u *blogsController) Find(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	blogs, err := u.useCase.Find(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err,
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": blogs,
 	})
 }

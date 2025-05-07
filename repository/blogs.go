@@ -9,6 +9,7 @@ import (
 type BlogsRepository interface {
 	GetAll() ([]models.Blogs, error)
 	Create(blogs models.Blogs) error
+	Find(id int) (models.Blogs, error)
 }
 
 type blogsRepository struct {
@@ -33,4 +34,12 @@ func (r *blogsRepository) Create(blogs models.Blogs) error {
 		return err.Error
 	}
 	return nil
+}
+
+func (r *blogsRepository) Find(id int) (models.Blogs, error) {
+	blog := models.Blogs{}
+	if err := r.db.First(&blog, id).Error; err != nil {
+		return blog, err
+	}
+	return blog, nil
 }
