@@ -22,6 +22,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
+	e.POST("/login", usersController.Login)
 
 	eBlogs := e.Group("/blogs")
 	eBlogs.GET("", blogsController.GetAll)

@@ -26,7 +26,7 @@ func (u *blogsController) GetAll(c echo.Context) error {
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 

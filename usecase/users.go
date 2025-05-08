@@ -11,6 +11,7 @@ import (
 
 type UsersUsecase interface {
 	Register(data dto.RegisterUsersRequest) error
+	Login(data dto.LoginUsersRequest) (interface{}, error)
 }
 
 type usersUsecase struct {
@@ -22,6 +23,16 @@ func NewUsersUsecase(usersRepo repository.UsersRepository) *usersUsecase {
 }
 
 func validateRegisterUsersRequest(req dto.RegisterUsersRequest) error {
+	val := reflect.ValueOf(req)
+	for i := 0; i < val.NumField(); i++ {
+		if helpers.IsEmptyField(val.Field(i)) {
+			return errors.New("Field can't be empty")
+		}
+	}
+	return nil
+}
+
+func validateLoginUsersRequest(req dto.LoginUsersRequest) error {
 	val := reflect.ValueOf(req)
 	for i := 0; i < val.NumField(); i++ {
 		if helpers.IsEmptyField(val.Field(i)) {
@@ -52,4 +63,25 @@ func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 	}
 
 	return nil
+}
+
+func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
+	e := validateLoginUsersRequest(data)
+	
+	if e!= nil {
+		return nil, e
+	}
+
+	userData := models.Users{
+		Email: data.Email,
+		Password: data.Password,
+	}
+
+	user, err := s.usersRepository.Login(userData)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
