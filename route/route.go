@@ -11,11 +11,17 @@ import (
 )
 
 func Route(e *echo.Echo, db *gorm.DB) {
+	usersRepository := repository.NewUsersRepository(db)
+	usersService := usecase.NewUsersUsecase(usersRepository)
+	usersController := controllers.NewUsersController(usersService)
+
 	blogsRepository := repository.NewBlogsRepository(db)
 	blogsService := usecase.NewBlogsUsecase(blogsRepository)
 	blogsController := controllers.NewBlogsController(blogsService)
 
 	e.Pre(middleware.RemoveTrailingSlash())
+
+	e.POST("/register", usersController.Register)
 
 	eBlogs := e.Group("/blogs")
 	eBlogs.GET("", blogsController.GetAll)

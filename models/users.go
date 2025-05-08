@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
+type Users struct {
 	ID         		uint      		`json:"id" gorm:"primaryKey"`
 	ProfilePicture	string			`json:"profile_picture"`
 	Name 			string			`json:"name"`
