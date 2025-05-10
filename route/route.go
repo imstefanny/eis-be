@@ -19,6 +19,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	blogsService := usecase.NewBlogsUsecase(blogsRepository)
 	blogsController := controllers.NewBlogsController(blogsService)
 
+	applicantsRepository := repository.NewApplicantsRepository(db)
+	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository)
+	applicantsController := controllers.NewApplicantsController(applicantsService)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -30,4 +34,12 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eBlogs.POST("", blogsController.Create)
 	eBlogs.PUT("/:id", blogsController.Update)
 	eBlogs.DELETE("/:id", blogsController.Delete)
+
+	eApplicants := e.Group("/applicants")
+	eApplicants.Use(middleware.JWT([]byte(constants.SECRET_KEY)))
+	eApplicants.GET("", applicantsController.GetAll)
+	eApplicants.GET("/:id", applicantsController.Find)
+	eApplicants.POST("", applicantsController.Create)
+	eApplicants.PUT("/:id", applicantsController.Update)
+	eApplicants.DELETE("/:id", applicantsController.Delete)
 }
