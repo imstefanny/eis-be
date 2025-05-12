@@ -4,9 +4,11 @@ import (
 	"eis-be/controllers"
 	"eis-be/repository"
 	"eis-be/usecase"
+	"eis-be/constants"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"gorm.io/gorm"
 )
 
@@ -36,7 +38,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eBlogs.DELETE("/:id", blogsController.Delete)
 
 	eApplicants := e.Group("/applicants")
-	eApplicants.Use(middleware.JWT([]byte(constants.SECRET_KEY)))
+	eApplicants.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eApplicants.GET("", applicantsController.GetAll)
 	eApplicants.GET("/:id", applicantsController.Find)
 	eApplicants.POST("", applicantsController.Create)

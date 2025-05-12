@@ -4,9 +4,8 @@ import (
 	"eis-be/models"
 	"eis-be/repository"
 	"eis-be/dto"
-	"eis-be/helpers"
-	"reflect"
-	"errors"
+	"time"
+	"github.com/go-playground/validator/v10"
 )
 
 type ApplicantsUsecase interface {
@@ -28,13 +27,8 @@ func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository) *appli
 }
 
 func validateCreateApplicantsRequest(req dto.CreateApplicantsRequest) error {
-	val := reflect.ValueOf(req)
-	for i := 0; i < val.NumField(); i++ {
-		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("Field can't be empty")
-		}
-	}
-	return nil
+    validate := validator.New()
+    return validate.Struct(req)
 }
 
 func (s *applicantsUsecase) GetAll() (interface{}, error) {
@@ -54,11 +48,16 @@ func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest) error 
 		return e
 	}
 
+	parsedDate, edate := time.Parse("2006-01-02", applicant.DateOfBirth)
+	if edate != nil {
+		return edate
+	}
+
 	applicantData := models.Applicants{
 		FullName: applicant.FullName,
 		IdentityNo: applicant.IdentityNo,
 		PlaceOfBirth: applicant.PlaceOfBirth,
-		DateOfBirth: applicant.DateOfBirth,
+		DateOfBirth: parsedDate,
 		Address: applicant.Address,
 		Phone: applicant.Phone,
 		Religion: applicant.Religion,
@@ -102,7 +101,13 @@ func (s *applicantsUsecase) Update(id int, applicant dto.CreateApplicantsRequest
 	applicantData.FullName = applicant.FullName
 	applicantData.IdentityNo = applicant.IdentityNo
 	applicantData.PlaceOfBirth = applicant.PlaceOfBirth
-	applicantData.DateOfBirth = applicant.DateOfBirth
+	if applicant.DateOfBirth != "" {
+		parsedDate, edate := time.Parse("2006-01-02", applicant.DateOfBirth)
+		if edate != nil {
+			return models.Applicants{}, edate
+		}
+		applicantData.DateOfBirth = parsedDate
+	}
 	applicantData.Address = applicant.Address
 	applicantData.Phone = applicant.Phone
 	applicantData.Religion = applicant.Religion

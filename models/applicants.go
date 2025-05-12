@@ -15,8 +15,8 @@ type Applicants struct {
 	Address	string	`json:"address"`
 	Phone	string	`json:"phone"`
 	Religion	string	`json:"religion"`
-	ChildSequence	string	`json:"child_sequence"`
-	NumberOfSiblings	string	`json:"number_of_siblings"`
+	ChildSequence	int	`json:"child_sequence"`
+	NumberOfSiblings	int	`json:"number_of_siblings"`
 	LivingWith	string	`json:"living_with"`
 	ChildStatus	string	`json:"child_status"`
 	SchoolOrigin	string	`json:"school_origin"`
