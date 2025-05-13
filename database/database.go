@@ -38,4 +38,6 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.Blogs{})
 	DB.AutoMigrate(&models.Users{})
 	DB.AutoMigrate(&models.Applicants{})
+	DB.AutoMigrate(&models.DocTypes{})
+	DB.AutoMigrate(&models.Documents{})
 }

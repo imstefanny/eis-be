@@ -25,6 +25,14 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository)
 	applicantsController := controllers.NewApplicantsController(applicantsService)
 
+	docTypesRepository := repository.NewDocTypesRepository(db)
+	docTypesService := usecase.NewDocTypesUsecase(docTypesRepository)
+	docTypesController := controllers.NewDocTypesController(docTypesService)
+
+	documentsRepository := repository.NewDocumentsRepository(db)
+	documentsService := usecase.NewDocumentsUsecase(documentsRepository)
+	documentsController := controllers.NewDocumentsController(documentsService)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -44,4 +52,20 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eApplicants.POST("", applicantsController.Create)
 	eApplicants.PUT("/:id", applicantsController.Update)
 	eApplicants.DELETE("/:id", applicantsController.Delete)
+
+	eDocTypes := e.Group("/doctypes")
+	eDocTypes.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eDocTypes.GET("", docTypesController.GetAll)
+	eDocTypes.GET("/:id", docTypesController.Find)
+	eDocTypes.POST("", docTypesController.Create)
+	eDocTypes.PUT("/:id", docTypesController.Update)
+	eDocTypes.DELETE("/:id", docTypesController.Delete)
+
+	eDocs := e.Group("/documents")
+	eDocs.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eDocs.GET("", documentsController.GetAll)
+	eDocs.GET("/:id", documentsController.Find)
+	eDocs.POST("", documentsController.Create)
+	eDocs.PUT("/:id", documentsController.Update)
+	eDocs.DELETE("/:id", documentsController.Delete)
 }
