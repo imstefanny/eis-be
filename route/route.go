@@ -25,6 +25,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository)
 	applicantsController := controllers.NewApplicantsController(applicantsService)
 
+	guardiansRepository := repository.NewGuardiansRepository(db)
+	guardiansService := usecase.NewGuardiansUsecase(guardiansRepository)
+	guardiansController := controllers.NewGuardiansController(guardiansService)
+
 	docTypesRepository := repository.NewDocTypesRepository(db)
 	docTypesService := usecase.NewDocTypesUsecase(docTypesRepository)
 	docTypesController := controllers.NewDocTypesController(docTypesService)
@@ -52,6 +56,14 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eApplicants.POST("", applicantsController.Create)
 	eApplicants.PUT("/:id", applicantsController.Update)
 	eApplicants.DELETE("/:id", applicantsController.Delete)
+
+	eGuardians := e.Group("/guardians")
+	eGuardians.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eGuardians.GET("", guardiansController.GetAll)
+	eGuardians.GET("/:id", guardiansController.Find)
+	eGuardians.POST("", guardiansController.Create)
+	eGuardians.PUT("/:id", guardiansController.Update)
+	eGuardians.DELETE("/:id", guardiansController.Delete)
 
 	eDocTypes := e.Group("/doctypes")
 	eDocTypes.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
