@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type BlogsRepository interface {
-	GetAll() ([]models.Blogs, error)
+	Browse(page, limit int, search string) ([]models.Blogs, int64, error)
 	Create(blogs models.Blogs) error
 	Find(id int) (models.Blogs, error)
 	Update(id int, blog models.Blogs) error
@@ -22,12 +23,18 @@ func NewBlogsRepository(db *gorm.DB) *blogsRepository {
 	return &blogsRepository{db}
 }
 
-func (r *blogsRepository) GetAll() ([]models.Blogs, error) {
-	blogs := []models.Blogs{}
-	if err := r.db.Find(&blogs).Error; err != nil {
-		return nil, err
+func (r *blogsRepository) Browse(page, limit int, search string) ([]models.Blogs, int64, error) {
+	var blogs []models.Blogs
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(title) LIKE ?", search).Limit(limit).Offset(offset).Find(&blogs).Error; err != nil {
+		return nil, 0, err
 	}
-	return blogs, nil
+	if err := r.db.Model(&models.Blogs{}).Where("LOWER(title) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return blogs, total, nil
 }
 
 func (r *blogsRepository) Create(blogs models.Blogs) error {

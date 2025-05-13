@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type BlogsController interface{
+type BlogsController interface {
 }
 
 type blogsController struct {
@@ -21,8 +21,20 @@ func NewBlogsController(blogsUsecase usecase.BlogsUsecase) *blogsController {
 	return &blogsController{blogsUsecase}
 }
 
-func (u *blogsController) GetAll(c echo.Context) error {
-	blogs, err := u.useCase.GetAll()
+func (u *blogsController) Browse(c echo.Context) error {
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil || limit < 1 {
+		limit = 6
+	}
+
+	search := c.QueryParam("search")
+
+	blogs, total, err := u.useCase.Browse(page, limit, search)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -31,7 +43,10 @@ func (u *blogsController) GetAll(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": blogs,
+		"data":  blogs,
+		"page":  page,
+		"limit": limit,
+		"total": total,
 	})
 }
 
@@ -91,7 +106,7 @@ func (u *blogsController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": blogUpdated,
+		"data":    blogUpdated,
 		"message": "Data updated successfully",
 	})
 }
