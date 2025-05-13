@@ -41,4 +41,6 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.Guardians{})
 	DB.AutoMigrate(&models.DocTypes{})
 	DB.AutoMigrate(&models.Documents{})
+	DB.AutoMigrate(&models.WorkScheds{})
+	DB.AutoMigrate(&models.WorkSchedDetails{})
 }
