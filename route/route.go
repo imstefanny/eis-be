@@ -1,14 +1,14 @@
 package route
 
 import (
+	"eis-be/constants"
 	"eis-be/controllers"
 	"eis-be/repository"
 	"eis-be/usecase"
-	"eis-be/constants"
 
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	echojwt "github.com/labstack/echo-jwt/v4"
 	"gorm.io/gorm"
 )
 
@@ -31,7 +31,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	e.POST("/login", usersController.Login)
 
 	eBlogs := e.Group("/blogs")
-	eBlogs.GET("", blogsController.GetAll)
+	eBlogs.GET("", blogsController.Browse)
 	eBlogs.GET("/:id", blogsController.Find)
 	eBlogs.POST("", blogsController.Create)
 	eBlogs.PUT("/:id", blogsController.Update)

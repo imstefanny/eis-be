@@ -1,16 +1,16 @@
 package usecase
 
 import (
-	"eis-be/models"
-	"eis-be/repository"
 	"eis-be/dto"
 	"eis-be/helpers"
-	"reflect"
+	"eis-be/models"
+	"eis-be/repository"
 	"errors"
+	"reflect"
 )
 
 type BlogsUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(blog dto.CreateBlogsRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, blog dto.CreateBlogsRequest) (models.Blogs, error)
@@ -18,7 +18,7 @@ type BlogsUsecase interface {
 }
 
 type blogsUsecase struct {
-	blogsRepository		repository.BlogsRepository
+	blogsRepository repository.BlogsRepository
 }
 
 func NewBlogsUsecase(blogsRepo repository.BlogsRepository) *blogsUsecase {
@@ -37,26 +37,26 @@ func validateCreateBlogsRequest(req dto.CreateBlogsRequest) error {
 	return nil
 }
 
-func (s *blogsUsecase) GetAll() (interface{}, error) {
-	blogs, err := s.blogsRepository.GetAll()
+func (s *blogsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	blogs, total, err := s.blogsRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return blogs, nil
+	return blogs, total, nil
 }
 
 func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest) error {
 	e := validateCreateBlogsRequest(blog)
-	
+
 	if e != nil {
 		return e
 	}
 
 	blogData := models.Blogs{
-		Title: blog.Title,
-		Content:  blog.Content,
+		Title:     blog.Title,
+		Content:   blog.Content,
 		Thumbnail: blog.Thumbnail,
 	}
 
@@ -89,7 +89,7 @@ func (s *blogsUsecase) Update(id int, blog dto.CreateBlogsRequest) (models.Blogs
 	blogData.Title = blog.Title
 	blogData.Content = blog.Content
 	blogData.Thumbnail = blog.Thumbnail
-	
+
 	e := s.blogsRepository.Update(id, blogData)
 
 	if e != nil {
