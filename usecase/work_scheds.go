@@ -89,6 +89,16 @@ func (s *workSchedsUsecase) Update(id int, workSched dto.CreateWorkSchedsRequest
 	}
 
 	workSchedData.Name = workSched.Name
+	details := []models.WorkSchedDetails{}
+	for _, detail := range workSched.Details {
+		details = append(details, models.WorkSchedDetails{
+			ID:        detail.ID,
+			Day:       detail.Day,
+			WorkStart: detail.WorkStart,
+			WorkEnd:   detail.WorkEnd,
+		})
+	}
+	workSchedData.Details = details
 
 	e := s.workSchedsRepository.Update(id, workSchedData)
 
