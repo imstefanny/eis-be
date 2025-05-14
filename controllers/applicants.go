@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type ApplicantsController interface{
+type ApplicantsController interface {
 }
 
 type applicantsController struct {
@@ -44,7 +44,7 @@ func (u *applicantsController) Create(c echo.Context) error {
 		})
 	}
 
-	err := u.useCase.Create(applicant)
+	err := u.useCase.Create(applicant, c)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -91,7 +91,7 @@ func (u *applicantsController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": applicantUpdated,
+		"data":    applicantUpdated,
 		"message": "Data updated successfully",
 	})
 }

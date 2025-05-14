@@ -8,7 +8,6 @@ import (
 
 type Applicants struct {
 	ID                uint           `json:"id" gorm:"primaryKey"`
-	UserId            uint           `json:"user_id"`
 	ProfilePic        string         `json:"profile_pic"`
 	FullName          string         `json:"full_name"`
 	IdentityNo        string         `json:"identity_no"`
