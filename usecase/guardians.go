@@ -1,10 +1,11 @@
 package usecase
 
 import (
+	"eis-be/dto"
 	"eis-be/models"
 	"eis-be/repository"
-	"eis-be/dto"
 	"time"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -12,12 +13,13 @@ type GuardiansUsecase interface {
 	GetAll() (interface{}, error)
 	Create(guardian dto.CreateGuardiansRequest) error
 	Find(id int) (interface{}, error)
+	FindByApplicantId(id int) (interface{}, error)
 	Update(id int, guardian dto.CreateGuardiansRequest) (models.Guardians, error)
 	Delete(id int) error
 }
 
 type guardiansUsecase struct {
-	guardiansRepository		repository.GuardiansRepository
+	guardiansRepository repository.GuardiansRepository
 }
 
 func NewGuardiansUsecase(guardiansRepo repository.GuardiansRepository) *guardiansUsecase {
@@ -27,8 +29,8 @@ func NewGuardiansUsecase(guardiansRepo repository.GuardiansRepository) *guardian
 }
 
 func validateCreateGuardiansRequest(req dto.CreateGuardiansRequest) error {
-    validate := validator.New()
-    return validate.Struct(req)
+	validate := validator.New()
+	return validate.Struct(req)
 }
 
 func (s *guardiansUsecase) GetAll() (interface{}, error) {
@@ -43,7 +45,7 @@ func (s *guardiansUsecase) GetAll() (interface{}, error) {
 
 func (s *guardiansUsecase) Create(guardian dto.CreateGuardiansRequest) error {
 	e := validateCreateGuardiansRequest(guardian)
-	
+
 	if e != nil {
 		return e
 	}
@@ -54,16 +56,16 @@ func (s *guardiansUsecase) Create(guardian dto.CreateGuardiansRequest) error {
 	}
 
 	guardianData := models.Guardians{
-		ApplicantID: guardian.ApplicantID,
-		StudentID: guardian.StudentID,
-		Relation: guardian.Relation,
-		Name: guardian.Name,
-		Religion: guardian.Religion,
-		Job: guardian.Job,
-		Address: guardian.Address,
-		Phone: guardian.Phone,
-		PlaceOfBirth: guardian.PlaceOfBirth,
-		DateOfBirth: parsedDate,
+		ApplicantID:      guardian.ApplicantID,
+		StudentID:        guardian.StudentID,
+		Relation:         guardian.Relation,
+		Name:             guardian.Name,
+		Religion:         guardian.Religion,
+		Job:              guardian.Job,
+		Address:          guardian.Address,
+		Phone:            guardian.Phone,
+		PlaceOfBirth:     guardian.PlaceOfBirth,
+		DateOfBirth:      parsedDate,
 		HighestEducation: guardian.HighestEducation,
 	}
 
@@ -78,6 +80,16 @@ func (s *guardiansUsecase) Create(guardian dto.CreateGuardiansRequest) error {
 
 func (s *guardiansUsecase) Find(id int) (interface{}, error) {
 	guardian, err := s.guardiansRepository.Find(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return guardian, nil
+}
+
+func (s *guardiansUsecase) FindByApplicantId(id int) (interface{}, error) {
+	guardian, err := s.guardiansRepository.FindByApplicantId(id)
 
 	if err != nil {
 		return nil, err

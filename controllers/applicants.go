@@ -4,13 +4,14 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/helpers"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type ApplicantsController interface{
+type ApplicantsController interface {
 }
 
 type applicantsController struct {
@@ -35,6 +36,28 @@ func (u *applicantsController) GetAll(c echo.Context) error {
 	})
 }
 
+func (u *applicantsController) GetApplicantInformationByToken(c echo.Context) error {
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	var id int = int(claims["userId"].(float64))
+	applicant, err := u.useCase.FindByCreatedBy(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": applicant,
+	})
+}
+
 func (u *applicantsController) Create(c echo.Context) error {
 	applicant := dto.CreateApplicantsRequest{}
 
@@ -44,7 +67,7 @@ func (u *applicantsController) Create(c echo.Context) error {
 		})
 	}
 
-	err := u.useCase.Create(applicant)
+	err := u.useCase.Create(applicant, c)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -91,7 +114,7 @@ func (u *applicantsController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": applicantUpdated,
+		"data":    applicantUpdated,
 		"message": "Data updated successfully",
 	})
 }

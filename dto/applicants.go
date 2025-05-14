@@ -14,7 +14,7 @@ type CreateApplicantsRequest struct {
 	LivingWith        string `json:"living_with" validate:"required"`
 	ChildStatus       string `json:"child_status"`
 	SchoolOrigin      string `json:"school_origin"`
-	LevelID           uint   `json:"level_id" validate:"required"`
+	LevelID           uint   `json:"level_id"`
 	RegistrationGrade string `json:"registration_grade" validate:"required"`
 	RegistrationMajor string `json:"registration_major"`
 	State             string `json:"state" validate:"required"`
