@@ -10,6 +10,7 @@ type GuardiansRepository interface {
 	GetAll() ([]models.Guardians, error)
 	Create(guardians models.Guardians) error
 	Find(id int) (models.Guardians, error)
+	FindByApplicantId(id int) ([]models.Guardians, error)
 	Update(id int, blog models.Guardians) error
 	Delete(id int) error
 }
@@ -44,6 +45,14 @@ func (r *guardiansRepository) Find(id int) (models.Guardians, error) {
 		return blog, err
 	}
 	return blog, nil
+}
+
+func (r *guardiansRepository) FindByApplicantId(id int) ([]models.Guardians, error) {
+	guardian := []models.Guardians{}
+	if err := r.db.Where("applicant_id = ?", id).Find(&guardian).Error; err != nil {
+		return guardian, err
+	}
+	return guardian, nil
 }
 
 func (r *guardiansRepository) Update(id int, blog models.Guardians) error {

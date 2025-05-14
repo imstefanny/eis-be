@@ -15,6 +15,7 @@ type ApplicantsUsecase interface {
 	GetAll() (interface{}, error)
 	Create(applicant dto.CreateApplicantsRequest, c echo.Context) error
 	Find(id int) (interface{}, error)
+	FindByCreatedBy(id int) (interface{}, error)
 	Update(id int, applicant dto.CreateApplicantsRequest) (models.Applicants, error)
 	Delete(id int) error
 }
@@ -93,6 +94,15 @@ func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest, c echo
 func (s *applicantsUsecase) Find(id int) (interface{}, error) {
 	applicant, err := s.applicantsRepository.Find(id)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return applicant, nil
+}
+
+func (s *applicantsUsecase) FindByCreatedBy(id int) (interface{}, error) {
+	applicant, err := s.applicantsRepository.FindByCreatedBy(id)
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
@@ -32,6 +33,28 @@ func (u *applicantsController) GetAll(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data": applicants,
+	})
+}
+
+func (u *applicantsController) GetApplicantInformationByToken(c echo.Context) error {
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	var id int = int(claims["userId"].(float64))
+	applicant, err := u.useCase.FindByCreatedBy(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": applicant,
 	})
 }
 
