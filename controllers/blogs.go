@@ -68,7 +68,7 @@ func (u *blogsController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": blog,
+		"message": "Data created successfully",
 	})
 }
 

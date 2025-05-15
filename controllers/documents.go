@@ -53,7 +53,7 @@ func (u *documentsController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": document,
+		"message": "Data created successfully",
 	})
 }
 

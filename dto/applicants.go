@@ -1,7 +1,7 @@
 package dto
 
 type CreateApplicantsRequest struct {
-	// ProfilePic	string	`json:"profile_pic"`
+	ProfilePic        string `json:"profile_pic"`
 	FullName          string `json:"full_name" validate:"required"`
 	IdentityNo        string `json:"identity_no"`
 	PlaceOfBirth      string `json:"place_of_birth" validate:"required"`

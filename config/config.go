@@ -9,7 +9,7 @@ import (
 )
 
 type AppConfig struct {
-	DB_USERNAME	string
+	DB_USERNAME string
 	DB_PASSWORD string
 	DB_HOSTNAME string
 	DB_PORT     int

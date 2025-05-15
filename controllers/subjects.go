@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type SubjectsController interface{
+type SubjectsController interface {
 }
 
 type subjectsController struct {
@@ -91,7 +91,7 @@ func (u *subjectsController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": subjectUpdated,
+		"data":    subjectUpdated,
 		"message": "Data updated successfully",
 	})
 }

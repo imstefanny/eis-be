@@ -2,9 +2,9 @@ package usecase
 
 import (
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
-	"eis-be/helpers"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -18,13 +18,13 @@ type WorkSchedsUsecase interface {
 }
 
 type workSchedsUsecase struct {
-	workSchedsRepository repository.WorkSchedsRepository
+	workSchedsRepository       repository.WorkSchedsRepository
 	workSchedDetailsRepository repository.WorkSchedDetailsRepository
 }
 
 func NewWorkSchedsUsecase(workSchedsRepo repository.WorkSchedsRepository, workSchedDetailsRepo repository.WorkSchedDetailsRepository) *workSchedsUsecase {
 	return &workSchedsUsecase{
-		workSchedsRepository: workSchedsRepo,
+		workSchedsRepository:       workSchedsRepo,
 		workSchedDetailsRepository: workSchedDetailsRepo,
 	}
 }
@@ -61,7 +61,7 @@ func (s *workSchedsUsecase) Create(workSched dto.CreateWorkSchedsRequest) error 
 	}
 
 	workSchedData := models.WorkScheds{
-		Name: workSched.Name,
+		Name:    workSched.Name,
 		Details: details,
 	}
 
@@ -104,9 +104,9 @@ func (s *workSchedsUsecase) Update(id int, workSched dto.CreateWorkSchedsRequest
 		} else {
 			addData := models.WorkSchedDetails{
 				WorkSchedID: workSchedData.ID,
-				Day:       iDetail.Day,
-				WorkStart: iDetail.WorkStart,
-				WorkEnd:   iDetail.WorkEnd,
+				Day:         iDetail.Day,
+				WorkStart:   iDetail.WorkStart,
+				WorkEnd:     iDetail.WorkEnd,
 			}
 			addIDs = append(addIDs, addData)
 		}
@@ -118,11 +118,11 @@ func (s *workSchedsUsecase) Update(id int, workSched dto.CreateWorkSchedsRequest
 		for _, id := range updateIDs {
 			if int(iDetail.ID) == id {
 				incomingUpdate = append(incomingUpdate, models.WorkSchedDetails{
-					ID:        iDetail.ID,
+					ID:          iDetail.ID,
 					WorkSchedID: workSchedData.ID,
-					Day:       iDetail.Day,
-					WorkStart: iDetail.WorkStart,
-					WorkEnd:   iDetail.WorkEnd,
+					Day:         iDetail.Day,
+					WorkStart:   iDetail.WorkStart,
+					WorkEnd:     iDetail.WorkEnd,
 				})
 			}
 		}

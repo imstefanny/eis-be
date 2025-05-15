@@ -58,14 +58,14 @@ func (r *workSchedsRepository) Delete(id int) error {
 	workSched := models.WorkScheds{}
 	workSchedDetail := models.WorkSchedDetails{}
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-        if err := tx.Where("work_sched_id = ?", id).Delete(&workSchedDetail).Error; err != nil {
-            return err
-        }
-        if err := tx.Where("id = ?", id).Delete(&workSched).Error; err != nil {
-            return err
-        }
-        return nil
-    })
+		if err := tx.Where("work_sched_id = ?", id).Delete(&workSchedDetail).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("id = ?", id).Delete(&workSched).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}

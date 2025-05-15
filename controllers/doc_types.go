@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type DocTypesController interface{
+type DocTypesController interface {
 }
 
 type docTypesController struct {
@@ -53,7 +53,7 @@ func (u *docTypesController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": docType,
+		"message": "Data created successfully",
 	})
 }
 
@@ -91,7 +91,7 @@ func (u *docTypesController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": docTypeUpdated,
+		"data":    docTypeUpdated,
 		"message": "Data updated successfully",
 	})
 }

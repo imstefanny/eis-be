@@ -53,7 +53,7 @@ func (u *guardiansController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": guardian,
+		"message": "Data created successfully",
 	})
 }
 

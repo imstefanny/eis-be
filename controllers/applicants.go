@@ -76,7 +76,7 @@ func (u *applicantsController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": applicant,
+		"message": "Data created successfully",
 	})
 }
 

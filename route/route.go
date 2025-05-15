@@ -36,7 +36,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	documentsRepository := repository.NewDocumentsRepository(db)
 	documentsService := usecase.NewDocumentsUsecase(documentsRepository)
 	documentsController := controllers.NewDocumentsController(documentsService)
-	
+
 	workSchedsRepository := repository.NewWorkSchedsRepository(db)
 	workSchedDetailsRepository := repository.NewWorkSchedDetailsRepository(db)
 	workSchedsService := usecase.NewWorkSchedsUsecase(workSchedsRepository, workSchedDetailsRepository)

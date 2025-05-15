@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type WorkSchedsController interface{
+type WorkSchedsController interface {
 }
 
 type workSchedsController struct {
@@ -91,7 +91,7 @@ func (u *workSchedsController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": workSchedUpdated,
+		"data":    workSchedUpdated,
 		"message": "Data updated successfully",
 	})
 }
