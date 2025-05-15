@@ -13,17 +13,3 @@ type CreateGuardiansRequest struct {
 	DateOfBirth      string `json:"date_of_birth" validate:"required"`
 	HighestEducation string `json:"highest_education" validate:"required"`
 }
-
-// {
-//     "applicant_id": 1,
-//     "student_id": 1,
-//     "relation": "daddy",
-//     "name": "Budi",
-//     "religion": "Christian",
-//     "job": "Programmer",
-//     "address": "Jalan jalan No 1",
-//     "phone": "081274584134",
-//     "place_of_birth": "Medan",
-//     "date_of_birth": "1995-05-10",
-//     "highest_education": "S1"
-// }
