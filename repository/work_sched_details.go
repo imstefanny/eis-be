@@ -38,7 +38,7 @@ func (r *workSchedDetailsRepository) Find(id []int) ([]models.WorkSchedDetails, 
 }
 
 func (r *workSchedDetailsRepository) Update(id []int, workSchedDetail []models.WorkSchedDetails) error {
-	query := r.db.Updates(workSchedDetail)
+	query := r.db.Save(workSchedDetail)
 	if err := query.Error; err != nil {
 		return err
 	}

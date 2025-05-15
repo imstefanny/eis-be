@@ -6,8 +6,6 @@ import (
 	"eis-be/repository"
 	"eis-be/helpers"
 
-	"fmt"
-
 	"github.com/go-playground/validator/v10"
 )
 
@@ -121,6 +119,7 @@ func (s *workSchedsUsecase) Update(id int, workSched dto.CreateWorkSchedsRequest
 			if int(iDetail.ID) == id {
 				incomingUpdate = append(incomingUpdate, models.WorkSchedDetails{
 					ID:        iDetail.ID,
+					WorkSchedID: workSchedData.ID,
 					Day:       iDetail.Day,
 					WorkStart: iDetail.WorkStart,
 					WorkEnd:   iDetail.WorkEnd,
@@ -128,27 +127,10 @@ func (s *workSchedsUsecase) Update(id int, workSched dto.CreateWorkSchedsRequest
 			}
 		}
 	}
-	for _, detail := range existing {
-		for _, saved := range incomingUpdate {
-			if detail.ID == saved.ID {
-				detail.Day = saved.Day
-				detail.WorkStart = saved.WorkStart
-				detail.WorkEnd = saved.WorkEnd
-			}
-		}
-	}
-	fmt.Println("existingIDs", existingIDs)
-	fmt.Println("incomingIDs", incomingIDs)
-	fmt.Println("addIDs", addIDs)
-	fmt.Println("removeIDs", removeIDs)
-	fmt.Println("updateIDs", updateIDs)
-	fmt.Println("incomingUpdate", incomingUpdate)
-	fmt.Println("existing", existing)
-
 	workSchedData.Name = workSched.Name
 	e := s.workSchedsRepository.Update(id, workSchedData)
 	e = s.workSchedDetailsRepository.Create(addIDs)
-	e = s.workSchedDetailsRepository.Update(updateIDs, existing)
+	e = s.workSchedDetailsRepository.Update(updateIDs, incomingUpdate)
 	e = s.workSchedDetailsRepository.Delete(removeIDs)
 	if e != nil {
 		return models.WorkScheds{}, e
