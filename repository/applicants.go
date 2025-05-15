@@ -10,6 +10,7 @@ type ApplicantsRepository interface {
 	GetAll() ([]models.Applicants, error)
 	Create(applicants models.Applicants) error
 	Find(id int) (models.Applicants, error)
+	FindByCreatedBy(id int) (models.Applicants, error)
 	Update(id int, blog models.Applicants) error
 	Delete(id int) error
 }
@@ -44,6 +45,14 @@ func (r *applicantsRepository) Find(id int) (models.Applicants, error) {
 		return blog, err
 	}
 	return blog, nil
+}
+
+func (r *applicantsRepository) FindByCreatedBy(id int) (models.Applicants, error) {
+	applicant := models.Applicants{}
+	if err := r.db.Where("created_by = ?", id).First(&applicant).Error; err != nil {
+		return applicant, err
+	}
+	return applicant, nil
 }
 
 func (r *applicantsRepository) Update(id int, blog models.Applicants) error {

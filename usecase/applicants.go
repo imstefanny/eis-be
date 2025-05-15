@@ -1,23 +1,27 @@
 package usecase
 
 import (
+	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
-	"eis-be/dto"
 	"time"
+
 	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo/v4"
 )
 
 type ApplicantsUsecase interface {
 	GetAll() (interface{}, error)
-	Create(applicant dto.CreateApplicantsRequest) error
+	Create(applicant dto.CreateApplicantsRequest, c echo.Context) error
 	Find(id int) (interface{}, error)
+	FindByCreatedBy(id int) (interface{}, error)
 	Update(id int, applicant dto.CreateApplicantsRequest) (models.Applicants, error)
 	Delete(id int) error
 }
 
 type applicantsUsecase struct {
-	applicantsRepository		repository.ApplicantsRepository
+	applicantsRepository repository.ApplicantsRepository
 }
 
 func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository) *applicantsUsecase {
@@ -27,8 +31,8 @@ func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository) *appli
 }
 
 func validateCreateApplicantsRequest(req dto.CreateApplicantsRequest) error {
-    validate := validator.New()
-    return validate.Struct(req)
+	validate := validator.New()
+	return validate.Struct(req)
 }
 
 func (s *applicantsUsecase) GetAll() (interface{}, error) {
@@ -41,11 +45,16 @@ func (s *applicantsUsecase) GetAll() (interface{}, error) {
 	return applicants, nil
 }
 
-func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest) error {
+func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest, c echo.Context) error {
 	e := validateCreateApplicantsRequest(applicant)
-	
+
 	if e != nil {
 		return e
+	}
+
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return errToken
 	}
 
 	parsedDate, edate := time.Parse("2006-01-02", applicant.DateOfBirth)
@@ -54,22 +63,23 @@ func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest) error 
 	}
 
 	applicantData := models.Applicants{
-		FullName: applicant.FullName,
-		IdentityNo: applicant.IdentityNo,
-		PlaceOfBirth: applicant.PlaceOfBirth,
-		DateOfBirth: parsedDate,
-		Address: applicant.Address,
-		Phone: applicant.Phone,
-		Religion: applicant.Religion,
-		ChildSequence: applicant.ChildSequence,
-		NumberOfSiblings: applicant.NumberOfSiblings,
-		LivingWith: applicant.LivingWith,
-		ChildStatus: applicant.ChildStatus,
-		SchoolOrigin: applicant.SchoolOrigin,
-		LevelID: applicant.LevelID,
+		FullName:          applicant.FullName,
+		IdentityNo:        applicant.IdentityNo,
+		PlaceOfBirth:      applicant.PlaceOfBirth,
+		DateOfBirth:       parsedDate,
+		Address:           applicant.Address,
+		Phone:             applicant.Phone,
+		Religion:          applicant.Religion,
+		ChildSequence:     applicant.ChildSequence,
+		NumberOfSiblings:  applicant.NumberOfSiblings,
+		LivingWith:        applicant.LivingWith,
+		ChildStatus:       applicant.ChildStatus,
+		SchoolOrigin:      applicant.SchoolOrigin,
+		LevelID:           applicant.LevelID,
 		RegistrationGrade: applicant.RegistrationGrade,
 		RegistrationMajor: applicant.RegistrationMajor,
-		State: applicant.State,
+		State:             applicant.State,
+		CreatedBy:         uint(claims["userId"].(float64)),
 	}
 
 	err := s.applicantsRepository.Create(applicantData)
@@ -84,6 +94,15 @@ func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest) error 
 func (s *applicantsUsecase) Find(id int) (interface{}, error) {
 	applicant, err := s.applicantsRepository.Find(id)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return applicant, nil
+}
+
+func (s *applicantsUsecase) FindByCreatedBy(id int) (interface{}, error) {
+	applicant, err := s.applicantsRepository.FindByCreatedBy(id)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +139,7 @@ func (s *applicantsUsecase) Update(id int, applicant dto.CreateApplicantsRequest
 	applicantData.RegistrationGrade = applicant.RegistrationGrade
 	applicantData.RegistrationMajor = applicant.RegistrationMajor
 	applicantData.State = applicant.State
-	
+
 	e := s.applicantsRepository.Update(id, applicantData)
 
 	if e != nil {

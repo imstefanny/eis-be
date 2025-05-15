@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type GuardiansController interface{
+type GuardiansController interface {
 }
 
 type guardiansController struct {
@@ -72,6 +72,21 @@ func (u *guardiansController) Find(c echo.Context) error {
 	})
 }
 
+func (u *guardiansController) GetGuardianInformationByApplicantId(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	guardians, err := u.useCase.FindByApplicantId(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": guardians,
+	})
+}
+
 func (u *guardiansController) Update(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	guardian := dto.CreateGuardiansRequest{}
@@ -91,7 +106,7 @@ func (u *guardiansController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": guardianUpdated,
+		"data":    guardianUpdated,
 		"message": "Data updated successfully",
 	})
 }

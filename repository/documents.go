@@ -10,6 +10,7 @@ type DocumentsRepository interface {
 	GetAll() ([]models.Documents, error)
 	Create(documents models.Documents) error
 	Find(id int) (models.Documents, error)
+	FindByApplicantId(id int) ([]models.Documents, error)
 	Update(id int, document models.Documents) error
 	Delete(id int) error
 }
@@ -44,6 +45,14 @@ func (r *documentsRepository) Find(id int) (models.Documents, error) {
 		return document, err
 	}
 	return document, nil
+}
+
+func (r *documentsRepository) FindByApplicantId(id int) ([]models.Documents, error) {
+	documents := []models.Documents{}
+	if err := r.db.Where("applicant_id = ?", id).Find(&documents).Error; err != nil {
+		return nil, err
+	}
+	return documents, nil
 }
 
 func (r *documentsRepository) Update(id int, document models.Documents) error {

@@ -6,10 +6,10 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-func CreateToken(email, password string) (string, error) {
+func CreateToken(email string, userId uint) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["email"] = email
-	claims["password"] = password
+	claims["userId"] = userId
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(constants.SECRET_KEY))

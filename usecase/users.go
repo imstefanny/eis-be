@@ -1,13 +1,13 @@
 package usecase
 
 import (
-	"eis-be/models"
-	"eis-be/repository"
 	"eis-be/dto"
 	"eis-be/helpers"
 	"eis-be/middlewares"
-	"reflect"
+	"eis-be/models"
+	"eis-be/repository"
 	"errors"
+	"reflect"
 )
 
 type UsersUsecase interface {
@@ -45,16 +45,16 @@ func validateLoginUsersRequest(req dto.LoginUsersRequest) error {
 
 func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 	e := validateRegisterUsersRequest(data)
-	
-	if e!= nil {
+
+	if e != nil {
 		return e
 	}
-	
+
 	userData := models.Users{
-		Name: data.Name,
-		Email: data.Email,
+		Name:     data.Name,
+		Email:    data.Email,
 		Password: data.Password,
-		RoleID: data.RoleID,
+		RoleID:   data.RoleID,
 	}
 
 	err := s.usersRepository.Create(userData)
@@ -68,13 +68,13 @@ func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 
 func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 	e := validateLoginUsersRequest(data)
-	
-	if e!= nil {
+
+	if e != nil {
 		return nil, e
 	}
 
 	userData := models.Users{
-		Email: data.Email,
+		Email:    data.Email,
 		Password: data.Password,
 	}
 
@@ -84,18 +84,18 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 		return nil, err
 	}
 
-	token, err := middlewares.CreateToken(user.Email, user.Password)
+	token, err := middlewares.CreateToken(user.Email, user.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	userResponse := dto.LoginUsersResponse{
-		ID		: user.ID,
-		Name 	: user.Name,
-		Email	: user.Email,
-		Token 	: token,
-		RoleID	: user.RoleID,
+		ID:     user.ID,
+		Name:   user.Name,
+		Email:  user.Email,
+		Token:  token,
+		RoleID: user.RoleID,
 	}
 
 	return userResponse, nil
