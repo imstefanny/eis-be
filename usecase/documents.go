@@ -4,6 +4,7 @@ import (
 	"eis-be/dto"
 	"eis-be/models"
 	"eis-be/repository"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -11,6 +12,7 @@ type DocumentsUsecase interface {
 	GetAll() (interface{}, error)
 	Create(document dto.CreateDocumentsRequest) error
 	Find(id int) (interface{}, error)
+	FindByApplicantId(id int) (interface{}, error)
 	Update(id int, document dto.CreateDocumentsRequest) (models.Documents, error)
 	Delete(id int) error
 }
@@ -26,8 +28,8 @@ func NewDocumentsUsecase(documentsRepo repository.DocumentsRepository) *document
 }
 
 func validateCreateDocumentsRequest(req dto.CreateDocumentsRequest) error {
-    validate := validator.New()
-    return validate.Struct(req)
+	validate := validator.New()
+	return validate.Struct(req)
 }
 
 func (s *documentsUsecase) GetAll() (interface{}, error) {
@@ -48,11 +50,11 @@ func (s *documentsUsecase) Create(document dto.CreateDocumentsRequest) error {
 	}
 
 	documentData := models.Documents{
-		TypeID: document.TypeID,
-		ApplicantID: document.ApplicantID,
-		StudentID: document.StudentID,
+		TypeID:       document.TypeID,
+		ApplicantID:  document.ApplicantID,
+		StudentID:    document.StudentID,
 		UploadedFile: document.UploadedFile,
-		Description: document.Description,
+		Description:  document.Description,
 	}
 
 	err := s.documentsRepository.Create(documentData)
@@ -72,6 +74,16 @@ func (s *documentsUsecase) Find(id int) (interface{}, error) {
 	}
 
 	return document, nil
+}
+
+func (s *documentsUsecase) FindByApplicantId(id int) (interface{}, error) {
+	documents, err := s.documentsRepository.FindByApplicantId(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return documents, nil
 }
 
 func (s *documentsUsecase) Update(id int, document dto.CreateDocumentsRequest) (models.Documents, error) {
