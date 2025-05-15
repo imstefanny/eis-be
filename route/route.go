@@ -36,11 +36,15 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	documentsRepository := repository.NewDocumentsRepository(db)
 	documentsService := usecase.NewDocumentsUsecase(documentsRepository)
 	documentsController := controllers.NewDocumentsController(documentsService)
-
+	
 	workSchedsRepository := repository.NewWorkSchedsRepository(db)
 	workSchedDetailsRepository := repository.NewWorkSchedDetailsRepository(db)
 	workSchedsService := usecase.NewWorkSchedsUsecase(workSchedsRepository, workSchedDetailsRepository)
 	workSchedsController := controllers.NewWorkSchedsController(workSchedsService)
+
+	subjectsRepository := repository.NewSubjectsRepository(db)
+	subjectsService := usecase.NewSubjectsUsecase(subjectsRepository)
+	subjectsController := controllers.NewSubjectsController(subjectsService)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -96,4 +100,12 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eWorkScheds.POST("", workSchedsController.Create)
 	eWorkScheds.PUT("/:id", workSchedsController.Update)
 	eWorkScheds.DELETE("/:id", workSchedsController.Delete)
+
+	eSubjects := e.Group("/subjects")
+	eSubjects.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eSubjects.GET("", subjectsController.GetAll)
+	eSubjects.GET("/:id", subjectsController.Find)
+	eSubjects.POST("", subjectsController.Create)
+	eSubjects.PUT("/:id", subjectsController.Update)
+	eSubjects.DELETE("/:id", subjectsController.Delete)
 }

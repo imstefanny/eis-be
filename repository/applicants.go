@@ -11,7 +11,7 @@ type ApplicantsRepository interface {
 	Create(applicants models.Applicants) error
 	Find(id int) (models.Applicants, error)
 	FindByCreatedBy(id int) (models.Applicants, error)
-	Update(id int, blog models.Applicants) error
+	Update(id int, applicant models.Applicants) error
 	Delete(id int) error
 }
 
@@ -40,11 +40,11 @@ func (r *applicantsRepository) Create(applicants models.Applicants) error {
 }
 
 func (r *applicantsRepository) Find(id int) (models.Applicants, error) {
-	blog := models.Applicants{}
-	if err := r.db.First(&blog, id).Error; err != nil {
-		return blog, err
+	applicant := models.Applicants{}
+	if err := r.db.First(&applicant, id).Error; err != nil {
+		return applicant, err
 	}
-	return blog, nil
+	return applicant, nil
 }
 
 func (r *applicantsRepository) FindByCreatedBy(id int) (models.Applicants, error) {
@@ -55,8 +55,8 @@ func (r *applicantsRepository) FindByCreatedBy(id int) (models.Applicants, error
 	return applicant, nil
 }
 
-func (r *applicantsRepository) Update(id int, blog models.Applicants) error {
-	query := r.db.Model(&blog).Updates(blog)
+func (r *applicantsRepository) Update(id int, applicant models.Applicants) error {
+	query := r.db.Model(&applicant).Updates(applicant)
 	if err := query.Error; err != nil {
 		return err
 	}
@@ -64,8 +64,8 @@ func (r *applicantsRepository) Update(id int, blog models.Applicants) error {
 }
 
 func (r *applicantsRepository) Delete(id int) error {
-	blog := models.Applicants{}
-	if err := r.db.Delete(&blog, id).Error; err != nil {
+	applicant := models.Applicants{}
+	if err := r.db.Delete(&applicant, id).Error; err != nil {
 		return err
 	}
 	return nil
