@@ -4,6 +4,9 @@ import (
 	"eis-be/dto"
 	"eis-be/models"
 	"eis-be/repository"
+	"eis-be/helpers"
+
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -18,11 +21,13 @@ type WorkSchedsUsecase interface {
 
 type workSchedsUsecase struct {
 	workSchedsRepository repository.WorkSchedsRepository
+	workSchedDetailsRepository repository.WorkSchedDetailsRepository
 }
 
-func NewWorkSchedsUsecase(workSchedsRepo repository.WorkSchedsRepository) *workSchedsUsecase {
+func NewWorkSchedsUsecase(workSchedsRepo repository.WorkSchedsRepository, workSchedDetailsRepo repository.WorkSchedDetailsRepository) *workSchedsUsecase {
 	return &workSchedsUsecase{
 		workSchedsRepository: workSchedsRepo,
+		workSchedDetailsRepository: workSchedDetailsRepo,
 	}
 }
 
@@ -83,25 +88,68 @@ func (s *workSchedsUsecase) Find(id int) (interface{}, error) {
 
 func (s *workSchedsUsecase) Update(id int, workSched dto.CreateWorkSchedsRequest) (models.WorkScheds, error) {
 	workSchedData, err := s.workSchedsRepository.Find(id)
-
 	if err != nil {
 		return models.WorkScheds{}, err
 	}
 
-	workSchedData.Name = workSched.Name
-	details := []models.WorkSchedDetails{}
-	for _, detail := range workSched.Details {
-		details = append(details, models.WorkSchedDetails{
-			ID:        detail.ID,
-			Day:       detail.Day,
-			WorkStart: detail.WorkStart,
-			WorkEnd:   detail.WorkEnd,
-		})
+	existing := workSchedData.Details
+	existingIDs := []int{}
+	for _, eDetail := range existing {
+		existingIDs = append(existingIDs, int(eDetail.ID))
 	}
-	workSchedData.Details = details
+	incomingDetails := workSched.Details
+	incomingIDs := []int{}
+	addIDs := []models.WorkSchedDetails{}
+	for _, iDetail := range incomingDetails {
+		if iDetail.ID != 0 {
+			incomingIDs = append(incomingIDs, int(iDetail.ID))
+		} else {
+			addData := models.WorkSchedDetails{
+				WorkSchedID: workSchedData.ID,
+				Day:       iDetail.Day,
+				WorkStart: iDetail.WorkStart,
+				WorkEnd:   iDetail.WorkEnd,
+			}
+			addIDs = append(addIDs, addData)
+		}
+	}
+	removeIDs := helpers.Difference(existingIDs, incomingIDs)
+	updateIDs := helpers.Intersection(incomingIDs, existingIDs)
+	incomingUpdate := []models.WorkSchedDetails{}
+	for _, iDetail := range incomingDetails {
+		for _, id := range updateIDs {
+			if int(iDetail.ID) == id {
+				incomingUpdate = append(incomingUpdate, models.WorkSchedDetails{
+					ID:        iDetail.ID,
+					Day:       iDetail.Day,
+					WorkStart: iDetail.WorkStart,
+					WorkEnd:   iDetail.WorkEnd,
+				})
+			}
+		}
+	}
+	for _, detail := range existing {
+		for _, saved := range incomingUpdate {
+			if detail.ID == saved.ID {
+				detail.Day = saved.Day
+				detail.WorkStart = saved.WorkStart
+				detail.WorkEnd = saved.WorkEnd
+			}
+		}
+	}
+	fmt.Println("existingIDs", existingIDs)
+	fmt.Println("incomingIDs", incomingIDs)
+	fmt.Println("addIDs", addIDs)
+	fmt.Println("removeIDs", removeIDs)
+	fmt.Println("updateIDs", updateIDs)
+	fmt.Println("incomingUpdate", incomingUpdate)
+	fmt.Println("existing", existing)
 
+	workSchedData.Name = workSched.Name
 	e := s.workSchedsRepository.Update(id, workSchedData)
-
+	e = s.workSchedDetailsRepository.Create(addIDs)
+	e = s.workSchedDetailsRepository.Update(updateIDs, existing)
+	e = s.workSchedDetailsRepository.Delete(removeIDs)
 	if e != nil {
 		return models.WorkScheds{}, e
 	}

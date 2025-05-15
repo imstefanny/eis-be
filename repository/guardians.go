@@ -10,7 +10,7 @@ type GuardiansRepository interface {
 	GetAll() ([]models.Guardians, error)
 	Create(guardians models.Guardians) error
 	Find(id int) (models.Guardians, error)
-	Update(id int, blog models.Guardians) error
+	Update(id int, guardian models.Guardians) error
 	Delete(id int) error
 }
 
@@ -39,15 +39,15 @@ func (r *guardiansRepository) Create(guardians models.Guardians) error {
 }
 
 func (r *guardiansRepository) Find(id int) (models.Guardians, error) {
-	blog := models.Guardians{}
-	if err := r.db.First(&blog, id).Error; err != nil {
-		return blog, err
+	guardian := models.Guardians{}
+	if err := r.db.First(&guardian, id).Error; err != nil {
+		return guardian, err
 	}
-	return blog, nil
+	return guardian, nil
 }
 
-func (r *guardiansRepository) Update(id int, blog models.Guardians) error {
-	query := r.db.Model(&blog).Updates(blog)
+func (r *guardiansRepository) Update(id int, guardian models.Guardians) error {
+	query := r.db.Model(&guardian).Updates(guardian)
 	if err := query.Error; err != nil {
 		return err
 	}
@@ -55,8 +55,8 @@ func (r *guardiansRepository) Update(id int, blog models.Guardians) error {
 }
 
 func (r *guardiansRepository) Delete(id int) error {
-	blog := models.Guardians{}
-	if err := r.db.Delete(&blog, id).Error; err != nil {
+	guardian := models.Guardians{}
+	if err := r.db.Delete(&guardian, id).Error; err != nil {
 		return err
 	}
 	return nil

@@ -38,7 +38,8 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	documentsController := controllers.NewDocumentsController(documentsService)
 
 	workSchedsRepository := repository.NewWorkSchedsRepository(db)
-	workSchedsService := usecase.NewWorkSchedsUsecase(workSchedsRepository)
+	workSchedDetailsRepository := repository.NewWorkSchedDetailsRepository(db)
+	workSchedsService := usecase.NewWorkSchedsUsecase(workSchedsRepository, workSchedDetailsRepository)
 	workSchedsController := controllers.NewWorkSchedsController(workSchedsService)
 
 	e.Pre(middleware.RemoveTrailingSlash())

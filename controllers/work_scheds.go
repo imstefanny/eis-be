@@ -53,7 +53,7 @@ func (u *workSchedsController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": workSched,
+		"message": "Data created successfully",
 	})
 }
 
