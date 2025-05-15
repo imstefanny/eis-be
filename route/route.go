@@ -78,6 +78,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eDocs := e.Group("/documents")
 	eDocs.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eDocs.GET("", documentsController.GetAll)
+	eDocs.GET("/my-information/:id", documentsController.GetDocumentsByApplicantId)
 	eDocs.GET("/:id", documentsController.Find)
 	eDocs.POST("", documentsController.Create)
 	eDocs.PUT("/:id", documentsController.Update)

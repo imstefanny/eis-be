@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"eis-be/usecase"
 	"eis-be/dto"
+	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type DocumentsController interface{
+type DocumentsController interface {
 }
 
 type documentsController struct {
@@ -72,6 +72,21 @@ func (u *documentsController) Find(c echo.Context) error {
 	})
 }
 
+func (u *documentsController) GetDocumentsByApplicantId(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	documents, err := u.useCase.FindByApplicantId(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": documents,
+	})
+}
+
 func (u *documentsController) Update(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	document := dto.CreateDocumentsRequest{}
@@ -91,7 +106,7 @@ func (u *documentsController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": documentUpdated,
+		"data":    documentUpdated,
 		"message": "Data updated successfully",
 	})
 }
