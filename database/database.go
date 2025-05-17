@@ -45,4 +45,5 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.WorkSchedDetails{})
 	DB.AutoMigrate(&models.Subjects{})
 	DB.AutoMigrate(&models.Levels{})
+	DB.AutoMigrate(&models.LevelHistories{})
 }
