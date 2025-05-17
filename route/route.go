@@ -46,6 +46,14 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	subjectsService := usecase.NewSubjectsUsecase(subjectsRepository)
 	subjectsController := controllers.NewSubjectsController(subjectsService)
 
+	levelsRepository := repository.NewLevelsRepository(db)
+	levelsService := usecase.NewLevelsUsecase(levelsRepository)
+	levelsController := controllers.NewLevelsController(levelsService)
+
+	levelHistoriesRepository := repository.NewLevelHistoriesRepository(db)
+	levelHistoriesService := usecase.NewLevelHistoriesUsecase(levelHistoriesRepository)
+	levelHistoriesController := controllers.NewLevelHistoriesController(levelHistoriesService)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -108,4 +116,20 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eSubjects.POST("", subjectsController.Create)
 	eSubjects.PUT("/:id", subjectsController.Update)
 	eSubjects.DELETE("/:id", subjectsController.Delete)
+
+	eLevels := e.Group("/levels")
+	eLevels.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eLevels.GET("", levelsController.GetAll)
+	eLevels.GET("/:id", levelsController.Find)
+	eLevels.POST("", levelsController.Create)
+	eLevels.PUT("/:id", levelsController.Update)
+	eLevels.DELETE("/:id", levelsController.Delete)
+
+	eLevelHistories := e.Group("/levelhistories")
+	eLevelHistories.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eLevelHistories.GET("", levelHistoriesController.GetAll)
+	eLevelHistories.GET("/:id", levelHistoriesController.Find)
+	eLevelHistories.POST("", levelHistoriesController.Create)
+	eLevelHistories.PUT("/:id", levelHistoriesController.Update)
+	eLevelHistories.DELETE("/:id", levelHistoriesController.Delete)
 }
