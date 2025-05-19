@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo/v4"
 )
 
 type ApplicantsUsecase interface {
@@ -162,7 +161,7 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	}
 
 	if applicant.State == "approved" {
-		return echo.NewHTTPError(400, "Registration already approved")
+		return fmt.Errorf("Applicant with ID %d is already approved", id)
 	}
 
 	applicant.State = "approved"
