@@ -67,7 +67,13 @@ func (u *applicantsController) Create(c echo.Context) error {
 		})
 	}
 
-	err := u.useCase.Create(applicant, c)
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+	err := u.useCase.Create(applicant, claims)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -116,6 +122,28 @@ func (u *applicantsController) Update(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data":    applicantUpdated,
 		"message": "Data updated successfully",
+	})
+}
+
+func (u *applicantsController) ApproveRegistration(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	err := u.useCase.ApproveRegistration(id, claims)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Registration approved successfully",
 	})
 }
 
