@@ -116,6 +116,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eSubjects := e.Group("/subjects")
 	eSubjects.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eSubjects.GET("", subjectsController.GetAll)
+	eSubjects.GET("/browse", subjectsController.Browse)
 	eSubjects.GET("/:id", subjectsController.Find)
 	eSubjects.POST("", subjectsController.Create)
 	eSubjects.PUT("/:id", subjectsController.Update)

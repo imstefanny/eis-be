@@ -2,12 +2,14 @@ package repository
 
 import (
 	"eis-be/models"
+	"fmt"
 
 	"gorm.io/gorm"
 )
 
 type SubjectsRepository interface {
 	GetAll() ([]models.Subjects, error)
+	Browse(page, limit int, search, sortColumn, sortOrder string) ([]models.Subjects, int64, error)
 	Create(subjects models.Subjects) error
 	Find(id int) (models.Subjects, error)
 	Update(id int, subject models.Subjects) error
@@ -28,6 +30,35 @@ func (r *subjectsRepository) GetAll() ([]models.Subjects, error) {
 		return nil, err
 	}
 	return subjects, nil
+}
+
+func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrder string) ([]models.Subjects, int64, error) {
+	var subjects []models.Subjects
+	var total int64
+	offset := (page - 1) * limit
+
+	allowedColumns := map[string]bool{
+		"id": true, "name": true, "created_at": true,
+	}
+	if !allowedColumns[sortColumn] {
+		sortColumn = "created_at"
+	}
+
+	orderClause := fmt.Sprintf("%s %s", sortColumn, sortOrder)
+
+	query := r.db.Model(&models.Subjects{})
+	if search != "" {
+		query = query.Where("name LIKE ?", "%"+search+"%")
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	if err := query.Order(orderClause).Limit(limit).Offset(offset).Find(&subjects).Error; err != nil {
+		return nil, 0, err
+	}
+
+	return subjects, total, nil
 }
 
 func (r *subjectsRepository) Create(subjects models.Subjects) error {
