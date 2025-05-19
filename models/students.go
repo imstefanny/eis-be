@@ -11,7 +11,7 @@ type Students struct {
 	ApplicantID       uint           `json:"applicant_id" gorm:"index"`
 	CurrentAcademicID uint           `json:"current_academic_id" gorm:"index"`
 	UserID            uint           `json:"user_id" gorm:"index"`
-	ProfilePicture    string         `json:"profile_picture"`
+	ProfilePic        string         `json:"profile_pic"`
 	FullName          string         `json:"full_name"`
 	IdentityNo        string         `json:"identity_no"`
 	NIS               string         `json:"nis"`

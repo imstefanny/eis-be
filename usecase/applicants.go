@@ -2,31 +2,35 @@ package usecase
 
 import (
 	"eis-be/dto"
-	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
 type ApplicantsUsecase interface {
 	GetAll() (interface{}, error)
-	Create(applicant dto.CreateApplicantsRequest, c echo.Context) error
+	Create(applicant dto.CreateApplicantsRequest, claims jwt.MapClaims) error
 	Find(id int) (interface{}, error)
 	FindByCreatedBy(id int) (interface{}, error)
 	Update(id int, applicant dto.CreateApplicantsRequest) (models.Applicants, error)
+	ApproveRegistration(id int, claims jwt.MapClaims) error
 	Delete(id int) error
 }
 
 type applicantsUsecase struct {
 	applicantsRepository repository.ApplicantsRepository
+	studentsRepository   repository.StudentsRepository
 }
 
-func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository) *applicantsUsecase {
+func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository, studentsRepo repository.StudentsRepository) *applicantsUsecase {
 	return &applicantsUsecase{
 		applicantsRepository: applicantsRepo,
+		studentsRepository:   studentsRepo,
 	}
 }
 
@@ -45,16 +49,11 @@ func (s *applicantsUsecase) GetAll() (interface{}, error) {
 	return applicants, nil
 }
 
-func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest, c echo.Context) error {
+func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest, claims jwt.MapClaims) error {
 	e := validateCreateApplicantsRequest(applicant)
 
 	if e != nil {
 		return e
-	}
-
-	claims, errToken := helpers.GetTokenClaims(c)
-	if errToken != nil {
-		return errToken
 	}
 
 	parsedDate, edate := time.Parse("2006-01-02", applicant.DateOfBirth)
@@ -153,6 +152,54 @@ func (s *applicantsUsecase) Update(id int, applicant dto.CreateApplicantsRequest
 	}
 
 	return applicantUpdated, nil
+}
+
+func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) error {
+	applicant, err := s.applicantsRepository.Find(id)
+
+	if err != nil {
+		return err
+	}
+
+	if applicant.State == "approved" {
+		return echo.NewHTTPError(400, "Registration already approved")
+	}
+
+	applicant.State = "approved"
+	err = s.applicantsRepository.Update(id, applicant)
+
+	if err != nil {
+		return err
+	}
+
+	year := applicant.DateOfBirth.Year()
+	lastThree := year % 1000
+	studentData := models.Students{
+		ApplicantID:      uint(id),
+		UserID:           uint(claims["userId"].(float64)),
+		ProfilePic:       applicant.ProfilePic,
+		FullName:         applicant.FullName,
+		IdentityNo:       applicant.IdentityNo,
+		NIS:              fmt.Sprintf("%05d", id),
+		NISN:             fmt.Sprintf("%03d%07d", lastThree, id),
+		PlaceOfBirth:     applicant.PlaceOfBirth,
+		DateOfBirth:      applicant.DateOfBirth,
+		Address:          applicant.Address,
+		Phone:            applicant.Phone,
+		Religion:         applicant.Religion,
+		ChildSequence:    applicant.ChildSequence,
+		NumberOfSiblings: applicant.NumberOfSiblings,
+		LivingWith:       applicant.LivingWith,
+		ChildStatus:      applicant.ChildStatus,
+	}
+
+	eStudent := s.studentsRepository.Create(studentData)
+
+	if eStudent != nil {
+		return eStudent
+	}
+
+	return nil
 }
 
 func (s *applicantsUsecase) Delete(id int) error {

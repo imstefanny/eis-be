@@ -59,7 +59,7 @@ func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Conte
 		ApplicantID:       student.ApplicantID,
 		CurrentAcademicID: student.CurrentAcademicID,
 		UserID:            student.UserID,
-		ProfilePicture:    student.ProfilePicture,
+		ProfilePic:        student.ProfilePic,
 		FullName:          student.FullName,
 		IdentityNo:        student.IdentityNo,
 		NIS:               student.NIS,
@@ -104,7 +104,7 @@ func (s *studentsUsecase) Update(id int, student dto.CreateStudentsRequest) (mod
 	studentData.ApplicantID = student.ApplicantID
 	studentData.CurrentAcademicID = student.CurrentAcademicID
 	studentData.UserID = student.UserID
-	studentData.ProfilePicture = student.ProfilePicture
+	studentData.ProfilePic = student.ProfilePic
 	studentData.FullName = student.FullName
 	studentData.IdentityNo = student.IdentityNo
 	studentData.NIS = student.NIS
