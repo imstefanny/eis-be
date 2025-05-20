@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type ClassroomsRepository interface {
-	GetAll() ([]models.Classrooms, error)
+	Browse(page, limit int, search string) ([]models.Classrooms, int64, error)
 	Create(classrooms models.Classrooms) error
 	Find(id int) (models.Classrooms, error)
 	Update(id int, classroom models.Classrooms) error
@@ -22,12 +23,18 @@ func NewClassroomsRepository(db *gorm.DB) *classroomsRepository {
 	return &classroomsRepository{db}
 }
 
-func (r *classroomsRepository) GetAll() ([]models.Classrooms, error) {
-	classrooms := []models.Classrooms{}
-	if err := r.db.Find(&classrooms).Error; err != nil {
-		return nil, err
+func (r *classroomsRepository) Browse(page, limit int, search string) ([]models.Classrooms, int64, error) {
+	var classrooms []models.Classrooms
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&classrooms).Error; err != nil {
+		return nil, 0, err
 	}
-	return classrooms, nil
+	if err := r.db.Model(&models.Classrooms{}).Where("LOWER(display_name) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return classrooms, total, nil
 }
 
 func (r *classroomsRepository) Create(classrooms models.Classrooms) error {

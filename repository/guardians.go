@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type GuardiansRepository interface {
-	GetAll() ([]models.Guardians, error)
+	Browse(page, limit int, search string) ([]models.Guardians, int64, error)
 	Create(guardians models.Guardians) error
 	Find(id int) (models.Guardians, error)
 	Update(id int, guardian models.Guardians) error
@@ -23,12 +24,18 @@ func NewGuardiansRepository(db *gorm.DB) *guardiansRepository {
 	return &guardiansRepository{db}
 }
 
-func (r *guardiansRepository) GetAll() ([]models.Guardians, error) {
-	guardians := []models.Guardians{}
-	if err := r.db.Find(&guardians).Error; err != nil {
-		return nil, err
+func (r *guardiansRepository) Browse(page, limit int, search string) ([]models.Guardians, int64, error) {
+	var guardians []models.Guardians
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Find(&guardians).Error; err != nil {
+		return nil, 0, err
 	}
-	return guardians, nil
+	if err := r.db.Model(&models.Guardians{}).Where("LOWER(name) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return guardians, total, nil
 }
 
 func (r *guardiansRepository) Create(guardians models.Guardians) error {

@@ -9,7 +9,7 @@ import (
 )
 
 type DocumentsUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(document dto.CreateDocumentsRequest) error
 	Find(id int) (interface{}, error)
 	FindByApplicantId(id int) (interface{}, error)
@@ -32,14 +32,14 @@ func validateCreateDocumentsRequest(req dto.CreateDocumentsRequest) error {
 	return validate.Struct(req)
 }
 
-func (s *documentsUsecase) GetAll() (interface{}, error) {
-	documents, err := s.documentsRepository.GetAll()
+func (s *documentsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	documents, total, err := s.documentsRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return documents, nil
+	return documents, total, nil
 }
 
 func (s *documentsUsecase) Create(document dto.CreateDocumentsRequest) error {

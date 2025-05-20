@@ -21,8 +21,20 @@ func NewDocTypesController(docTypesUsecase usecase.DocTypesUsecase) *docTypesCon
 	return &docTypesController{docTypesUsecase}
 }
 
-func (u *docTypesController) GetAll(c echo.Context) error {
-	docTypes, err := u.useCase.GetAll()
+func (u *docTypesController) Browse(c echo.Context) error {
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	search := c.QueryParam("search")
+
+	docTypes, total, err := u.useCase.Browse(page, limit, search)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -31,7 +43,10 @@ func (u *docTypesController) GetAll(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": docTypes,
+		"data":  docTypes,
+		"page":  page,
+		"limit": limit,
+		"total": total,
 	})
 }
 

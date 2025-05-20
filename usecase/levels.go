@@ -10,7 +10,7 @@ import (
 )
 
 type LevelsUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(level dto.CreateLevelsRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, level dto.CreateLevelsRequest) (models.Levels, error)
@@ -37,14 +37,14 @@ func validateCreateLevelsRequest(req dto.CreateLevelsRequest) error {
 	return nil
 }
 
-func (s *levelsUsecase) GetAll() (interface{}, error) {
-	levels, err := s.levelsRepository.GetAll()
+func (s *levelsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	levels, total, err := s.levelsRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return levels, nil
+	return levels, total, nil
 }
 
 func (s *levelsUsecase) Create(level dto.CreateLevelsRequest) error {

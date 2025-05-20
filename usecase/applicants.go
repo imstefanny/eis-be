@@ -12,7 +12,7 @@ import (
 )
 
 type ApplicantsUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(applicant dto.CreateApplicantsRequest, claims jwt.MapClaims) error
 	Find(id int) (interface{}, error)
 	FindByCreatedBy(id int) (interface{}, error)
@@ -38,14 +38,14 @@ func validateCreateApplicantsRequest(req dto.CreateApplicantsRequest) error {
 	return validate.Struct(req)
 }
 
-func (s *applicantsUsecase) GetAll() (interface{}, error) {
-	applicants, err := s.applicantsRepository.GetAll()
+func (s *applicantsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	applicants, total, err := s.applicantsRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return applicants, nil
+	return applicants, total, nil
 }
 
 func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest, claims jwt.MapClaims) error {

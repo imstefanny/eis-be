@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type StudentsRepository interface {
-	GetAll() ([]models.Students, error)
+	Browse(page, limit int, search string) ([]models.Students, int64, error)
 	Create(students models.Students) error
 	Find(id int) (models.Students, error)
 	Update(id int, student models.Students) error
@@ -22,12 +23,18 @@ func NewStudentsRepository(db *gorm.DB) *studentsRepository {
 	return &studentsRepository{db}
 }
 
-func (r *studentsRepository) GetAll() ([]models.Students, error) {
-	students := []models.Students{}
-	if err := r.db.Find(&students).Error; err != nil {
-		return nil, err
+func (r *studentsRepository) Browse(page, limit int, search string) ([]models.Students, int64, error) {
+	var students []models.Students
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&students).Error; err != nil {
+		return nil, 0, err
 	}
-	return students, nil
+	if err := r.db.Model(&models.Students{}).Where("LOWER(full_name) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return students, total, nil
 }
 
 func (r *studentsRepository) Create(students models.Students) error {

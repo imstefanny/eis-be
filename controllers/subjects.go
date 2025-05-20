@@ -21,42 +21,6 @@ func NewSubjectsController(subjectsUsecase usecase.SubjectsUsecase) *subjectsCon
 	return &subjectsController{subjectsUsecase}
 }
 
-func (u *subjectsController) GetAll(c echo.Context) error {
-	subjects, err := u.useCase.GetAll()
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": subjects,
-	})
-}
-
-func (u *subjectsController) Create(c echo.Context) error {
-	subject := dto.CreateSubjectsRequest{}
-
-	if err := c.Bind(&subject); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-
-	err := u.useCase.Create(subject)
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Data created successfully",
-	})
-}
-
 func (u *subjectsController) Browse(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam("page"))
 	if err != nil || page < 1 {
@@ -89,6 +53,28 @@ func (u *subjectsController) Browse(c echo.Context) error {
 		"page":  page,
 		"limit": limit,
 		"total": total,
+	})
+}
+
+func (u *subjectsController) Create(c echo.Context) error {
+	subject := dto.CreateSubjectsRequest{}
+
+	if err := c.Bind(&subject); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	err := u.useCase.Create(subject)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data created successfully",
 	})
 }
 

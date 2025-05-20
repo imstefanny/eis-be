@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type WorkSchedsRepository interface {
-	GetAll() ([]models.WorkScheds, error)
+	Browse(page, limit int, search string) ([]models.WorkScheds, int64, error)
 	Create(workScheds models.WorkScheds) error
 	Find(id int) (models.WorkScheds, error)
 	Update(id int, workSched models.WorkScheds) error
@@ -22,12 +23,18 @@ func NewWorkSchedsRepository(db *gorm.DB) *workSchedsRepository {
 	return &workSchedsRepository{db}
 }
 
-func (r *workSchedsRepository) GetAll() ([]models.WorkScheds, error) {
-	workScheds := []models.WorkScheds{}
-	if err := r.db.Preload("Details").Find(&workScheds).Error; err != nil {
-		return nil, err
+func (r *workSchedsRepository) Browse(page, limit int, search string) ([]models.WorkScheds, int64, error) {
+	var workScheds []models.WorkScheds
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Find(&workScheds).Error; err != nil {
+		return nil, 0, err
 	}
-	return workScheds, nil
+	if err := r.db.Model(&models.WorkScheds{}).Where("LOWER(name) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return workScheds, total, nil
 }
 
 func (r *workSchedsRepository) Create(workScheds models.WorkScheds) error {

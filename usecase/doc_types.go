@@ -10,7 +10,7 @@ import (
 )
 
 type DocTypesUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(docType dto.CreateDocTypesRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, docType dto.CreateDocTypesRequest) (models.DocTypes, error)
@@ -37,14 +37,14 @@ func validateCreateDocTypesRequest(req dto.CreateDocTypesRequest) error {
 	return nil
 }
 
-func (s *docTypesUsecase) GetAll() (interface{}, error) {
-	docTypes, err := s.docTypesRepository.GetAll()
+func (s *docTypesUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	docTypes, total, err := s.docTypesRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return docTypes, nil
+	return docTypes, total, nil
 }
 
 func (s *docTypesUsecase) Create(docType dto.CreateDocTypesRequest) error {

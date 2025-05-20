@@ -11,7 +11,7 @@ import (
 )
 
 type StudentsUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(student dto.CreateStudentsRequest, c echo.Context) error
 	Find(id int) (interface{}, error)
 	Update(id int, student dto.CreateStudentsRequest) (models.Students, error)
@@ -33,14 +33,14 @@ func validateCreateStudentsRequest(req dto.CreateStudentsRequest) error {
 	return validate.Struct(req)
 }
 
-func (s *studentsUsecase) GetAll() (interface{}, error) {
-	students, err := s.studentsRepository.GetAll()
+func (s *studentsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	students, total, err := s.studentsRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return students, nil
+	return students, total, nil
 }
 
 func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Context) error {

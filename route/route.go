@@ -76,7 +76,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eApplicants := e.Group("/applicants")
 	eApplicants.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eApplicants.GET("", applicantsController.GetAll)
+	eApplicants.GET("", applicantsController.Browse)
 	eApplicants.GET("/my-information", applicantsController.GetApplicantInformationByToken)
 	eApplicants.GET("/:id", applicantsController.Find)
 	eApplicants.POST("", applicantsController.Create)
@@ -86,7 +86,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eGuardians := e.Group("/guardians")
 	eGuardians.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eGuardians.GET("", guardiansController.GetAll)
+	eGuardians.GET("", guardiansController.Browse)
 	eGuardians.GET("/my-information/:id", guardiansController.GetGuardianInformationByApplicantId)
 	eGuardians.GET("/:id", guardiansController.Find)
 	eGuardians.POST("", guardiansController.Create)
@@ -95,7 +95,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eDocTypes := e.Group("/doctypes")
 	eDocTypes.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eDocTypes.GET("", docTypesController.GetAll)
+	eDocTypes.GET("", docTypesController.Browse)
 	eDocTypes.GET("/:id", docTypesController.Find)
 	eDocTypes.POST("", docTypesController.Create)
 	eDocTypes.PUT("/:id", docTypesController.Update)
@@ -103,7 +103,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eDocs := e.Group("/documents")
 	eDocs.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eDocs.GET("", documentsController.GetAll)
+	eDocs.GET("", documentsController.Browse)
 	eDocs.GET("/my-information/:id", documentsController.GetDocumentsByApplicantId)
 	eDocs.GET("/:id", documentsController.Find)
 	eDocs.POST("", documentsController.Create)
@@ -112,7 +112,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eWorkScheds := e.Group("/workscheds")
 	eWorkScheds.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eWorkScheds.GET("", workSchedsController.GetAll)
+	eWorkScheds.GET("", workSchedsController.Browse)
 	eWorkScheds.GET("/:id", workSchedsController.Find)
 	eWorkScheds.POST("", workSchedsController.Create)
 	eWorkScheds.PUT("/:id", workSchedsController.Update)
@@ -120,8 +120,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eSubjects := e.Group("/subjects")
 	eSubjects.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eSubjects.GET("", subjectsController.GetAll)
-	eSubjects.GET("/browse", subjectsController.Browse)
+	eSubjects.GET("", subjectsController.Browse)
 	eSubjects.GET("/:id", subjectsController.Find)
 	eSubjects.POST("", subjectsController.Create)
 	eSubjects.PUT("/:id", subjectsController.Update)
@@ -129,7 +128,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eLevels := e.Group("/levels")
 	eLevels.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eLevels.GET("", levelsController.GetAll)
+	eLevels.GET("", levelsController.Browse)
 	eLevels.GET("/:id", levelsController.Find)
 	eLevels.POST("", levelsController.Create)
 	eLevels.PUT("/:id", levelsController.Update)
@@ -137,7 +136,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eLevelHistories := e.Group("/levelhistories")
 	eLevelHistories.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eLevelHistories.GET("", levelHistoriesController.GetAll)
+	eLevelHistories.GET("", levelHistoriesController.Browse)
 	eLevelHistories.GET("/:id", levelHistoriesController.Find)
 	eLevelHistories.POST("", levelHistoriesController.Create)
 	eLevelHistories.PUT("/:id", levelHistoriesController.Update)
@@ -145,7 +144,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eClassrooms := e.Group("/classrooms")
 	eClassrooms.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eClassrooms.GET("", classroomsController.GetAll)
+	eClassrooms.GET("", classroomsController.Browse)
 	eClassrooms.GET("/:id", classroomsController.Find)
 	eClassrooms.POST("", classroomsController.Create)
 	eClassrooms.PUT("/:id", classroomsController.Update)
@@ -153,7 +152,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eStudents := e.Group("/students")
 	eStudents.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eStudents.GET("", studentsController.GetAll)
+	eStudents.GET("", studentsController.Browse)
 	eStudents.GET("/:id", studentsController.Find)
 	eStudents.POST("", studentsController.Create)
 	eStudents.PUT("/:id", studentsController.Update)

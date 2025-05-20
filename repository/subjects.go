@@ -8,7 +8,6 @@ import (
 )
 
 type SubjectsRepository interface {
-	GetAll() ([]models.Subjects, error)
 	Browse(page, limit int, search, sortColumn, sortOrder string) ([]models.Subjects, int64, error)
 	Create(subjects models.Subjects) error
 	Find(id int) (models.Subjects, error)
@@ -22,14 +21,6 @@ type subjectsRepository struct {
 
 func NewSubjectsRepository(db *gorm.DB) *subjectsRepository {
 	return &subjectsRepository{db}
-}
-
-func (r *subjectsRepository) GetAll() ([]models.Subjects, error) {
-	subjects := []models.Subjects{}
-	if err := r.db.Find(&subjects).Error; err != nil {
-		return nil, err
-	}
-	return subjects, nil
 }
 
 func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrder string) ([]models.Subjects, int64, error) {

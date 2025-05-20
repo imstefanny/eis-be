@@ -10,7 +10,7 @@ import (
 )
 
 type GuardiansUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(guardian dto.CreateGuardiansRequest) error
 	Find(id int) (interface{}, error)
 	FindByApplicantId(id int) (interface{}, error)
@@ -33,14 +33,14 @@ func validateCreateGuardiansRequest(req dto.CreateGuardiansRequest) error {
 	return validate.Struct(req)
 }
 
-func (s *guardiansUsecase) GetAll() (interface{}, error) {
-	guardians, err := s.guardiansRepository.GetAll()
+func (s *guardiansUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	guardians, total, err := s.guardiansRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return guardians, nil
+	return guardians, total, nil
 }
 
 func (s *guardiansUsecase) Create(guardian dto.CreateGuardiansRequest) error {

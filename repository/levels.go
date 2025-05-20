@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type LevelsRepository interface {
-	GetAll() ([]models.Levels, error)
+	Browse(page, limit int, search string) ([]models.Levels, int64, error)
 	Create(levels models.Levels) error
 	Find(id int) (models.Levels, error)
 	Update(id int, level models.Levels) error
@@ -22,12 +23,18 @@ func NewLevelsRepository(db *gorm.DB) *levelsRepository {
 	return &levelsRepository{db}
 }
 
-func (r *levelsRepository) GetAll() ([]models.Levels, error) {
-	levels := []models.Levels{}
-	if err := r.db.Find(&levels).Error; err != nil {
-		return nil, err
+func (r *levelsRepository) Browse(page, limit int, search string) ([]models.Levels, int64, error) {
+	var levels []models.Levels
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Find(&levels).Error; err != nil {
+		return nil, 0, err
 	}
-	return levels, nil
+	if err := r.db.Model(&models.Levels{}).Where("LOWER(name) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return levels, total, nil
 }
 
 func (r *levelsRepository) Create(levels models.Levels) error {

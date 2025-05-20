@@ -10,7 +10,7 @@ import (
 )
 
 type ClassroomsUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(classroom dto.CreateClassroomsRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, classroom dto.CreateClassroomsRequest) (models.Classrooms, error)
@@ -37,14 +37,14 @@ func validateCreateClassroomsRequest(req dto.CreateClassroomsRequest) error {
 	return nil
 }
 
-func (s *classroomsUsecase) GetAll() (interface{}, error) {
-	classrooms, err := s.classroomsRepository.GetAll()
+func (s *classroomsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	classrooms, total, err := s.classroomsRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return classrooms, nil
+	return classrooms, total, nil
 }
 
 func (s *classroomsUsecase) Create(classroom dto.CreateClassroomsRequest) error {
