@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type ApplicantsRepository interface {
-	GetAll() ([]models.Applicants, error)
+	Browse(page, limit int, search string) ([]models.Applicants, int64, error)
 	Create(applicants models.Applicants) error
 	Find(id int) (models.Applicants, error)
 	FindByCreatedBy(id int) (models.Applicants, error)
@@ -23,20 +24,26 @@ func NewApplicantsRepository(db *gorm.DB) *applicantsRepository {
 	return &applicantsRepository{db}
 }
 
-func (r *applicantsRepository) GetAll() ([]models.Applicants, error) {
-	applicants := []models.Applicants{}
-	if err := r.db.Find(&applicants).Error; err != nil {
-		return nil, err
-	}
-	return applicants, nil
-}
-
 func (r *applicantsRepository) Create(applicants models.Applicants) error {
 	err := r.db.Create(&applicants)
 	if err.Error != nil {
 		return err.Error
 	}
 	return nil
+}
+
+func (r *applicantsRepository) Browse(page, limit int, search string) ([]models.Applicants, int64, error) {
+	var applicants []models.Applicants
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&applicants).Error; err != nil {
+		return nil, 0, err
+	}
+	if err := r.db.Model(&models.Applicants{}).Where("LOWER(full_name) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return applicants, total, nil
 }
 
 func (r *applicantsRepository) Find(id int) (models.Applicants, error) {

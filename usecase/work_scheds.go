@@ -10,7 +10,7 @@ import (
 )
 
 type WorkSchedsUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(workSched dto.CreateWorkSchedsRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, workSched dto.CreateWorkSchedsRequest) (models.WorkScheds, error)
@@ -34,14 +34,14 @@ func validateCreateWorkSchedsRequest(req dto.CreateWorkSchedsRequest) error {
 	return validate.Struct(req)
 }
 
-func (s *workSchedsUsecase) GetAll() (interface{}, error) {
-	workScheds, err := s.workSchedsRepository.GetAll()
+func (s *workSchedsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	workScheds, total, err := s.workSchedsRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return workScheds, nil
+	return workScheds, total, nil
 }
 
 func (s *workSchedsUsecase) Create(workSched dto.CreateWorkSchedsRequest) error {

@@ -21,8 +21,20 @@ func NewWorkSchedsController(workSchedsUsecase usecase.WorkSchedsUsecase) *workS
 	return &workSchedsController{workSchedsUsecase}
 }
 
-func (u *workSchedsController) GetAll(c echo.Context) error {
-	workScheds, err := u.useCase.GetAll()
+func (u *workSchedsController) Browse(c echo.Context) error {
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	search := c.QueryParam("search")
+
+	workScheds, total, err := u.useCase.Browse(page, limit, search)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -31,7 +43,10 @@ func (u *workSchedsController) GetAll(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": workScheds,
+		"data":  workScheds,
+		"page":  page,
+		"limit": limit,
+		"total": total,
 	})
 }
 

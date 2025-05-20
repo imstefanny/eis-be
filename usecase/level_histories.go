@@ -10,7 +10,7 @@ import (
 )
 
 type LevelHistoriesUsecase interface {
-	GetAll() (interface{}, error)
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(levelHistory dto.CreateLevelHistoriesRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, levelHistory dto.CreateLevelHistoriesRequest) (models.LevelHistories, error)
@@ -37,14 +37,14 @@ func validateCreateLevelHistoriesRequest(req dto.CreateLevelHistoriesRequest) er
 	return nil
 }
 
-func (s *levelHistoriesUsecase) GetAll() (interface{}, error) {
-	levelHistories, err := s.levelHistoriesRepository.GetAll()
+func (s *levelHistoriesUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	levelHistories, total, err := s.levelHistoriesRepository.Browse(page, limit, search)
 
 	if err != nil {
-		return nil, err
+		return nil, total, err
 	}
 
-	return levelHistories, nil
+	return levelHistories, total, nil
 }
 
 func (s *levelHistoriesUsecase) Create(levelHistory dto.CreateLevelHistoriesRequest) error {

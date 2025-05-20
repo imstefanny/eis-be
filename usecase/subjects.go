@@ -10,7 +10,6 @@ import (
 )
 
 type SubjectsUsecase interface {
-	GetAll() (interface{}, error)
 	Browse(page, limit int, search, sortColumn, sortOrder string) (interface{}, int64, error)
 	Create(subject dto.CreateSubjectsRequest) error
 	Find(id int) (interface{}, error)
@@ -38,16 +37,6 @@ func validateCreateSubjectsRequest(req dto.CreateSubjectsRequest) error {
 	return nil
 }
 
-func (s *subjectsUsecase) GetAll() (interface{}, error) {
-	subjects, err := s.subjectsRepository.GetAll()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return subjects, nil
-}
-
 func (s *subjectsUsecase) Browse(page, limit int, search, sortColumn, sortOrder string) (interface{}, int64, error) {
 	blogs, total, err := s.subjectsRepository.Browse(page, limit, search, sortColumn, sortOrder)
 
@@ -67,7 +56,6 @@ func (s *subjectsUsecase) Create(subject dto.CreateSubjectsRequest) error {
 
 	subjectData := models.Subjects{
 		Name: subject.Name,
-		Code: subject.Code,
 	}
 
 	err := s.subjectsRepository.Create(subjectData)
@@ -97,7 +85,6 @@ func (s *subjectsUsecase) Update(id int, subject dto.CreateSubjectsRequest) (mod
 	}
 
 	subjectData.Name = subject.Name
-	subjectData.Code = subject.Code
 
 	e := s.subjectsRepository.Update(id, subjectData)
 

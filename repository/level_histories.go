@@ -2,12 +2,13 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type LevelHistoriesRepository interface {
-	GetAll() ([]models.LevelHistories, error)
+	Browse(page, limit int, search string) ([]models.LevelHistories, int64, error)
 	Create(levelHistories models.LevelHistories) error
 	Find(id int) (models.LevelHistories, error)
 	Update(id int, levelHistory models.LevelHistories) error
@@ -22,12 +23,18 @@ func NewLevelHistoriesRepository(db *gorm.DB) *levelHistoriesRepository {
 	return &levelHistoriesRepository{db}
 }
 
-func (r *levelHistoriesRepository) GetAll() ([]models.LevelHistories, error) {
-	levelHistories := []models.LevelHistories{}
-	if err := r.db.Find(&levelHistories).Error; err != nil {
-		return nil, err
+func (r *levelHistoriesRepository) Browse(page, limit int, search string) ([]models.LevelHistories, int64, error) {
+	var levelHistories []models.LevelHistories
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	if err := r.db.Where("LOWER(op_cert_num) LIKE ?", search).Limit(limit).Offset(offset).Find(&levelHistories).Error; err != nil {
+		return nil, 0, err
 	}
-	return levelHistories, nil
+	if err := r.db.Model(&models.LevelHistories{}).Where("LOWER(op_cert_num) LIKE ?", search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return levelHistories, total, nil
 }
 
 func (r *levelHistoriesRepository) Create(levelHistories models.LevelHistories) error {
