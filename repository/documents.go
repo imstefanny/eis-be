@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"eis-be/dto"
 	"eis-be/models"
 	"strings"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type DocumentsRepository interface {
-	Browse(page, limit int, search string) ([]models.Documents, int64, error)
+	Browse(page, limit int, search string) ([]dto.DocumentsResponse, int64, error)
 	Create(documents models.Documents) error
 	Find(id int) (models.Documents, error)
 	FindByApplicantId(id int) ([]models.Documents, error)
@@ -24,15 +25,21 @@ func NewDocumentsRepository(db *gorm.DB) *documentsRepository {
 	return &documentsRepository{db}
 }
 
-func (r *documentsRepository) Browse(page, limit int, search string) ([]models.Documents, int64, error) {
-	var documents []models.Documents
+func (r *documentsRepository) Browse(page, limit int, search string) ([]dto.DocumentsResponse, int64, error) {
+	var documents []dto.DocumentsResponse
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(type_id) LIKE ?", search).Limit(limit).Offset(offset).Find(&documents).Error; err != nil {
+	if err := r.db.
+		Joins("JOIN doc_types dt ON dt.id = documents.type_id").
+		Select("documents.*, dt.name AS type_name").
+		Where("LOWER(type_id) LIKE ?", search).
+		Limit(limit).Offset(offset).
+		Find(&documents).Error; err != nil {
 		return nil, 0, err
 	}
-	if err := r.db.Model(&models.Documents{}).Where("LOWER(type_id) LIKE ?", search).Count(&total).Error; err != nil {
+
+	if err := r.db.Model(&dto.DocumentsResponse{}).Where("LOWER(type_id) LIKE ?", search).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	return documents, total, nil
