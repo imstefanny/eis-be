@@ -8,6 +8,8 @@ import (
 	"eis-be/repository"
 	"errors"
 	"reflect"
+
+	"gorm.io/gorm"
 )
 
 type UsersUsecase interface {
@@ -17,10 +19,11 @@ type UsersUsecase interface {
 
 type usersUsecase struct {
 	usersRepository repository.UsersRepository
+	db *gorm.DB
 }
 
-func NewUsersUsecase(usersRepo repository.UsersRepository) *usersUsecase {
-	return &usersUsecase{usersRepository: usersRepo}
+func NewUsersUsecase(usersRepo repository.UsersRepository, db *gorm.DB) *usersUsecase {
+	return &usersUsecase{usersRepository: usersRepo, db: db}
 }
 
 func validateRegisterUsersRequest(req dto.RegisterUsersRequest) error {
@@ -57,7 +60,7 @@ func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 		RoleID:   data.RoleID,
 	}
 
-	err := s.usersRepository.Create(userData)
+	_, err := s.usersRepository.Create(s.db, userData)
 
 	if err != nil {
 		return err
