@@ -16,6 +16,6 @@ type Blogs struct {
 	DeletedAt     gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	CreatedBy     uint           `json:"created_by"`
 	CreatedByName Users          `json:"created_by_name" gorm:"foreignKey:CreatedBy"`
-	UpdatedBy     uint           `json:"updated_by"`
+	UpdatedBy     uint           `json:"updated_by" gorm:"default:null"`
 	UpdatedByName Users          `json:"updated_by_name" gorm:"foreignKey:UpdatedBy"`
 }
