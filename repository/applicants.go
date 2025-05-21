@@ -11,7 +11,7 @@ type ApplicantsRepository interface {
 	Browse(page, limit int, search string) ([]models.Applicants, int64, error)
 	Create(applicants models.Applicants) error
 	Find(id int) (models.Applicants, error)
-	FindByCreatedBy(id int) (models.Applicants, error)
+	GetByToken(id int) (models.Applicants, error)
 	Update(id int, applicant models.Applicants) error
 	Delete(id int) error
 }
@@ -37,7 +37,7 @@ func (r *applicantsRepository) Browse(page, limit int, search string) ([]models.
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&applicants).Error; err != nil {
+	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Level").Preload("CreatedByName").Preload("UpdatedByName").Find(&applicants).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Applicants{}).Where("LOWER(full_name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -48,15 +48,15 @@ func (r *applicantsRepository) Browse(page, limit int, search string) ([]models.
 
 func (r *applicantsRepository) Find(id int) (models.Applicants, error) {
 	applicant := models.Applicants{}
-	if err := r.db.First(&applicant, id).Error; err != nil {
+	if err := r.db.Preload("Level").Preload("CreatedByName").Preload("UpdatedByName").First(&applicant, id).Error; err != nil {
 		return applicant, err
 	}
 	return applicant, nil
 }
 
-func (r *applicantsRepository) FindByCreatedBy(id int) (models.Applicants, error) {
+func (r *applicantsRepository) GetByToken(id int) (models.Applicants, error) {
 	applicant := models.Applicants{}
-	if err := r.db.Where("created_by = ?", id).First(&applicant).Error; err != nil {
+	if err := r.db.Where("created_by = ?", id).Preload("Level").Preload("CreatedByName").Preload("UpdatedByName").First(&applicant).Error; err != nil {
 		return applicant, err
 	}
 	return applicant, nil

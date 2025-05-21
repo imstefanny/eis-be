@@ -22,6 +22,7 @@ type Applicants struct {
 	ChildStatus       string         `json:"child_status"`
 	SchoolOrigin      string         `json:"school_origin"`
 	LevelID           uint           `json:"level_id"`
+	Level             Levels         `json:"level" gorm:"foreignKey:LevelID"`
 	RegistrationGrade string         `json:"registration_grade"`
 	RegistrationMajor string         `json:"registration_major"`
 	State             string         `json:"state"`
@@ -29,5 +30,7 @@ type Applicants struct {
 	UpdatedAt         time.Time      `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	CreatedBy         uint           `json:"created_by"`
+	CreatedByName     Users          `json:"created_by_name" gorm:"foreignKey:CreatedBy"`
 	UpdatedBy         uint           `json:"updated_by"`
+	UpdatedByName     Users          `json:"updated_by_name" gorm:"foreignKey:UpdatedBy"`
 }

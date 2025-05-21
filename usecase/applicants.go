@@ -15,8 +15,8 @@ type ApplicantsUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(applicant dto.CreateApplicantsRequest, claims jwt.MapClaims) error
 	Find(id int) (interface{}, error)
-	FindByCreatedBy(id int) (interface{}, error)
-	Update(id int, applicant dto.CreateApplicantsRequest) (models.Applicants, error)
+	GetByToken(id int) (interface{}, error)
+	Update(id int, claims jwt.MapClaims, applicant dto.CreateApplicantsRequest) (models.Applicants, error)
 	ApproveRegistration(id int, claims jwt.MapClaims) error
 	Delete(id int) error
 }
@@ -99,8 +99,8 @@ func (s *applicantsUsecase) Find(id int) (interface{}, error) {
 	return applicant, nil
 }
 
-func (s *applicantsUsecase) FindByCreatedBy(id int) (interface{}, error) {
-	applicant, err := s.applicantsRepository.FindByCreatedBy(id)
+func (s *applicantsUsecase) GetByToken(id int) (interface{}, error) {
+	applicant, err := s.applicantsRepository.GetByToken(id)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (s *applicantsUsecase) FindByCreatedBy(id int) (interface{}, error) {
 	return applicant, nil
 }
 
-func (s *applicantsUsecase) Update(id int, applicant dto.CreateApplicantsRequest) (models.Applicants, error) {
+func (s *applicantsUsecase) Update(id int, claims jwt.MapClaims, applicant dto.CreateApplicantsRequest) (models.Applicants, error) {
 	applicantData, err := s.applicantsRepository.Find(id)
 
 	if err != nil {
@@ -137,6 +137,7 @@ func (s *applicantsUsecase) Update(id int, applicant dto.CreateApplicantsRequest
 	applicantData.RegistrationGrade = applicant.RegistrationGrade
 	applicantData.RegistrationMajor = applicant.RegistrationMajor
 	applicantData.State = applicant.State
+	applicantData.UpdatedBy = uint(claims["userId"].(float64))
 
 	e := s.applicantsRepository.Update(id, applicantData)
 
