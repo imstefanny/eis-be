@@ -28,7 +28,7 @@ func (r *classroomsRepository) Browse(page, limit int, search string) ([]models.
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&classrooms).Error; err != nil {
+	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Level").Find(&classrooms).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Classrooms{}).Where("LOWER(display_name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -47,7 +47,7 @@ func (r *classroomsRepository) Create(classrooms models.Classrooms) error {
 
 func (r *classroomsRepository) Find(id int) (models.Classrooms, error) {
 	classroom := models.Classrooms{}
-	if err := r.db.First(&classroom, id).Error; err != nil {
+	if err := r.db.Preload("Level").First(&classroom, id).Error; err != nil {
 		return classroom, err
 	}
 	return classroom, nil
