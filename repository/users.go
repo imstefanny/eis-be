@@ -7,7 +7,8 @@ import (
 )
 
 type UsersRepository interface {
-	Create(user models.Users) error
+	Create(tx *gorm.DB, user models.Users) (uint, error)
+	// Create(user models.Users) (uint, error)
 	Login(data models.Users) (models.Users, error)
 }
 
@@ -19,12 +20,12 @@ func NewUsersRepository(db *gorm.DB) *usersRepository {
 	return &usersRepository{db}
 }
 
-func (r *usersRepository) Create(user models.Users) error {
-	err := r.db.Create(&user)
+func (r *usersRepository) Create(tx *gorm.DB, user models.Users) (uint, error) {
+	err := tx.Create(&user)
 	if err.Error != nil {
-		return err.Error
+		return 0, err.Error
 	}
-	return nil
+	return user.ID, nil
 }
 
 func (r *usersRepository) Login(data models.Users) (models.Users, error) {

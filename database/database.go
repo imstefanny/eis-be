@@ -48,4 +48,5 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.Levels{})
 	DB.AutoMigrate(&models.LevelHistories{})
 	DB.AutoMigrate(&models.Classrooms{})
+	DB.AutoMigrate(&models.Teachers{})
 }

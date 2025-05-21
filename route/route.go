@@ -14,7 +14,7 @@ import (
 
 func Route(e *echo.Echo, db *gorm.DB) {
 	usersRepository := repository.NewUsersRepository(db)
-	usersService := usecase.NewUsersUsecase(usersRepository)
+	usersService := usecase.NewUsersUsecase(usersRepository, db)
 	usersController := controllers.NewUsersController(usersService)
 
 	blogsRepository := repository.NewBlogsRepository(db)
@@ -24,6 +24,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	studentsRepository := repository.NewStudentsRepository(db)
 	studentsService := usecase.NewStudentsUsecase(studentsRepository)
 	studentsController := controllers.NewStudentsController(studentsService)
+
+	teachersRepository := repository.NewTeachersRepository(db)
+	teachersService := usecase.NewTeachersUsecase(teachersRepository, usersRepository, db)
+	teachersController := controllers.NewTeachersController(teachersService)
 
 	applicantsRepository := repository.NewApplicantsRepository(db)
 	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository, studentsRepository)
@@ -157,4 +161,13 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eStudents.POST("", studentsController.Create)
 	eStudents.PUT("/:id", studentsController.Update)
 	eStudents.DELETE("/:id", studentsController.Delete)
+
+	eTeachers := e.Group("/teachers")
+	eTeachers.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eTeachers.GET("", teachersController.Browse)
+	eTeachers.GET("/my", teachersController.GetByToken)
+	eTeachers.GET("/:id", teachersController.Find)
+	eTeachers.POST("", teachersController.Create)
+	eTeachers.PUT("/:id", teachersController.Update)
+	eTeachers.DELETE("/:id", teachersController.Delete)
 }
