@@ -13,13 +13,14 @@ import (
 )
 
 type UsersUsecase interface {
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Register(data dto.RegisterUsersRequest) error
 	Login(data dto.LoginUsersRequest) (interface{}, error)
 }
 
 type usersUsecase struct {
 	usersRepository repository.UsersRepository
-	db *gorm.DB
+	db              *gorm.DB
 }
 
 func NewUsersUsecase(usersRepo repository.UsersRepository, db *gorm.DB) *usersUsecase {
@@ -102,4 +103,14 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 	}
 
 	return userResponse, nil
+}
+
+func (s *usersUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	teachers, total, err := s.usersRepository.Browse(page, limit, search)
+
+	if err != nil {
+		return nil, total, err
+	}
+
+	return teachers, total, nil
 }

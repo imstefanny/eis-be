@@ -71,6 +71,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	e.POST("/register", usersController.Register)
 	e.POST("/login", usersController.Login)
 
+	eUser := e.Group("/users")
+	eUser.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eUser.GET("", usersController.Browse)
+
 	eBlogs := e.Group("/blogs")
 	eBlogs.GET("", blogsController.Browse)
 	eBlogs.GET("/:id", blogsController.Find)
