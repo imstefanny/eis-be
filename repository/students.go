@@ -10,6 +10,7 @@ import (
 type StudentsRepository interface {
 	Browse(page, limit int, search string) ([]models.Students, int64, error)
 	Create(students models.Students) error
+	GetByIds(ids []int) ([]models.Students, error)
 	Find(id int) (models.Students, error)
 	Update(id int, student models.Students) error
 	Delete(id int) error
@@ -51,6 +52,14 @@ func (r *studentsRepository) Find(id int) (models.Students, error) {
 		return student, err
 	}
 	return student, nil
+}
+
+func (r *studentsRepository) GetByIds(ids []int) ([]models.Students, error) {
+	students := []models.Students{}
+	if err := r.db.Where("id IN ?", ids).Find(&students).Error; err != nil {
+		return students, err
+	}
+	return students, nil
 }
 
 func (r *studentsRepository) Update(id int, student models.Students) error {
