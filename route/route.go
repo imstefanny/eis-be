@@ -66,6 +66,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classroomsService := usecase.NewClassroomsUsecase(classroomsRepository)
 	classroomsController := controllers.NewClassroomsController(classroomsService)
 
+	academicsRepository := repository.NewAcademicsRepository(db)
+	academicsService := usecase.NewAcademicsUsecase(academicsRepository, studentsRepository)
+	academicsController := controllers.NewAcademicsController(academicsService)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -161,6 +165,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eStudents := e.Group("/students")
 	eStudents.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eStudents.GET("", studentsController.Browse)
+	// eStudents.GET("/my", studentsController.GetByToken)
 	eStudents.GET("/:id", studentsController.Find)
 	eStudents.POST("", studentsController.Create)
 	eStudents.PUT("/:id", studentsController.Update)
@@ -174,4 +179,12 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eTeachers.POST("", teachersController.Create)
 	eTeachers.PUT("/:id", teachersController.Update)
 	eTeachers.DELETE("/:id", teachersController.Delete)
+
+	eAcademics := e.Group("/academics")
+	eAcademics.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eAcademics.GET("", academicsController.Browse)
+	eAcademics.GET("/:id", academicsController.Find)
+	eAcademics.POST("", academicsController.Create)
+	eAcademics.PUT("/:id", academicsController.Update)
+	eAcademics.DELETE("/:id", academicsController.Delete)
 }
