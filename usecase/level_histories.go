@@ -48,22 +48,25 @@ func (s *levelHistoriesUsecase) Browse(page, limit int, search string) (interfac
 }
 
 func (s *levelHistoriesUsecase) Create(levelHistory dto.CreateLevelHistoriesRequest) error {
-	e := validateCreateLevelHistoriesRequest(levelHistory)
-
-	if e != nil {
-		return e
+	var principleID *uint
+	if levelHistory.PrincipleID != 0 {
+		principleID = &levelHistory.PrincipleID
+	}
+	var operatorID *uint
+	if levelHistory.OperatorID != 0 {
+		operatorID = &levelHistory.OperatorID
 	}
 
 	levelHistorieData := models.LevelHistories{
-		LevelID: levelHistory.LevelID,
-		OpCertNum: levelHistory.OpCertNum,
+		LevelID:       levelHistory.LevelID,
+		OpCertNum:     levelHistory.OpCertNum,
 		Accreditation: levelHistory.Accreditation,
-		Curriculum: levelHistory.Curriculum,
-		Email: levelHistory.Email,
-		Phone: levelHistory.Phone,
-		PrincipleID: levelHistory.PrincipleID,
-		OperatorID: levelHistory.OperatorID,
-		State: levelHistory.State,
+		Curriculum:    levelHistory.Curriculum,
+		Email:         levelHistory.Email,
+		Phone:         levelHistory.Phone,
+		PrincipleID:   principleID,
+		OperatorID:    operatorID,
+		State:         levelHistory.State,
 	}
 
 	err := s.levelHistoriesRepository.Create(levelHistorieData)
@@ -91,6 +94,14 @@ func (s *levelHistoriesUsecase) Update(id int, levelHistory dto.CreateLevelHisto
 	if err != nil {
 		return models.LevelHistories{}, err
 	}
+	var principleID *uint
+	if levelHistory.PrincipleID != 0 {
+		principleID = &levelHistory.PrincipleID
+	}
+	var operatorID *uint
+	if levelHistory.OperatorID != 0 {
+		operatorID = &levelHistory.OperatorID
+	}
 
 	levelHistorieData.LevelID = levelHistory.LevelID
 	levelHistorieData.OpCertNum = levelHistory.OpCertNum
@@ -98,8 +109,8 @@ func (s *levelHistoriesUsecase) Update(id int, levelHistory dto.CreateLevelHisto
 	levelHistorieData.Curriculum = levelHistory.Curriculum
 	levelHistorieData.Email = levelHistory.Email
 	levelHistorieData.Phone = levelHistory.Phone
-	levelHistorieData.PrincipleID = levelHistory.PrincipleID
-	levelHistorieData.OperatorID = levelHistory.OperatorID
+	levelHistorieData.PrincipleID = principleID
+	levelHistorieData.OperatorID = operatorID
 	levelHistorieData.State = levelHistory.State
 	e := s.levelHistoriesRepository.Update(id, levelHistorieData)
 
