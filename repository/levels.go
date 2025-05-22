@@ -28,7 +28,13 @@ func (r *levelsRepository) Browse(page, limit int, search string) ([]models.Leve
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Find(&levels).Error; err != nil {
+	if err := r.db.
+		Where("LOWER(name) LIKE ?", search).
+		Preload("Histories").
+		Preload("Histories.Principle").
+		Limit(limit).
+		Offset(offset).
+		Find(&levels).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Levels{}).Where("LOWER(name) LIKE ?", search).Count(&total).Error; err != nil {

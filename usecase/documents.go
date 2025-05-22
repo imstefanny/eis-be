@@ -50,6 +50,7 @@ func (s *documentsUsecase) Create(document dto.CreateDocumentsRequest) error {
 	}
 
 	documentData := models.Documents{
+		Name:         document.Name,
 		TypeID:       document.TypeID,
 		ApplicantID:  document.ApplicantID,
 		StudentID:    document.StudentID,
@@ -93,6 +94,7 @@ func (s *documentsUsecase) Update(id int, document dto.CreateDocumentsRequest) (
 		return models.Documents{}, err
 	}
 
+	documentData.Name = document.Name
 	documentData.TypeID = document.TypeID
 	documentData.ApplicantID = document.ApplicantID
 	documentData.StudentID = document.StudentID

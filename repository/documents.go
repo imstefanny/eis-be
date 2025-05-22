@@ -29,10 +29,11 @@ func (r *documentsRepository) Browse(page, limit int, search string) ([]models.D
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(type_id) LIKE ?", search).Limit(limit).Offset(offset).Find(&documents).Error; err != nil {
+	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Type").Preload("Applicant").Preload("Student").Find(&documents).Error; err != nil {
 		return nil, 0, err
 	}
-	if err := r.db.Model(&models.Documents{}).Where("LOWER(type_id) LIKE ?", search).Count(&total).Error; err != nil {
+
+	if err := r.db.Model(&models.Documents{}).Where("LOWER(name) LIKE ?", search).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	return documents, total, nil
@@ -48,7 +49,7 @@ func (r *documentsRepository) Create(documents models.Documents) error {
 
 func (r *documentsRepository) Find(id int) (models.Documents, error) {
 	document := models.Documents{}
-	if err := r.db.First(&document, id).Error; err != nil {
+	if err := r.db.Preload("Type").Preload("Applicant").Preload("Student").First(&document, id).Error; err != nil {
 		return document, err
 	}
 	return document, nil
@@ -56,7 +57,7 @@ func (r *documentsRepository) Find(id int) (models.Documents, error) {
 
 func (r *documentsRepository) FindByApplicantId(id int) ([]models.Documents, error) {
 	documents := []models.Documents{}
-	if err := r.db.Where("applicant_id = ?", id).Find(&documents).Error; err != nil {
+	if err := r.db.Where("applicant_id = ?", id).Preload("Type").Preload("Applicant").Preload("Student").Find(&documents).Error; err != nil {
 		return nil, err
 	}
 	return documents, nil

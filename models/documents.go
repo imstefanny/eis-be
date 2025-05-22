@@ -8,9 +8,13 @@ import (
 
 type Documents struct {
 	ID           uint           `json:"id" gorm:"primaryKey"`
+	Name         string         `json:"name"`
 	TypeID       uint           `json:"type_id"`
+	Type         DocTypes       `json:"type" gorm:"foreignKey:TypeID"`
 	ApplicantID  uint           `json:"applicant_id"`
+	Applicant    Applicants     `json:"applicant" gorm:"foreignKey:ApplicantID"`
 	StudentID    uint           `json:"student_id"`
+	Student      Students       `json:"student" gorm:"foreignKey:StudentID"`
 	UploadedFile string         `json:"uploaded_file"`
 	Description  string         `json:"description"`
 	CreatedAt    time.Time      `json:"created_at"`

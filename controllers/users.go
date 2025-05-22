@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
+
 	// "strconv"
 
 	"eis-be/dto"
@@ -62,5 +64,34 @@ func (u *usersController) Login(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data": userResponse,
+	})
+}
+
+func (u *usersController) Browse(c echo.Context) error {
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	search := c.QueryParam("search")
+
+	users, total, err := u.useCase.Browse(page, limit, search)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":  users,
+		"page":  page,
+		"limit": limit,
+		"total": total,
 	})
 }

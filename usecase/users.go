@@ -8,19 +8,23 @@ import (
 	"eis-be/repository"
 	"errors"
 	"reflect"
+
+	"gorm.io/gorm"
 )
 
 type UsersUsecase interface {
+	Browse(page, limit int, search string) (interface{}, int64, error)
 	Register(data dto.RegisterUsersRequest) error
 	Login(data dto.LoginUsersRequest) (interface{}, error)
 }
 
 type usersUsecase struct {
 	usersRepository repository.UsersRepository
+	db              *gorm.DB
 }
 
-func NewUsersUsecase(usersRepo repository.UsersRepository) *usersUsecase {
-	return &usersUsecase{usersRepository: usersRepo}
+func NewUsersUsecase(usersRepo repository.UsersRepository, db *gorm.DB) *usersUsecase {
+	return &usersUsecase{usersRepository: usersRepo, db: db}
 }
 
 func validateRegisterUsersRequest(req dto.RegisterUsersRequest) error {
@@ -57,7 +61,7 @@ func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 		RoleID:   data.RoleID,
 	}
 
-	err := s.usersRepository.Create(userData)
+	_, err := s.usersRepository.Create(s.db, userData)
 
 	if err != nil {
 		return err
@@ -99,4 +103,14 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 	}
 
 	return userResponse, nil
+}
+
+func (s *usersUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+	teachers, total, err := s.usersRepository.Browse(page, limit, search)
+
+	if err != nil {
+		return nil, total, err
+	}
+
+	return teachers, total, nil
 }

@@ -28,7 +28,7 @@ func (r *studentsRepository) Browse(page, limit int, search string) ([]models.St
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&students).Error; err != nil {
+	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Applicant").Preload("User").Preload("Guardians").Preload("Documents").Find(&students).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Students{}).Where("LOWER(full_name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -47,7 +47,7 @@ func (r *studentsRepository) Create(students models.Students) error {
 
 func (r *studentsRepository) Find(id int) (models.Students, error) {
 	student := models.Students{}
-	if err := r.db.First(&student, id).Error; err != nil {
+	if err := r.db.Preload("Applicant").Preload("User").Preload("Guardians").Preload("Documents").First(&student, id).Error; err != nil {
 		return student, err
 	}
 	return student, nil

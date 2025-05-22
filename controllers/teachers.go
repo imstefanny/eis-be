@@ -11,18 +11,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ApplicantsController interface {
+type TeachersController interface {
 }
 
-type applicantsController struct {
-	useCase usecase.ApplicantsUsecase
+type teachersController struct {
+	useCase usecase.TeachersUsecase
 }
 
-func NewApplicantsController(applicantsUsecase usecase.ApplicantsUsecase) *applicantsController {
-	return &applicantsController{applicantsUsecase}
+func NewTeachersController(teachersUsecase usecase.TeachersUsecase) *teachersController {
+	return &teachersController{teachersUsecase}
 }
 
-func (u *applicantsController) Browse(c echo.Context) error {
+func (u *teachersController) Browse(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam("page"))
 	if err != nil || page < 1 {
 		page = 1
@@ -35,7 +35,7 @@ func (u *applicantsController) Browse(c echo.Context) error {
 
 	search := c.QueryParam("search")
 
-	applicants, total, err := u.useCase.Browse(page, limit, search)
+	teachers, total, err := u.useCase.Browse(page, limit, search)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -44,14 +44,14 @@ func (u *applicantsController) Browse(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data":  applicants,
+		"data":  teachers,
 		"page":  page,
 		"limit": limit,
 		"total": total,
 	})
 }
 
-func (u *applicantsController) GetByToken(c echo.Context) error {
+func (u *teachersController) GetByToken(c echo.Context) error {
 	claims, errToken := helpers.GetTokenClaims(c)
 	if errToken != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -60,7 +60,7 @@ func (u *applicantsController) GetByToken(c echo.Context) error {
 	}
 
 	var id int = int(claims["userId"].(float64))
-	applicant, err := u.useCase.GetByToken(id)
+	teacher, err := u.useCase.GetByToken(id)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -69,14 +69,14 @@ func (u *applicantsController) GetByToken(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": applicant,
+		"data": teacher,
 	})
 }
 
-func (u *applicantsController) Create(c echo.Context) error {
-	applicant := dto.CreateApplicantsRequest{}
+func (u *teachersController) Create(c echo.Context) error {
+	teacher := dto.CreateTeachersRequest{}
 
-	if err := c.Bind(&applicant); err != nil {
+	if err := c.Bind(&teacher); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": err.Error(),
 		})
@@ -88,7 +88,7 @@ func (u *applicantsController) Create(c echo.Context) error {
 			"error": errToken.Error(),
 		})
 	}
-	err := u.useCase.Create(applicant, claims)
+	err := u.useCase.Create(teacher, claims)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -101,9 +101,9 @@ func (u *applicantsController) Create(c echo.Context) error {
 	})
 }
 
-func (u *applicantsController) Find(c echo.Context) error {
+func (u *teachersController) Find(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	applicants, err := u.useCase.Find(id)
+	teachers, err := u.useCase.Find(id)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -112,27 +112,21 @@ func (u *applicantsController) Find(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": applicants,
+		"data": teachers,
 	})
 }
 
-func (u *applicantsController) Update(c echo.Context) error {
+func (u *teachersController) Update(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	applicant := dto.CreateApplicantsRequest{}
+	teacher := dto.CreateTeachersRequest{}
 
-	if err := c.Bind(&applicant); err != nil {
+	if err := c.Bind(&teacher); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"error": err.Error(),
 		})
 	}
 
-	claims, errToken := helpers.GetTokenClaims(c)
-	if errToken != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": errToken.Error(),
-		})
-	}
-	applicantUpdated, err := u.useCase.Update(id, claims, applicant)
+	teacherUpdated, err := u.useCase.Update(id, teacher)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -141,34 +135,12 @@ func (u *applicantsController) Update(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data":    applicantUpdated,
+		"data":    teacherUpdated,
 		"message": "Data updated successfully",
 	})
 }
 
-func (u *applicantsController) ApproveRegistration(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	claims, errToken := helpers.GetTokenClaims(c)
-	if errToken != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": errToken.Error(),
-		})
-	}
-
-	err := u.useCase.ApproveRegistration(id, claims)
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Registration approved successfully",
-	})
-}
-
-func (u *applicantsController) Delete(c echo.Context) error {
+func (u *teachersController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
 	err := u.useCase.Delete(id)

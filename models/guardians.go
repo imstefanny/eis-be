@@ -9,7 +9,9 @@ import (
 type Guardians struct {
 	ID               uint           `json:"id" gorm:"primaryKey"`
 	ApplicantID      uint           `json:"applicant_id"`
+	Applicant        Applicants     `json:"applicant" gorm:"foreignKey:ApplicantID"`
 	StudentID        uint           `json:"student_id"`
+	Student          Students       `json:"student" gorm:"foreignKey:StudentID"`
 	Relation         string         `json:"relation"`
 	Name             string         `json:"name"`
 	Religion         string         `json:"religion"`
