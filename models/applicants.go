@@ -8,6 +8,8 @@ import (
 
 type Applicants struct {
 	ID                uint           `json:"id" gorm:"primaryKey"`
+	Guardians         []Guardians    `json:"guardians" gorm:"foreignKey:ApplicantID"`
+	Documents         []Documents    `json:"documents" gorm:"foreignKey:ApplicantID"`
 	ProfilePic        string         `json:"profile_pic"`
 	FullName          string         `json:"full_name"`
 	IdentityNo        string         `json:"identity_no"`
