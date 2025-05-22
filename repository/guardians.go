@@ -29,7 +29,7 @@ func (r *guardiansRepository) Browse(page, limit int, search string) ([]models.G
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Find(&guardians).Error; err != nil {
+	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Applicant").Preload("Student").Find(&guardians).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Guardians{}).Where("LOWER(name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -48,7 +48,7 @@ func (r *guardiansRepository) Create(guardians models.Guardians) error {
 
 func (r *guardiansRepository) Find(id int) (models.Guardians, error) {
 	guardian := models.Guardians{}
-	if err := r.db.First(&guardian, id).Error; err != nil {
+	if err := r.db.Preload("Applicant").Preload("Student").First(&guardian, id).Error; err != nil {
 		return guardian, err
 	}
 	return guardian, nil
@@ -56,7 +56,7 @@ func (r *guardiansRepository) Find(id int) (models.Guardians, error) {
 
 func (r *guardiansRepository) FindByApplicantId(id int) ([]models.Guardians, error) {
 	guardian := []models.Guardians{}
-	if err := r.db.Where("applicant_id = ?", id).Find(&guardian).Error; err != nil {
+	if err := r.db.Where("applicant_id = ?", id).Preload("Applicant").Preload("Student").Find(&guardian).Error; err != nil {
 		return guardian, err
 	}
 	return guardian, nil

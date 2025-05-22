@@ -85,7 +85,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eApplicants := e.Group("/applicants")
 	eApplicants.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eApplicants.GET("", applicantsController.Browse)
-	eApplicants.GET("/my-information", applicantsController.GetApplicantInformationByToken)
+	eApplicants.GET("/my", applicantsController.GetByToken)
 	eApplicants.GET("/:id", applicantsController.Find)
 	eApplicants.POST("", applicantsController.Create)
 	eApplicants.PUT("/:id", applicantsController.Update)

@@ -28,7 +28,7 @@ func (r *blogsRepository) Browse(page, limit int, search string) ([]models.Blogs
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(title) LIKE ?", search).Limit(limit).Offset(offset).Find(&blogs).Error; err != nil {
+	if err := r.db.Where("LOWER(title) LIKE ?", search).Limit(limit).Offset(offset).Preload("CreatedByName").Preload("UpdatedByName").Find(&blogs).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Blogs{}).Where("LOWER(title) LIKE ?", search).Count(&total).Error; err != nil {
@@ -47,7 +47,7 @@ func (r *blogsRepository) Create(blogs models.Blogs) error {
 
 func (r *blogsRepository) Find(id int) (models.Blogs, error) {
 	blog := models.Blogs{}
-	if err := r.db.First(&blog, id).Error; err != nil {
+	if err := r.db.Preload("CreatedByName").Preload("UpdatedByName").First(&blog, id).Error; err != nil {
 		return blog, err
 	}
 	return blog, nil

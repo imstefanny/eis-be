@@ -38,7 +38,7 @@ func (r *teachersRepository) Browse(page, limit int, search string) ([]models.Te
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Level").Preload("WorkSched").Preload("User").Find(&teachers).Error; err != nil {
+	if err := r.db.Where("LOWER(name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Level").Preload("WorkSched").Preload("User").Unscoped().Find(&teachers).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Teachers{}).Where("LOWER(name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -49,7 +49,7 @@ func (r *teachersRepository) Browse(page, limit int, search string) ([]models.Te
 
 func (r *teachersRepository) Find(id int) (models.Teachers, error) {
 	teacher := models.Teachers{}
-	if err := r.db.Preload("Level").Preload("WorkSched").Preload("User").First(&teacher, id).Error; err != nil {
+	if err := r.db.Preload("Level").Preload("WorkSched").Preload("User").Unscoped().First(&teacher, id).Error; err != nil {
 		return teacher, err
 	}
 	return teacher, nil
@@ -58,7 +58,7 @@ func (r *teachersRepository) Find(id int) (models.Teachers, error) {
 func (r *teachersRepository) GetByToken(id int) (models.Teachers, error) {
 	fmt.Println("ID", id)
 	teacher := models.Teachers{}
-	if err := r.db.Where("user_id = ?", id).Preload("Level").Preload("WorkSched").Preload("User").First(&teacher).Error; err != nil {
+	if err := r.db.Where("user_id = ?", id).Preload("Level").Preload("WorkSched").Preload("User").Unscoped().First(&teacher).Error; err != nil {
 		return teacher, err
 	}
 	return teacher, nil

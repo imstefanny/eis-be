@@ -9,8 +9,12 @@ import (
 type Students struct {
 	ID                uint           `json:"id" gorm:"primaryKey"`
 	ApplicantID       uint           `json:"applicant_id" gorm:"index"`
+	Applicant         Applicants     `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID"`
 	CurrentAcademicID uint           `json:"current_academic_id" gorm:"index"`
 	UserID            uint           `json:"user_id" gorm:"index"`
+	User              Users          `json:"user" gorm:"foreignKey:UserID;references:ID"`
+	Guardians         []Guardians    `json:"guardians" gorm:"foreignKey:StudentID"`
+	Documents         []Documents    `json:"documents" gorm:"foreignKey:StudentID"`
 	ProfilePic        string         `json:"profile_pic"`
 	FullName          string         `json:"full_name"`
 	IdentityNo        string         `json:"identity_no"`

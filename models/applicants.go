@@ -8,6 +8,8 @@ import (
 
 type Applicants struct {
 	ID                uint           `json:"id" gorm:"primaryKey"`
+	Guardians         []Guardians    `json:"guardians" gorm:"foreignKey:ApplicantID"`
+	Documents         []Documents    `json:"documents" gorm:"foreignKey:ApplicantID"`
 	ProfilePic        string         `json:"profile_pic"`
 	FullName          string         `json:"full_name"`
 	IdentityNo        string         `json:"identity_no"`
@@ -22,6 +24,7 @@ type Applicants struct {
 	ChildStatus       string         `json:"child_status"`
 	SchoolOrigin      string         `json:"school_origin"`
 	LevelID           uint           `json:"level_id"`
+	Level             Levels         `json:"level" gorm:"foreignKey:LevelID"`
 	RegistrationGrade string         `json:"registration_grade"`
 	RegistrationMajor string         `json:"registration_major"`
 	State             string         `json:"state"`
@@ -29,5 +32,7 @@ type Applicants struct {
 	UpdatedAt         time.Time      `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	CreatedBy         uint           `json:"created_by"`
-	UpdatedBy         uint           `json:"updated_by"`
+	CreatedByName     Users          `json:"created_by_name" gorm:"foreignKey:CreatedBy"`
+	UpdatedBy         uint           `json:"updated_by" gorm:"default:null"`
+	UpdatedByName     Users          `json:"updated_by_name" gorm:"foreignKey:UpdatedBy"`
 }

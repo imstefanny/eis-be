@@ -15,7 +15,7 @@ type Teachers struct {
 	Email       string         `json:"email"`
 	Address     string         `json:"address"`
 	JobTitle    string         `json:"job_title"`
-	LevelID     uint           `json:"level_id"`
+	LevelID     uint           `json:"level_id" gorm:"default:null"`
 	Level       Levels         `json:"level" gorm:"foreignKey:LevelID"`
 	WorkSchedID uint           `json:"work_sched_id"`
 	WorkSched   WorkScheds     `json:"work_sched" gorm:"foreignKey:WorkSchedID"`

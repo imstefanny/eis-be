@@ -51,7 +51,7 @@ func (u *applicantsController) Browse(c echo.Context) error {
 	})
 }
 
-func (u *applicantsController) GetApplicantInformationByToken(c echo.Context) error {
+func (u *applicantsController) GetByToken(c echo.Context) error {
 	claims, errToken := helpers.GetTokenClaims(c)
 	if errToken != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -60,7 +60,7 @@ func (u *applicantsController) GetApplicantInformationByToken(c echo.Context) er
 	}
 
 	var id int = int(claims["userId"].(float64))
-	applicant, err := u.useCase.FindByCreatedBy(id)
+	applicant, err := u.useCase.GetByToken(id)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -126,7 +126,13 @@ func (u *applicantsController) Update(c echo.Context) error {
 		})
 	}
 
-	applicantUpdated, err := u.useCase.Update(id, applicant)
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+	applicantUpdated, err := u.useCase.Update(id, claims, applicant)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
