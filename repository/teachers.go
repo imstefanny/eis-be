@@ -14,6 +14,7 @@ type TeachersRepository interface {
 	GetByToken(id int) (models.Teachers, error)
 	Create(tx *gorm.DB, teachers models.Teachers) error
 	Update(id int, teacher models.Teachers) error
+	UndeleteTeacher(id int) error
 	Delete(id int) error
 }
 
@@ -68,6 +69,14 @@ func (r *teachersRepository) Update(id int, teacher models.Teachers) error {
 	query := r.db.Model(&teacher).Updates(teacher)
 	if err := query.Error; err != nil {
 		return err
+	}
+	return nil
+}
+
+func (r *teachersRepository) UndeleteTeacher(id int) error {
+	result := r.db.Model(&models.Teachers{}).Unscoped().Where("id = ?", id).Update("deleted_at", nil)
+	if result.Error != nil {
+		return result.Error
 	}
 	return nil
 }

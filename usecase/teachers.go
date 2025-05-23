@@ -143,7 +143,12 @@ func (s *teachersUsecase) Update(id int, teacher dto.CreateTeachersRequest) (mod
 	teacherData.LevelID = teacher.LevelID
 	teacherData.WorkSchedID = teacher.WorkSchedID
 	teacherData.ProfilePic = teacher.ProfilePic
+	teacherData.DeletedAt = teacher.DeletedAt
 
+	errUnscope := s.teachersRepository.UndeleteTeacher(id)
+	if errUnscope != nil {
+		return models.Teachers{}, errUnscope
+	}
 	e := s.teachersRepository.Update(id, teacherData)
 
 	if e != nil {
