@@ -11,9 +11,9 @@ type Documents struct {
 	Name         string         `json:"name"`
 	TypeID       uint           `json:"type_id"`
 	Type         DocTypes       `json:"type" gorm:"foreignKey:TypeID"`
-	ApplicantID  uint           `json:"applicant_id"`
+	ApplicantID  uint           `json:"applicant_id" gorm:"default:null"`
 	Applicant    Applicants     `json:"applicant" gorm:"foreignKey:ApplicantID"`
-	StudentID    uint           `json:"student_id"`
+	StudentID    uint           `json:"student_id" gorm:"default:null"`
 	Student      Students       `json:"student" gorm:"foreignKey:StudentID"`
 	UploadedFile string         `json:"uploaded_file"`
 	Description  string         `json:"description"`
