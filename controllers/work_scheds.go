@@ -111,6 +111,29 @@ func (u *workSchedsController) Update(c echo.Context) error {
 	})
 }
 
+func (u *workSchedsController) Undelete(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	workSched := dto.CreateWorkSchedsRequest{}
+
+	if err := c.Bind(&workSched); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	err := u.useCase.Undelete(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data updated successfully",
+	})
+}
+
 func (u *workSchedsController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 

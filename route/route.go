@@ -128,6 +128,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eWorkScheds.GET("/:id", workSchedsController.Find)
 	eWorkScheds.POST("", workSchedsController.Create)
 	eWorkScheds.PUT("/:id", workSchedsController.Update)
+	eWorkScheds.PUT("/undelete/:id", workSchedsController.Undelete)
 	eWorkScheds.DELETE("/:id", workSchedsController.Delete)
 
 	eSubjects := e.Group("/subjects")

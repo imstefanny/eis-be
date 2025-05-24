@@ -11,6 +11,7 @@ type WorkSchedDetailsRepository interface {
 	Find(id []int) ([]models.WorkSchedDetails, error)
 	Update(id []int, workSchedDetail []models.WorkSchedDetails) error
 	Delete(id []int) error
+	Undelete(workSchedId int) error
 }
 
 type workSchedDetailsRepository struct {
@@ -31,7 +32,7 @@ func (r *workSchedDetailsRepository) Create(workSchedDetails []models.WorkSchedD
 
 func (r *workSchedDetailsRepository) Find(id []int) ([]models.WorkSchedDetails, error) {
 	workSchedDetails := []models.WorkSchedDetails{}
-	if err := r.db.Find(&workSchedDetails, id).Error; err != nil {
+	if err := r.db.Unscoped().Find(&workSchedDetails, id).Error; err != nil {
 		return workSchedDetails, err
 	}
 	return workSchedDetails, nil
@@ -45,9 +46,17 @@ func (r *workSchedDetailsRepository) Update(id []int, workSchedDetail []models.W
 	return nil
 }
 
+func (r *workSchedDetailsRepository) Undelete(workSchedId int) error {
+	result := r.db.Model(&models.WorkSchedDetails{}).Unscoped().Where("work_sched_id = ?", workSchedId).Update("deleted_at", nil)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (r *workSchedDetailsRepository) Delete(id []int) error {
 	workSchedDetail := models.WorkSchedDetails{}
-	if err := r.db.Delete(&workSchedDetail, id).Error; err != nil {
+	if err := r.db.Unscoped().Delete(&workSchedDetail, id).Error; err != nil {
 		return err
 	}
 	return nil

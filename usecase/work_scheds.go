@@ -14,6 +14,7 @@ type WorkSchedsUsecase interface {
 	Create(workSched dto.CreateWorkSchedsRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, workSched dto.CreateWorkSchedsRequest) (models.WorkScheds, error)
+	Undelete(id int) error
 	Delete(id int) error
 }
 
@@ -143,6 +144,20 @@ func (s *workSchedsUsecase) Update(id int, workSched dto.CreateWorkSchedsRequest
 	}
 
 	return workSchedUpdated, nil
+}
+
+func (s *workSchedsUsecase) Undelete(id int) error {
+	err := s.workSchedsRepository.Undelete(id)
+	errDetail := s.workSchedDetailsRepository.Undelete(id)
+
+	if errDetail != nil {
+		return errDetail
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *workSchedsUsecase) Delete(id int) error {
