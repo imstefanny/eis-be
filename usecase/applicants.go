@@ -176,7 +176,7 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	lastThree := year % 1000
 	studentData := models.Students{
 		ApplicantID:      uint(id),
-		UserID:           uint(claims["userId"].(float64)),
+		UserID:           applicant.CreatedBy,
 		ProfilePic:       applicant.ProfilePic,
 		FullName:         applicant.FullName,
 		IdentityNo:       applicant.IdentityNo,
