@@ -31,7 +31,7 @@ func validateCreateLevelHistoriesRequest(req dto.CreateLevelHistoriesRequest) er
 	val := reflect.ValueOf(req)
 	for i := 0; i < val.NumField(); i++ {
 		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("Field can't be empty")
+			return errors.New("field can't be empty")
 		}
 	}
 	return nil

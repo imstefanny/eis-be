@@ -70,6 +70,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	academicsService := usecase.NewAcademicsUsecase(academicsRepository, studentsRepository)
 	academicsController := controllers.NewAcademicsController(academicsService)
 
+	subjSchedsRepository := repository.NewSubjSchedsRepository(db)
+	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository)
+	subjSchedsController := controllers.NewSubjSchedsController(subjSchedsService)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -189,4 +193,12 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademics.POST("", academicsController.Create)
 	eAcademics.PUT("/:id", academicsController.Update)
 	eAcademics.DELETE("/:id", academicsController.Delete)
+
+	eSubjScheds := e.Group("/subjectschedules")
+	eSubjScheds.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eSubjScheds.GET("", subjSchedsController.Browse)
+	eSubjScheds.GET("/:id", subjSchedsController.Find)
+	eSubjScheds.POST("", subjSchedsController.Create)
+	eSubjScheds.PUT("/:id", subjSchedsController.Update)
+	eSubjScheds.DELETE("/:id", subjSchedsController.Delete)
 }

@@ -35,7 +35,7 @@ func validateCreateBlogsRequest(req dto.CreateBlogsRequest) error {
 	val := reflect.ValueOf(req)
 	for i := 0; i < val.NumField(); i++ {
 		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("Field can't be empty")
+			return errors.New("field can't be empty")
 		}
 	}
 	return nil
@@ -59,10 +59,10 @@ func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest, claims jwt.MapClaims)
 	}
 
 	blogData := models.Blogs{
-		Title:         blog.Title,
-		Content:       blog.Content,
-		Thumbnail:     blog.Thumbnail,
-		CreatedBy:	   uint(claims["userId"].(float64)),
+		Title:     blog.Title,
+		Content:   blog.Content,
+		Thumbnail: blog.Thumbnail,
+		CreatedBy: uint(claims["userId"].(float64)),
 	}
 
 	err := s.blogsRepository.Create(blogData)
