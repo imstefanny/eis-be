@@ -31,7 +31,7 @@ func validateCreateClassroomsRequest(req dto.CreateClassroomsRequest) error {
 	val := reflect.ValueOf(req)
 	for i := 0; i < val.NumField(); i++ {
 		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("Field can't be empty")
+			return errors.New("field can't be empty")
 		}
 	}
 	return nil
@@ -56,9 +56,9 @@ func (s *classroomsUsecase) Create(classroom dto.CreateClassroomsRequest) error 
 
 	classroomData := models.Classrooms{
 		DisplayName: classroom.DisplayName,
-		LevelID: classroom.LevelID,
-		Grade: classroom.Grade,
-		Name: classroom.Name,
+		LevelID:     classroom.LevelID,
+		Grade:       classroom.Grade,
+		Name:        classroom.Name,
 	}
 
 	err := s.classroomsRepository.Create(classroomData)
