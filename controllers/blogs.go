@@ -104,7 +104,13 @@ func (u *blogsController) Update(c echo.Context) error {
 		})
 	}
 
-	blogUpdated, err := u.useCase.Update(id, blog)
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+	blogUpdated, err := u.useCase.Update(id, blog, claims)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

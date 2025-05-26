@@ -15,7 +15,7 @@ type BlogsUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(blog dto.CreateBlogsRequest, claims jwt.MapClaims) error
 	Find(id int) (interface{}, error)
-	Update(id int, blog dto.CreateBlogsRequest) (models.Blogs, error)
+	Update(id int, blog dto.CreateBlogsRequest, claims jwt.MapClaims) (models.Blogs, error)
 	Delete(id int) error
 }
 
@@ -57,16 +57,12 @@ func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest, claims jwt.MapClaims)
 	if e != nil {
 		return e
 	}
-	userData, errUser := s.usersRepository.Find(int(claims["userId"].(float64)))
-	if errUser != nil {
-		return errUser
-	}
 
 	blogData := models.Blogs{
 		Title:         blog.Title,
 		Content:       blog.Content,
 		Thumbnail:     blog.Thumbnail,
-		CreatedByName: userData,
+		CreatedBy:	   uint(claims["userId"].(float64)),
 	}
 
 	err := s.blogsRepository.Create(blogData)
@@ -88,7 +84,7 @@ func (s *blogsUsecase) Find(id int) (interface{}, error) {
 	return blog, nil
 }
 
-func (s *blogsUsecase) Update(id int, blog dto.CreateBlogsRequest) (models.Blogs, error) {
+func (s *blogsUsecase) Update(id int, blog dto.CreateBlogsRequest, claims jwt.MapClaims) (models.Blogs, error) {
 	blogData, err := s.blogsRepository.Find(id)
 
 	if err != nil {
@@ -98,6 +94,7 @@ func (s *blogsUsecase) Update(id int, blog dto.CreateBlogsRequest) (models.Blogs
 	blogData.Title = blog.Title
 	blogData.Content = blog.Content
 	blogData.Thumbnail = blog.Thumbnail
+	blogData.UpdatedBy = uint(claims["userId"].(float64))
 
 	e := s.blogsRepository.Update(id, blogData)
 
