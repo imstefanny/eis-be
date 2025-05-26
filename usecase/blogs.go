@@ -7,11 +7,13 @@ import (
 	"eis-be/repository"
 	"errors"
 	"reflect"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type BlogsUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
-	Create(blog dto.CreateBlogsRequest) error
+	Create(blog dto.CreateBlogsRequest, claims jwt.MapClaims) error
 	Find(id int) (interface{}, error)
 	Update(id int, blog dto.CreateBlogsRequest) (models.Blogs, error)
 	Delete(id int) error
@@ -19,11 +21,13 @@ type BlogsUsecase interface {
 
 type blogsUsecase struct {
 	blogsRepository repository.BlogsRepository
+	usersRepository repository.UsersRepository
 }
 
-func NewBlogsUsecase(blogsRepo repository.BlogsRepository) *blogsUsecase {
+func NewBlogsUsecase(blogsRepo repository.BlogsRepository, usersRepo repository.UsersRepository) *blogsUsecase {
 	return &blogsUsecase{
 		blogsRepository: blogsRepo,
+		usersRepository: usersRepo,
 	}
 }
 
@@ -47,17 +51,22 @@ func (s *blogsUsecase) Browse(page, limit int, search string) (interface{}, int6
 	return blogs, total, nil
 }
 
-func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest) error {
+func (s *blogsUsecase) Create(blog dto.CreateBlogsRequest, claims jwt.MapClaims) error {
 	e := validateCreateBlogsRequest(blog)
 
 	if e != nil {
 		return e
 	}
+	userData, errUser := s.usersRepository.Find(int(claims["userId"].(float64)))
+	if errUser != nil {
+		return errUser
+	}
 
 	blogData := models.Blogs{
-		Title:     blog.Title,
-		Content:   blog.Content,
-		Thumbnail: blog.Thumbnail,
+		Title:         blog.Title,
+		Content:       blog.Content,
+		Thumbnail:     blog.Thumbnail,
+		CreatedByName: userData,
 	}
 
 	err := s.blogsRepository.Create(blogData)

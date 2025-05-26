@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
@@ -58,8 +59,14 @@ func (u *blogsController) Create(c echo.Context) error {
 			"error": err.Error(),
 		})
 	}
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
 
-	err := u.useCase.Create(blog)
+	err := u.useCase.Create(blog, claims)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

@@ -18,7 +18,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	usersController := controllers.NewUsersController(usersService)
 
 	blogsRepository := repository.NewBlogsRepository(db)
-	blogsService := usecase.NewBlogsUsecase(blogsRepository)
+	blogsService := usecase.NewBlogsUsecase(blogsRepository, usersRepository)
 	blogsController := controllers.NewBlogsController(blogsService)
 
 	studentsRepository := repository.NewStudentsRepository(db)
@@ -82,6 +82,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eBlogs := e.Group("/blogs")
 	eBlogs.GET("", blogsController.Browse)
 	eBlogs.GET("/:id", blogsController.Find)
+	eBlogs.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eBlogs.POST("", blogsController.Create)
 	eBlogs.PUT("/:id", blogsController.Update)
 	eBlogs.DELETE("/:id", blogsController.Delete)
