@@ -23,6 +23,7 @@ type Students struct {
 	PlaceOfBirth      string         `json:"place_of_birth"`
 	DateOfBirth       time.Time      `json:"date_of_birth"`
 	Address           string         `json:"address"`
+	Email             string         `json:"email"`
 	Phone             string         `json:"phone"`
 	Religion          string         `json:"religion"`
 	ChildSequence     int            `json:"child_sequence"`
