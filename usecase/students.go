@@ -4,6 +4,7 @@ import (
 	"eis-be/dto"
 	"eis-be/models"
 	"eis-be/repository"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -85,6 +86,7 @@ func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Conte
 		PlaceOfBirth:      student.PlaceOfBirth,
 		DateOfBirth:       parsedDate,
 		Address:           student.Address,
+		Email:             student.Email,
 		Phone:             student.Phone,
 		Religion:          student.Religion,
 		ChildSequence:     student.ChildSequence,
@@ -97,6 +99,19 @@ func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Conte
 
 	if err != nil {
 		return 0, err
+	}
+
+	year := parsedDate.Year()
+	lastThree := year % 1000
+	uniqueData := models.Students{
+		ID:   studentId,
+		NIS:  fmt.Sprintf("%05d", studentId),
+		NISN: fmt.Sprintf("%03d%07d", lastThree, studentId),
+	}
+
+	eUpdt := s.studentsRepository.Update(int(studentId), uniqueData)
+	if eUpdt != nil {
+		return 0, eUpdt
 	}
 
 	return studentId, nil
@@ -141,6 +156,7 @@ func (s *studentsUsecase) Update(id int, student dto.CreateStudentsRequest) (mod
 		studentData.DateOfBirth = parsedDate
 	}
 	studentData.Address = student.Address
+	studentData.Email = student.Email
 	studentData.Phone = student.Phone
 	studentData.Religion = student.Religion
 	studentData.ChildSequence = student.ChildSequence

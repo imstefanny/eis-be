@@ -182,11 +182,10 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 		ProfilePic:       applicant.ProfilePic,
 		FullName:         applicant.FullName,
 		IdentityNo:       applicant.IdentityNo,
-		NIS:              fmt.Sprintf("%05d", id),
-		NISN:             fmt.Sprintf("%03d%07d", lastThree, id),
 		PlaceOfBirth:     applicant.PlaceOfBirth,
 		DateOfBirth:      applicant.DateOfBirth,
 		Address:          applicant.Address,
+		Email:            applicant.CreatedByName.Email,
 		Phone:            applicant.Phone,
 		Religion:         applicant.Religion,
 		ChildSequence:    applicant.ChildSequence,
@@ -196,6 +195,20 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	}
 
 	studentID, errStudent := s.studentsRepository.Create(studentData)
+	if errStudent != nil {
+		return errStudent
+	}
+
+	uniqueData := models.Students{
+		ID:   studentID,
+		NIS:  fmt.Sprintf("%05d", studentID),
+		NISN: fmt.Sprintf("%03d%07d", lastThree, studentID),
+	}
+	eUpdt := s.studentsRepository.Update(int(studentID), uniqueData)
+	if eUpdt != nil {
+		return eUpdt
+	}
+
 	guardians, errGuardians := s.guardiansRepository.FindByApplicantId(id)
 	if errGuardians != nil {
 		return errGuardians
@@ -203,10 +216,6 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	for _, guardian := range guardians {
 		guardian.StudentID = studentID
 		s.guardiansRepository.Update(int(guardian.ID), guardian)
-	}
-
-	if errStudent != nil {
-		return errStudent
 	}
 
 	return nil
