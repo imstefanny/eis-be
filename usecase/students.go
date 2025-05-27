@@ -8,11 +8,12 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type StudentsUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
-	Create(student dto.CreateStudentsRequest, c echo.Context) error
+	Create(student dto.CreateStudentsRequest, c echo.Context) (uint, error)
 	Find(id int) (interface{}, error)
 	Update(id int, student dto.CreateStudentsRequest) (models.Students, error)
 	Delete(id int) error
@@ -20,11 +21,15 @@ type StudentsUsecase interface {
 
 type studentsUsecase struct {
 	studentsRepository repository.StudentsRepository
+	usersRepository    repository.UsersRepository
+	db                 *gorm.DB
 }
 
-func NewStudentsUsecase(studentsRepo repository.StudentsRepository) *studentsUsecase {
+func NewStudentsUsecase(studentsRepo repository.StudentsRepository, usersRepo repository.UsersRepository, db *gorm.DB) *studentsUsecase {
 	return &studentsUsecase{
 		studentsRepository: studentsRepo,
+		usersRepository:    usersRepo,
+		db:                 db,
 	}
 }
 
@@ -43,22 +48,35 @@ func (s *studentsUsecase) Browse(page, limit int, search string) (interface{}, i
 	return students, total, nil
 }
 
-func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Context) error {
+func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Context) (uint, error) {
 	e := validateCreateStudentsRequest(student)
 
 	if e != nil {
-		return e
+		return 0, e
 	}
 
 	parsedDate, edate := time.Parse("2006-01-02", student.DateOfBirth)
 	if edate != nil {
-		return edate
+		return 0, edate
+	}
+
+	userData := models.Users{
+		Name:       student.FullName,
+		Email:      student.Email,
+		Password:   "123456",
+		RoleID:     1,
+		ProfilePic: student.ProfilePic,
+	}
+
+	userId, errUser := s.usersRepository.Create(s.db, userData)
+	if errUser != nil {
+		return 0, errUser
 	}
 
 	studentData := models.Students{
 		ApplicantID:       student.ApplicantID,
 		CurrentAcademicID: student.CurrentAcademicID,
-		UserID:            student.UserID,
+		UserID:            userId,
 		ProfilePic:        student.ProfilePic,
 		FullName:          student.FullName,
 		IdentityNo:        student.IdentityNo,
@@ -75,13 +93,13 @@ func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Conte
 		ChildStatus:       student.ChildStatus,
 	}
 
-	err := s.studentsRepository.Create(studentData)
+	studentId, err := s.studentsRepository.Create(studentData)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return studentId, nil
 }
 
 func (s *studentsUsecase) Find(id int) (interface{}, error) {
@@ -95,6 +113,11 @@ func (s *studentsUsecase) Find(id int) (interface{}, error) {
 }
 
 func (s *studentsUsecase) Update(id int, student dto.CreateStudentsRequest) (models.Students, error) {
+	errUnscope := s.studentsRepository.Undelete(id)
+	if errUnscope != nil {
+		return models.Students{}, errUnscope
+	}
+
 	studentData, err := s.studentsRepository.Find(id)
 
 	if err != nil {

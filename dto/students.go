@@ -4,6 +4,7 @@ type CreateStudentsRequest struct {
 	ApplicantID       uint   `json:"applicant_id"`
 	CurrentAcademicID uint   `json:"current_academic_id"`
 	UserID            uint   `json:"user_id"`
+	Email             string `json:"email"`
 	ProfilePic        string `json:"profile_pic"`
 	FullName          string `json:"full_name" validate:"required"`
 	IdentityNo        string `json:"identity_no"`

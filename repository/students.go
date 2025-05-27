@@ -9,10 +9,11 @@ import (
 
 type StudentsRepository interface {
 	Browse(page, limit int, search string) ([]models.Students, int64, error)
-	Create(students models.Students) error
+	Create(students models.Students) (uint, error)
 	GetByIds(ids []int) ([]models.Students, error)
 	Find(id int) (models.Students, error)
 	Update(id int, student models.Students) error
+	Undelete(id int) error
 	Delete(id int) error
 }
 
@@ -29,7 +30,7 @@ func (r *studentsRepository) Browse(page, limit int, search string) ([]models.St
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Applicant").Preload("User").Preload("Guardians").Preload("Documents").Find(&students).Error; err != nil {
+	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Applicant").Preload("User").Preload("Guardians").Preload("Documents").Unscoped().Find(&students).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Students{}).Where("LOWER(full_name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -38,12 +39,12 @@ func (r *studentsRepository) Browse(page, limit int, search string) ([]models.St
 	return students, total, nil
 }
 
-func (r *studentsRepository) Create(students models.Students) error {
-	err := r.db.Create(&students)
-	if err.Error != nil {
-		return err.Error
+func (r *studentsRepository) Create(students models.Students) (uint, error) {
+	result := r.db.Create(&students)
+	if result.Error != nil {
+		return 0, result.Error
 	}
-	return nil
+	return students.ID, nil
 }
 
 func (r *studentsRepository) Find(id int) (models.Students, error) {
@@ -66,6 +67,14 @@ func (r *studentsRepository) Update(id int, student models.Students) error {
 	query := r.db.Model(&student).Updates(student)
 	if err := query.Error; err != nil {
 		return err
+	}
+	return nil
+}
+
+func (r *studentsRepository) Undelete(id int) error {
+	result := r.db.Model(&models.Students{}).Unscoped().Where("id = ?", id).Update("deleted_at", nil)
+	if result.Error != nil {
+		return result.Error
 	}
 	return nil
 }

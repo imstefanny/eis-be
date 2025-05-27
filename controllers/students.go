@@ -59,7 +59,7 @@ func (u *studentsController) Create(c echo.Context) error {
 		})
 	}
 
-	err := u.useCase.Create(student, c)
+	studentId, err := u.useCase.Create(student, c)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -68,7 +68,8 @@ func (u *studentsController) Create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "Data created successfully",
+		"message":    "Data created successfully",
+		"created_id": studentId,
 	})
 }
 

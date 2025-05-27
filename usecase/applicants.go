@@ -24,12 +24,14 @@ type ApplicantsUsecase interface {
 type applicantsUsecase struct {
 	applicantsRepository repository.ApplicantsRepository
 	studentsRepository   repository.StudentsRepository
+	guardiansRepository  repository.GuardiansRepository
 }
 
-func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository, studentsRepo repository.StudentsRepository) *applicantsUsecase {
+func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository, studentsRepo repository.StudentsRepository, guardiansRepo repository.GuardiansRepository) *applicantsUsecase {
 	return &applicantsUsecase{
 		applicantsRepository: applicantsRepo,
 		studentsRepository:   studentsRepo,
+		guardiansRepository:  guardiansRepo,
 	}
 }
 
@@ -193,10 +195,18 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 		ChildStatus:      applicant.ChildStatus,
 	}
 
-	eStudent := s.studentsRepository.Create(studentData)
+	studentID, errStudent := s.studentsRepository.Create(studentData)
+	guardians, errGuardians := s.guardiansRepository.FindByApplicantId(id)
+	if errGuardians != nil {
+		return errGuardians
+	}
+	for _, guardian := range guardians {
+		guardian.StudentID = studentID
+		s.guardiansRepository.Update(int(guardian.ID), guardian)
+	}
 
-	if eStudent != nil {
-		return eStudent
+	if errStudent != nil {
+		return errStudent
 	}
 
 	return nil

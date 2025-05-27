@@ -22,20 +22,20 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	blogsController := controllers.NewBlogsController(blogsService)
 
 	studentsRepository := repository.NewStudentsRepository(db)
-	studentsService := usecase.NewStudentsUsecase(studentsRepository)
+	studentsService := usecase.NewStudentsUsecase(studentsRepository, usersRepository, db)
 	studentsController := controllers.NewStudentsController(studentsService)
 
 	teachersRepository := repository.NewTeachersRepository(db)
 	teachersService := usecase.NewTeachersUsecase(teachersRepository, usersRepository, db)
 	teachersController := controllers.NewTeachersController(teachersService)
 
-	applicantsRepository := repository.NewApplicantsRepository(db)
-	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository, studentsRepository)
-	applicantsController := controllers.NewApplicantsController(applicantsService)
-
 	guardiansRepository := repository.NewGuardiansRepository(db)
 	guardiansService := usecase.NewGuardiansUsecase(guardiansRepository)
 	guardiansController := controllers.NewGuardiansController(guardiansService)
+
+	applicantsRepository := repository.NewApplicantsRepository(db)
+	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository, studentsRepository, guardiansRepository)
+	applicantsController := controllers.NewApplicantsController(applicantsService)
 
 	docTypesRepository := repository.NewDocTypesRepository(db)
 	docTypesService := usecase.NewDocTypesUsecase(docTypesRepository)

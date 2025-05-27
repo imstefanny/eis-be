@@ -8,7 +8,7 @@ import (
 
 type Guardians struct {
 	ID               uint           `json:"id" gorm:"primaryKey"`
-	ApplicantID      uint           `json:"applicant_id"`
+	ApplicantID      uint           `json:"applicant_id" gorm:"default:null"`
 	Applicant        Applicants     `json:"applicant" gorm:"foreignKey:ApplicantID"`
 	StudentID        uint           `json:"student_id" gorm:"default:null"`
 	Student          Students       `json:"student" gorm:"foreignKey:StudentID"`
