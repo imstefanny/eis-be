@@ -2,18 +2,17 @@ package usecase
 
 import (
 	"eis-be/dto"
-	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
-	"errors"
-	"reflect"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type SubjSchedsUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
-	Create(subjSched dto.CreateSubjSchedsRequest) error
+	Create(subjScheds dto.CreateSubjSchedsRequest) error
 	Find(id int) (interface{}, error)
-	Update(id int, subjSched dto.CreateSubjSchedsRequest) (models.SubjectSchedules, error)
+	Update(id int, subjSched dto.UpdateSubjSchedsRequest) (models.SubjectSchedules, error)
 	Delete(id int) error
 }
 
@@ -28,13 +27,8 @@ func NewSubjSchedsUsecase(subjSchedsRepo repository.SubjSchedsRepository) *subjS
 }
 
 func validateCreateSubjSchedsRequest(req dto.CreateSubjSchedsRequest) error {
-	val := reflect.ValueOf(req)
-	for i := 0; i < val.NumField(); i++ {
-		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("field can't be empty")
-		}
-	}
-	return nil
+	validate := validator.New()
+	return validate.Struct(req)
 }
 
 func (s *subjSchedsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
@@ -47,24 +41,30 @@ func (s *subjSchedsUsecase) Browse(page, limit int, search string) (interface{},
 	return subjScheds, total, nil
 }
 
-func (s *subjSchedsUsecase) Create(subjSched dto.CreateSubjSchedsRequest) error {
-	e := validateCreateSubjSchedsRequest(subjSched)
+func (s *subjSchedsUsecase) Create(subjScheds dto.CreateSubjSchedsRequest) error {
+	e := validateCreateSubjSchedsRequest(subjScheds)
 
 	if e != nil {
 		return e
 	}
 
-	subjSchedData := models.SubjectSchedules{
-		DisplayName: subjSched.DisplayName,
-		AcademicID:  subjSched.AcademicID,
-		SubjectID:   subjSched.SubjectID,
-		TeacherID:   subjSched.TeacherID,
-		Day:         subjSched.Day,
-		StartHour:   subjSched.StartHour,
-		EndHour:     subjSched.EndHour,
+	subjSchedsData := []models.SubjectSchedules{}
+	for _, sched := range subjScheds.Schedules {
+		for _, entry := range sched.Entries {
+			subjSchedData := models.SubjectSchedules{
+				DisplayName: sched.Day + " - " + entry.StartHour + " to " + entry.EndHour,
+				AcademicID:  subjScheds.AcademicID,
+				SubjectID:   entry.SubjectID,
+				TeacherID:   entry.TeacherID,
+				Day:         sched.Day,
+				StartHour:   entry.StartHour,
+				EndHour:     entry.EndHour,
+			}
+			subjSchedsData = append(subjSchedsData, subjSchedData)
+		}
 	}
 
-	err := s.subjSchedsRepository.Create(subjSchedData)
+	err := s.subjSchedsRepository.Create(subjSchedsData)
 
 	if err != nil {
 		return err
@@ -83,7 +83,7 @@ func (s *subjSchedsUsecase) Find(id int) (interface{}, error) {
 	return subjSched, nil
 }
 
-func (s *subjSchedsUsecase) Update(id int, subjSched dto.CreateSubjSchedsRequest) (models.SubjectSchedules, error) {
+func (s *subjSchedsUsecase) Update(id int, subjSched dto.UpdateSubjSchedsRequest) (models.SubjectSchedules, error) {
 	subjSchedData, err := s.subjSchedsRepository.Find(id)
 
 	if err != nil {
