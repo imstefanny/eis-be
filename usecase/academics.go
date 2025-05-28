@@ -110,7 +110,6 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 			EndYear:           batch.EndYear,
 			ClassroomID:       classroom.ID,
 			Major:             "General",
-			HomeroomTeacherID: 0,
 		}
 		academicsData = append(academicsData, academic)
 	}
