@@ -11,10 +11,10 @@ type Academics struct {
 	DisplayName       string         `json:"display_name"`
 	StartYear         string         `json:"start_year"`
 	EndYear           string         `json:"end_year"`
-	ClassroomID       uint           `json:"classroom_id"`
+	ClassroomID       uint           `json:"classroom_id" gorm:"default:0;not null"`
 	Classroom         Classrooms     `json:"classroom" gorm:"foreignKey:ClassroomID"`
-	Major             string         `json:"major"`
-	HomeroomTeacherID uint           `json:"homeroom_teacher_id"`
+	Major             string         `json:"major" gorm:"default:'General'"`
+	HomeroomTeacherID uint           `json:"homeroom_teacher_id" gorm:"default:0;not null"`
 	HomeroomTeacher   Users          `json:"homeroom_teacher" gorm:"foreignKey:HomeroomTeacherID"`
 	Students          []Students     `json:"students" gorm:"many2many:academic_students;"`
 	CreatedAt         time.Time      `json:"created_at"`

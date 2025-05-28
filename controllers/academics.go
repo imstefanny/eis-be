@@ -72,6 +72,28 @@ func (u *academicsController) Create(c echo.Context) error {
 	})
 }
 
+func (u *academicsController) CreateBatch(c echo.Context) error {
+	academic := dto.CreateBatchAcademicsRequest{}
+
+	if err := c.Bind(&academic); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	err := u.useCase.CreateBatch(academic)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data created successfully",
+	})
+}
+
 func (u *academicsController) Find(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	academics, err := u.useCase.Find(id)

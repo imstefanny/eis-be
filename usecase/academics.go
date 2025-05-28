@@ -12,24 +12,32 @@ import (
 type AcademicsUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
 	Create(academic dto.CreateAcademicsRequest) error
+	CreateBatch(batch dto.CreateBatchAcademicsRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, academic dto.CreateAcademicsRequest) (models.Academics, error)
 	Delete(id int) error
 }
 
 type academicsUsecase struct {
-	academicsRepository repository.AcademicsRepository
-	studentsRepository  repository.StudentsRepository
+	academicsRepository  repository.AcademicsRepository
+	studentsRepository   repository.StudentsRepository
+	classroomsRepository repository.ClassroomsRepository
 }
 
-func NewAcademicsUsecase(academicsRepo repository.AcademicsRepository, studentsRepo repository.StudentsRepository) *academicsUsecase {
+func NewAcademicsUsecase(academicsRepo repository.AcademicsRepository, studentsRepo repository.StudentsRepository, classroomsRepo repository.ClassroomsRepository) *academicsUsecase {
 	return &academicsUsecase{
-		academicsRepository: academicsRepo,
-		studentsRepository:  studentsRepo,
+		academicsRepository:  academicsRepo,
+		studentsRepository:   studentsRepo,
+		classroomsRepository: classroomsRepo,
 	}
 }
 
 func validateCreateAcademicsRequest(req dto.CreateAcademicsRequest) error {
+	validate := validator.New()
+	return validate.Struct(req)
+}
+
+func validateBatchCreateAcademicsRequest(req dto.CreateBatchAcademicsRequest) error {
 	validate := validator.New()
 	return validate.Struct(req)
 }
@@ -58,7 +66,7 @@ func (s *academicsUsecase) Create(academic dto.CreateAcademicsRequest) error {
 			return err
 		}
 		if len(studentsData) == 0 {
-			return fmt.Errorf("Students not found")
+			return fmt.Errorf("students not found")
 		}
 		students = studentsData
 	}
@@ -75,6 +83,39 @@ func (s *academicsUsecase) Create(academic dto.CreateAcademicsRequest) error {
 
 	err := s.academicsRepository.Create(academicData)
 
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) error {
+	e := validateBatchCreateAcademicsRequest(batch)
+	if e != nil {
+		return e
+	}
+
+	classrooms, eClass := s.classroomsRepository.GetAll()
+	if eClass != nil {
+		return eClass
+	}
+
+	academicsData := []models.Academics{}
+
+	for _, classroom := range classrooms {
+		academic := models.Academics{
+			DisplayName:       classroom.DisplayName + " " + batch.StartYear + " - " + batch.EndYear,
+			StartYear:         batch.StartYear,
+			EndYear:           batch.EndYear,
+			ClassroomID:       classroom.ID,
+			Major:             "General",
+			HomeroomTeacherID: 0,
+		}
+		academicsData = append(academicsData, academic)
+	}
+
+	err := s.academicsRepository.CreateBatch(academicsData)
 	if err != nil {
 		return err
 	}

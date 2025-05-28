@@ -10,6 +10,7 @@ import (
 type AcademicsRepository interface {
 	Browse(page, limit int, search string) ([]models.Academics, int64, error)
 	Create(academics models.Academics) error
+	CreateBatch(academics []models.Academics) error
 	Find(id int) (models.Academics, error)
 	Update(id int, academic models.Academics) error
 	Delete(id int) error
@@ -38,6 +39,17 @@ func (r *academicsRepository) Browse(page, limit int, search string) ([]models.A
 }
 
 func (r *academicsRepository) Create(academics models.Academics) error {
+	err := r.db.Create(&academics)
+	if err.Error != nil {
+		return err.Error
+	}
+	return nil
+}
+
+func (r *academicsRepository) CreateBatch(academics []models.Academics) error {
+	if len(academics) == 0 {
+		return nil
+	}
 	err := r.db.Create(&academics)
 	if err.Error != nil {
 		return err.Error
