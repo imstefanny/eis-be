@@ -8,6 +8,7 @@ import (
 )
 
 type ClassroomsRepository interface {
+	GetAll() ([]models.Classrooms, error)
 	Browse(page, limit int, search string) ([]models.Classrooms, int64, error)
 	Create(classrooms models.Classrooms) error
 	Find(id int) (models.Classrooms, error)
@@ -21,6 +22,15 @@ type classroomsRepository struct {
 
 func NewClassroomsRepository(db *gorm.DB) *classroomsRepository {
 	return &classroomsRepository{db}
+}
+
+func (r *classroomsRepository) GetAll() ([]models.Classrooms, error) {
+	var classrooms []models.Classrooms
+	err := r.db.Find(&classrooms)
+	if err.Error != nil {
+		return nil, err.Error
+	}
+	return classrooms, nil
 }
 
 func (r *classroomsRepository) Browse(page, limit int, search string) ([]models.Classrooms, int64, error) {
@@ -38,6 +48,17 @@ func (r *classroomsRepository) Browse(page, limit int, search string) ([]models.
 }
 
 func (r *classroomsRepository) Create(classrooms models.Classrooms) error {
+	err := r.db.Create(&classrooms)
+	if err.Error != nil {
+		return err.Error
+	}
+	return nil
+}
+
+func (r *classroomsRepository) CreateBatch(classrooms []models.Classrooms) error {
+	if len(classrooms) == 0 {
+		return nil
+	}
 	err := r.db.Create(&classrooms)
 	if err.Error != nil {
 		return err.Error
