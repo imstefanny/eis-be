@@ -121,11 +121,11 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 
 	for _, classroom := range classrooms {
 		academic := models.Academics{
-			DisplayName: classroom.DisplayName + " " + batch.StartYear + " - " + batch.EndYear,
-			StartYear:   batch.StartYear,
-			EndYear:     batch.EndYear,
-			ClassroomID: classroom.ID,
-			Major:       "General",
+			DisplayName:       "T.A."  + batch.StartYear + "/" + batch.EndYear + " - " + classroom.DisplayName,
+			StartYear:         batch.StartYear,
+			EndYear:           batch.EndYear,
+			ClassroomID:       classroom.ID,
+			Major:             "General",
 		}
 		academicsData = append(academicsData, academic)
 	}
