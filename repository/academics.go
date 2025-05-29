@@ -68,7 +68,7 @@ func (r *academicsRepository) CreateBatch(academics []models.Academics) error {
 
 func (r *academicsRepository) Find(id int) (models.Academics, error) {
 	academic := models.Academics{}
-	if err := r.db.Preload("Classroom").Preload("HomeroomTeacher").Preload("Students").First(&academic, id).Error; err != nil {
+	if err := r.db.Preload("Classroom").Preload("HomeroomTeacher").Preload("Students").Preload("SubjScheds").Preload("SubjScheds.Teacher").Preload("SubjScheds.Subject").First(&academic, id).Error; err != nil {
 		return academic, err
 	}
 	return academic, nil

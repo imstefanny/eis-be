@@ -1,5 +1,11 @@
 package dto
 
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
 type CreateAcademicsRequest struct {
 	DisplayName       string `json:"display_name"`
 	StartYear         string `json:"start_year" validate:"required"`
@@ -14,3 +20,62 @@ type CreateBatchAcademicsRequest struct {
 	StartYear string `json:"start_year" validate:"required"`
 	EndYear   string `json:"end_year" validate:"required"`
 }
+
+type GetAcademicsResponse struct {
+	ID              uint           `json:"id"`
+	DisplayName     string         `json:"display_name"`
+	Classroom       string         `json:"classroom"`
+	Major           string         `json:"major"`
+	HomeroomTeacher string         `json:"homeroom_teacher"`
+	Students        int            `json:"students"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	DeletedAt       gorm.DeletedAt `json:"deleted_at"`
+}
+
+type GetAcademicDetailResponse struct {
+	ID              uint                         `json:"id"`
+	DisplayName     string                       `json:"display_name"`
+	StartYear       string                       `json:"start_year"`
+	EndYear         string                       `json:"end_year"`
+	Classroom       string                       `json:"classroom"`
+	Major           string                       `json:"major"`
+	HomeroomTeacher string                       `json:"homeroom_teacher"`
+	Students        []GetStudentResponse         `json:"students"`
+	SubjScheds      []GetSubjectScheduleResponse `json:"subject_schedules"`
+	// ClassNotes      []GetClassNoteResponse       `json:"class_notes"`
+	// Attendances     []GetAttendanceResponse      `json:"attendances"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+}
+
+type GetStudentResponse struct {
+	ID       uint   `json:"id"`
+	FullName string `json:"full_name"`
+	NIS      string `json:"nis"`
+}
+
+type GetSubjectScheduleResponse struct {
+	Day     string                            `json:"day"`
+	Entries []GetSubjectScheduleEntryResponse `json:"entries"`
+}
+type GetSubjectScheduleEntryResponse struct {
+	ID        uint   `json:"id"`
+	Subject   string `json:"subject"`
+	Teacher   string `json:"teacher"`
+	StartHour string `json:"start_hour"`
+	EndHour   string `json:"end_hour"`
+}
+
+// type GetClassNoteResponse struct {
+// 	Date    time.Time                   `json:"date"`
+// 	Entries []GetClassNoteEntryResponse `json:"entries"`
+// }
+// type GetClassNoteEntryResponse struct {
+// 	ID          uint   `json:"id"`
+// 	SubjectName string `json:"subject_name"`
+// 	TeacherName string `json:"teacher_name"`
+// 	Materials   string `json:"materials"`
+// 	Notes       string `json:"notes"`
+// }
