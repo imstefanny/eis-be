@@ -61,11 +61,11 @@ type GetSubjectScheduleResponse struct {
 	Entries []GetSubjectScheduleEntryResponse `json:"entries"`
 }
 type GetSubjectScheduleEntryResponse struct {
-	ID          uint   `json:"id"`
-	SubjectName string `json:"subject_name"`
-	TeacherName string `json:"teacher_name"`
-	StartHour   string `json:"start_hour"`
-	EndHour     string `json:"end_hour"`
+	ID        uint   `json:"id"`
+	Subject   string `json:"subject"`
+	Teacher   string `json:"teacher"`
+	StartHour string `json:"start_hour"`
+	EndHour   string `json:"end_hour"`
 }
 
 // type GetClassNoteResponse struct {

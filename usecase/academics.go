@@ -121,11 +121,11 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 
 	for _, classroom := range classrooms {
 		academic := models.Academics{
-			DisplayName:       "T.A."  + batch.StartYear + "/" + batch.EndYear + " - " + classroom.DisplayName,
-			StartYear:         batch.StartYear,
-			EndYear:           batch.EndYear,
-			ClassroomID:       classroom.ID,
-			Major:             "General",
+			DisplayName: "T.A." + batch.StartYear + "/" + batch.EndYear + " - " + classroom.DisplayName,
+			StartYear:   batch.StartYear,
+			EndYear:     batch.EndYear,
+			ClassroomID: classroom.ID,
+			Major:       "General",
 		}
 		academicsData = append(academicsData, academic)
 	}
@@ -145,7 +145,55 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		return nil, err
 	}
 
-	return academic, nil
+	students := []dto.GetStudentResponse{}
+	for _, student := range academic.Students {
+		response := dto.GetStudentResponse{
+			ID:       student.ID,
+			FullName: student.FullName,
+			NIS:      student.NIS,
+		}
+		students = append(students, response)
+	}
+	scheduleDays := map[string][]dto.GetSubjectScheduleEntryResponse{}
+	for _, schedule := range academic.SubjScheds {
+		day := schedule.Day
+		if _, exists := scheduleDays[day]; !exists {
+			scheduleDays[day] = []dto.GetSubjectScheduleEntryResponse{}
+		}
+		scheduleEntry := dto.GetSubjectScheduleEntryResponse{
+			ID:        schedule.ID,
+			Subject:   schedule.Subject.Name,
+			Teacher:   schedule.Teacher.Name,
+			StartHour: schedule.StartHour,
+			EndHour:   schedule.EndHour,
+		}
+		scheduleDays[day] = append(scheduleDays[day], scheduleEntry)
+	}
+	schedules := []dto.GetSubjectScheduleResponse{}
+	for day, entries := range scheduleDays {
+		schedule := dto.GetSubjectScheduleResponse{
+			Day:     day,
+			Entries: entries,
+		}
+		schedules = append(schedules, schedule)
+	}
+
+	response := dto.GetAcademicDetailResponse{
+		ID:              academic.ID,
+		DisplayName:     academic.DisplayName,
+		StartYear:       academic.StartYear,
+		EndYear:         academic.EndYear,
+		Classroom:       academic.Classroom.DisplayName,
+		Major:           academic.Major,
+		HomeroomTeacher: academic.HomeroomTeacher.Name,
+		Students:        students,
+		SubjScheds:      schedules,
+		CreatedAt:       academic.CreatedAt,
+		UpdatedAt:       academic.UpdatedAt,
+		DeletedAt:       academic.DeletedAt,
+	}
+
+	return response, nil
 }
 
 func (s *academicsUsecase) Update(id int, academic dto.CreateAcademicsRequest) (models.Academics, error) {
