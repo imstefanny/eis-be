@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"eis-be/dto"
 	"eis-be/models"
 	"strings"
 
@@ -9,7 +8,7 @@ import (
 )
 
 type AcademicsRepository interface {
-	Browse(page, limit int, search string) ([]dto.GetAcademicsResponse, int64, error)
+	Browse(page, limit int, search string) ([]models.Academics, int64, error)
 	Create(academics models.Academics) error
 	CreateBatch(academics []models.Academics) error
 	Find(id int) (models.Academics, error)
@@ -25,8 +24,7 @@ func NewAcademicsRepository(db *gorm.DB) *academicsRepository {
 	return &academicsRepository{db}
 }
 
-func (r *academicsRepository) Browse(page, limit int, search string) ([]dto.GetAcademicsResponse, int64, error) {
-	var responses []dto.GetAcademicsResponse
+func (r *academicsRepository) Browse(page, limit int, search string) ([]models.Academics, int64, error) {
 	var academics []models.Academics
 	var total int64
 	offset := (page - 1) * limit
@@ -37,18 +35,7 @@ func (r *academicsRepository) Browse(page, limit int, search string) ([]dto.GetA
 	if err := r.db.Model(&models.Academics{}).Where("LOWER(display_name) LIKE ?", search).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	for _, academic := range academics {
-		response := dto.GetAcademicsResponse{
-			ID:              academic.ID,
-			DisplayName:     academic.DisplayName,
-			Classroom:       academic.Classroom.DisplayName,
-			Major:           academic.Major,
-			HomeroomTeacher: academic.HomeroomTeacher.Name,
-			Students:        len(academic.Students),
-		}
-		responses = append(responses, response)
-	}
-	return responses, total, nil
+	return academics, total, nil
 }
 
 func (r *academicsRepository) Create(academics models.Academics) error {

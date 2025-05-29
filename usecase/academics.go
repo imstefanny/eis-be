@@ -45,11 +45,24 @@ func validateBatchCreateAcademicsRequest(req dto.CreateBatchAcademicsRequest) er
 func (s *academicsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
 	academics, total, err := s.academicsRepository.Browse(page, limit, search)
 
+	responses := []dto.GetAcademicsResponse{}
+	for _, academic := range academics {
+		response := dto.GetAcademicsResponse{
+			ID:              academic.ID,
+			DisplayName:     academic.DisplayName,
+			Classroom:       academic.Classroom.DisplayName,
+			Major:           academic.Major,
+			HomeroomTeacher: academic.HomeroomTeacher.Name,
+			Students:        len(academic.Students),
+		}
+		responses = append(responses, response)
+	}
+
 	if err != nil {
 		return nil, total, err
 	}
 
-	return academics, total, nil
+	return responses, total, nil
 }
 
 func (s *academicsUsecase) Create(academic dto.CreateAcademicsRequest) error {
@@ -105,11 +118,11 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 
 	for _, classroom := range classrooms {
 		academic := models.Academics{
-			DisplayName:       classroom.DisplayName + " " + batch.StartYear + " - " + batch.EndYear,
-			StartYear:         batch.StartYear,
-			EndYear:           batch.EndYear,
-			ClassroomID:       classroom.ID,
-			Major:             "General",
+			DisplayName: classroom.DisplayName + " " + batch.StartYear + " - " + batch.EndYear,
+			StartYear:   batch.StartYear,
+			EndYear:     batch.EndYear,
+			ClassroomID: classroom.ID,
+			Major:       "General",
 		}
 		academicsData = append(academicsData, academic)
 	}
