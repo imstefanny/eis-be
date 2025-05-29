@@ -12,6 +12,7 @@ type SubjSchedsRepository interface {
 	Create(subjScheds []models.SubjectSchedules) error
 	Find(id int) (models.SubjectSchedules, error)
 	Update(id int, subjSched models.SubjectSchedules) error
+	UpdateBatch(map[string]interface{}) error
 	Delete(id int) error
 }
 
@@ -63,6 +64,33 @@ func (r *subjSchedsRepository) Find(id int) (models.SubjectSchedules, error) {
 func (r *subjSchedsRepository) Update(id int, subjSched models.SubjectSchedules) error {
 	query := r.db.Model(&subjSched).Updates(subjSched)
 	if err := query.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *subjSchedsRepository) UpdateBatch(params map[string]interface{}) error {
+	subjSched := models.SubjectSchedules{}
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		addIDs := params["addIDs"].([]models.SubjectSchedules)
+		if len(addIDs) > 0 {
+			if err := tx.Create(&addIDs).Error; err != nil {
+				return err
+			}
+		}
+		if len(params["updateIDs"].([]int)) > 0 {
+			if err := tx.Save(params["incomingUpdate"]).Error; err != nil {
+				return err
+			}
+		}
+		if len(params["removeIDs"].([]int)) > 0 {
+			if err := tx.Unscoped().Delete(&subjSched, params["removeIDs"]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
 		return err
 	}
 	return nil

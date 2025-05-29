@@ -56,18 +56,6 @@ type GetStudentResponse struct {
 	NIS      string `json:"nis"`
 }
 
-type GetSubjectScheduleResponse struct {
-	Day     string                            `json:"day"`
-	Entries []GetSubjectScheduleEntryResponse `json:"entries"`
-}
-type GetSubjectScheduleEntryResponse struct {
-	ID        uint   `json:"id"`
-	Subject   string `json:"subject"`
-	Teacher   string `json:"teacher"`
-	StartHour string `json:"start_hour"`
-	EndHour   string `json:"end_hour"`
-}
-
 // type GetClassNoteResponse struct {
 // 	Date    time.Time                   `json:"date"`
 // 	Entries []GetClassNoteEntryResponse `json:"entries"`

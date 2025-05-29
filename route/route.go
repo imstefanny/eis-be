@@ -75,7 +75,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	academicsController := controllers.NewAcademicsController(academicsService)
 
 	subjSchedsRepository := repository.NewSubjSchedsRepository(db)
-	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository)
+	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository, academicsRepository)
 	subjSchedsController := controllers.NewSubjSchedsController(subjSchedsService)
 
 	classNotesRepository := repository.NewClassNotesRepository(db)
@@ -217,6 +217,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eSubjScheds.GET("", subjSchedsController.Browse)
 	eSubjScheds.GET("/:id", subjSchedsController.Find)
 	eSubjScheds.POST("", subjSchedsController.Create)
+	eSubjScheds.PUT("", subjSchedsController.UpdateByAcademicID)
 	eSubjScheds.PUT("/:id", subjSchedsController.Update)
 	eSubjScheds.DELETE("/:id", subjSchedsController.Delete)
 

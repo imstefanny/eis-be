@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -13,16 +15,19 @@ type SubjSchedsUsecase interface {
 	Create(subjScheds dto.CreateSubjSchedsRequest) error
 	Find(id int) (interface{}, error)
 	Update(id int, subjSched dto.UpdateSubjSchedsRequest) (models.SubjectSchedules, error)
+	UpdateByAcademicID(subjSched dto.UpdateBatchSubjSchedsRequest) (dto.UpdateSubjSchedsResponse, error)
 	Delete(id int) error
 }
 
 type subjSchedsUsecase struct {
 	subjSchedsRepository repository.SubjSchedsRepository
+	academicsRepository  repository.AcademicsRepository
 }
 
-func NewSubjSchedsUsecase(subjSchedsRepo repository.SubjSchedsRepository) *subjSchedsUsecase {
+func NewSubjSchedsUsecase(subjSchedsRepo repository.SubjSchedsRepository, academicsRepo repository.AcademicsRepository) *subjSchedsUsecase {
 	return &subjSchedsUsecase{
 		subjSchedsRepository: subjSchedsRepo,
+		academicsRepository:  academicsRepo,
 	}
 }
 
@@ -90,7 +95,7 @@ func (s *subjSchedsUsecase) Update(id int, subjSched dto.UpdateSubjSchedsRequest
 		return models.SubjectSchedules{}, err
 	}
 
-	subjSchedData.AcademicID = subjSched.AcademicID
+	// subjSchedData.AcademicID = subjSched.AcademicID
 	subjSchedData.SubjectID = subjSched.SubjectID
 	subjSchedData.TeacherID = subjSched.TeacherID
 	subjSchedData.Day = subjSched.Day
@@ -109,6 +114,107 @@ func (s *subjSchedsUsecase) Update(id int, subjSched dto.UpdateSubjSchedsRequest
 	}
 
 	return subjSchedUpdated, nil
+}
+
+func (s *subjSchedsUsecase) UpdateByAcademicID(subjSched dto.UpdateBatchSubjSchedsRequest) (dto.UpdateSubjSchedsResponse, error) {
+	academicData, err := s.academicsRepository.Find(int(subjSched.AcademicID))
+
+	if err != nil {
+		return dto.UpdateSubjSchedsResponse{}, err
+	}
+
+	existing := academicData.SubjScheds
+	existingIDs := []int{}
+	for _, eDetail := range existing {
+		existingIDs = append(existingIDs, int(eDetail.ID))
+	}
+	incomingDetails := subjSched.Entries
+	incomingIDs := []int{}
+	addIDs := []models.SubjectSchedules{}
+	for _, iDetail := range incomingDetails {
+		if iDetail.ID != 0 {
+			incomingIDs = append(incomingIDs, int(iDetail.ID))
+		} else {
+			addData := models.SubjectSchedules{
+				DisplayName: iDetail.Day + " - " + iDetail.StartHour + " to " + iDetail.EndHour,
+				AcademicID:  subjSched.AcademicID,
+				SubjectID:   iDetail.SubjectID,
+				TeacherID:   iDetail.TeacherID,
+				Day:         iDetail.Day,
+				StartHour:   iDetail.StartHour,
+				EndHour:     iDetail.EndHour,
+			}
+			addIDs = append(addIDs, addData)
+		}
+	}
+	removeIDs := helpers.Difference(existingIDs, incomingIDs)
+	updateIDs := helpers.Intersection(incomingIDs, existingIDs)
+	incomingUpdate := []models.SubjectSchedules{}
+	for _, iDetail := range incomingDetails {
+		for _, id := range updateIDs {
+			if int(iDetail.ID) == id {
+				incomingUpdate = append(incomingUpdate, models.SubjectSchedules{
+					ID:          iDetail.ID,
+					DisplayName: iDetail.Day + " - " + iDetail.StartHour + " to " + iDetail.EndHour,
+					AcademicID:  subjSched.AcademicID,
+					SubjectID:   iDetail.SubjectID,
+					TeacherID:   iDetail.TeacherID,
+					Day:         iDetail.Day,
+					StartHour:   iDetail.StartHour,
+					EndHour:     iDetail.EndHour,
+				})
+			}
+		}
+	}
+	if len(addIDs) == 0 && len(updateIDs) == 0 && len(removeIDs) == 0 {
+		return dto.UpdateSubjSchedsResponse{}, fmt.Errorf("no changes detected")
+	}
+
+	details := map[string]interface{}{
+		"addIDs":      addIDs,
+		"updateIDs":   updateIDs,
+		"removeIDs":   removeIDs,
+		"incomingUpdate": incomingUpdate,
+	}
+	eTrx := s.subjSchedsRepository.UpdateBatch(details)
+	if eTrx != nil {
+		return dto.UpdateSubjSchedsResponse{}, eTrx
+	}
+
+	academicUpdated, err := s.academicsRepository.Find(int(subjSched.AcademicID))
+
+	if err != nil {
+		return dto.UpdateSubjSchedsResponse{}, err
+	}
+
+	scheduleDays := map[string][]dto.GetSubjectScheduleEntryResponse{}
+	for _, schedule := range academicUpdated.SubjScheds {
+		day := schedule.Day
+		if _, exists := scheduleDays[day]; !exists {
+			scheduleDays[day] = []dto.GetSubjectScheduleEntryResponse{}
+		}
+		scheduleEntry := dto.GetSubjectScheduleEntryResponse{
+			ID:        schedule.ID,
+			Subject:   schedule.Subject.Name,
+			Teacher:   schedule.Teacher.Name,
+			StartHour: schedule.StartHour,
+			EndHour:   schedule.EndHour,
+		}
+		scheduleDays[day] = append(scheduleDays[day], scheduleEntry)
+	}
+	response := dto.UpdateSubjSchedsResponse{}
+	responses := []dto.GetSubjectScheduleResponse{}
+	for day, entries := range scheduleDays {
+		schedule := dto.GetSubjectScheduleResponse{
+			Day:     day,
+			Entries: entries,
+		}
+		responses = append(responses, schedule)
+	}
+	response.AcademicID = uint(academicUpdated.ID)
+	response.Entries = responses
+
+	return response, err
 }
 
 func (s *subjSchedsUsecase) Delete(id int) error {
