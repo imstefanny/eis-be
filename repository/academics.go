@@ -9,6 +9,7 @@ import (
 
 type AcademicsRepository interface {
 	Browse(page, limit int, search string) ([]models.Academics, int64, error)
+	GetAll() ([]models.Academics, error)
 	Create(academics models.Academics) error
 	CreateBatch(academics []models.Academics) error
 	Find(id int) (models.Academics, error)
@@ -36,6 +37,14 @@ func (r *academicsRepository) Browse(page, limit int, search string) ([]models.A
 		return nil, 0, err
 	}
 	return academics, total, nil
+}
+
+func (r *academicsRepository) GetAll() ([]models.Academics, error) {
+	var academics []models.Academics
+	if err := r.db.Preload("SubjScheds").Find(&academics).Error; err != nil {
+		return nil, err
+	}
+	return academics, nil
 }
 
 func (r *academicsRepository) Create(academics models.Academics) error {
