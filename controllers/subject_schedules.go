@@ -111,6 +111,29 @@ func (u *subjSchedsController) Update(c echo.Context) error {
 	})
 }
 
+func (u *subjSchedsController) UpdateByAcademicID(c echo.Context) error {
+	subjSched := dto.UpdateBatchSubjSchedsRequest{}
+
+	if err := c.Bind(&subjSched); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	subjSchedUpdated, err := u.useCase.UpdateByAcademicID(subjSched)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":    subjSchedUpdated,
+		"message": "Data updated successfully",
+	})
+}
+
 func (u *subjSchedsController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
