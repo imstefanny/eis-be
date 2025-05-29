@@ -9,6 +9,7 @@ import (
 
 type AcademicsRepository interface {
 	Browse(page, limit int, search string) ([]models.Academics, int64, error)
+	GetAll() ([]models.Academics, error)
 	Create(academics models.Academics) error
 	CreateBatch(academics []models.Academics) error
 	Find(id int) (models.Academics, error)
@@ -38,6 +39,14 @@ func (r *academicsRepository) Browse(page, limit int, search string) ([]models.A
 	return academics, total, nil
 }
 
+func (r *academicsRepository) GetAll() ([]models.Academics, error) {
+	var academics []models.Academics
+	if err := r.db.Preload("SubjScheds").Find(&academics).Error; err != nil {
+		return nil, err
+	}
+	return academics, nil
+}
+
 func (r *academicsRepository) Create(academics models.Academics) error {
 	err := r.db.Create(&academics)
 	if err.Error != nil {
@@ -59,7 +68,7 @@ func (r *academicsRepository) CreateBatch(academics []models.Academics) error {
 
 func (r *academicsRepository) Find(id int) (models.Academics, error) {
 	academic := models.Academics{}
-	if err := r.db.Preload("Classroom").Preload("HomeroomTeacher").Preload("Students").First(&academic, id).Error; err != nil {
+	if err := r.db.Preload("Classroom").Preload("HomeroomTeacher").Preload("Students").Preload("SubjScheds").Preload("SubjScheds.Teacher").Preload("SubjScheds.Subject").First(&academic, id).Error; err != nil {
 		return academic, err
 	}
 	return academic, nil

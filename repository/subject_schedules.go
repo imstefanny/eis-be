@@ -9,7 +9,7 @@ import (
 
 type SubjSchedsRepository interface {
 	Browse(page, limit int, search string) ([]models.SubjectSchedules, int64, error)
-	Create(subjScheds models.SubjectSchedules) error
+	Create(subjScheds []models.SubjectSchedules) error
 	Find(id int) (models.SubjectSchedules, error)
 	Update(id int, subjSched models.SubjectSchedules) error
 	Delete(id int) error
@@ -44,7 +44,7 @@ func (r *subjSchedsRepository) Browse(page, limit int, search string) ([]models.
 	return subjScheds, total, nil
 }
 
-func (r *subjSchedsRepository) Create(subjScheds models.SubjectSchedules) error {
+func (r *subjSchedsRepository) Create(subjScheds []models.SubjectSchedules) error {
 	err := r.db.Create(&subjScheds)
 	if err.Error != nil {
 		return err.Error

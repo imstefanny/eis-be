@@ -89,7 +89,7 @@ func (u *subjSchedsController) Find(c echo.Context) error {
 
 func (u *subjSchedsController) Update(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	subjSched := dto.CreateSubjSchedsRequest{}
+	subjSched := dto.UpdateSubjSchedsRequest{}
 
 	if err := c.Bind(&subjSched); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
