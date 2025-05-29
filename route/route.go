@@ -30,7 +30,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	teachersController := controllers.NewTeachersController(teachersService)
 
 	teacherAttsRepository := repository.NewTeacherAttsRepository(db)
-	teacherAttsService := usecase.NewTeacherAttsUsecase(teacherAttsRepository, db)
+	teacherAttsService := usecase.NewTeacherAttsUsecase(teacherAttsRepository, teachersRepository)
 	teacherAttsController := controllers.NewTeacherAttsController(teacherAttsService)
 
 	guardiansRepository := repository.NewGuardiansRepository(db)
