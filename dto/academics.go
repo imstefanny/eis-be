@@ -43,7 +43,7 @@ type GetAcademicDetailResponse struct {
 	HomeroomTeacher string                       `json:"homeroom_teacher"`
 	Students        []GetStudentResponse         `json:"students"`
 	SubjScheds      []GetSubjectScheduleResponse `json:"subject_schedules"`
-	// ClassNotes      []GetClassNoteResponse       `json:"class_notes"`
+	ClassNotes      []GetClassNoteResponse       `json:"class_notes"`
 	// Attendances     []GetAttendanceResponse      `json:"attendances"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
@@ -56,14 +56,15 @@ type GetStudentResponse struct {
 	NIS      string `json:"nis"`
 }
 
-// type GetClassNoteResponse struct {
-// 	Date    time.Time                   `json:"date"`
-// 	Entries []GetClassNoteEntryResponse `json:"entries"`
-// }
-// type GetClassNoteEntryResponse struct {
-// 	ID          uint   `json:"id"`
-// 	SubjectName string `json:"subject_name"`
-// 	TeacherName string `json:"teacher_name"`
-// 	Materials   string `json:"materials"`
-// 	Notes       string `json:"notes"`
-// }
+type GetClassNoteResponse struct {
+	Date    time.Time                   `json:"date"`
+	Entries []GetClassNoteEntryResponse `json:"entries"`
+}
+type GetClassNoteEntryResponse struct {
+	ID         uint   `json:"id"`
+	Subject    string `json:"subject"`
+	Teacher    string `json:"teacher"`
+	TeacherAct string `json:"teacher_act"`
+	Materials  string `json:"materials"`
+	Notes      string `json:"notes"`
+}
