@@ -74,6 +74,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository)
 	subjSchedsController := controllers.NewSubjSchedsController(subjSchedsService)
 
+	classNotesRepository := repository.NewClassNotesRepository(db)
+	classNotesService := usecase.NewClassNotesUsecase(classNotesRepository, academicsRepository)
+	classNotesController := controllers.NewClassNotesController(classNotesService)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -202,4 +206,16 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eSubjScheds.POST("", subjSchedsController.Create)
 	eSubjScheds.PUT("/:id", subjSchedsController.Update)
 	eSubjScheds.DELETE("/:id", subjSchedsController.Delete)
+
+	eClassNotes := eAcademics.Group("/classnotes")
+	eClassNotes.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eClassNotes.GET("", classNotesController.Browse)
+	eClassNotes.GET("/:id", classNotesController.Find)
+	eClassNotes.POST("", classNotesController.Create)
+	eClassNotes.POST("/batch", classNotesController.CreateBatch)
+
+	eAcademicNotes := eAcademics.Group("/:academic_id/classnotes")
+	eAcademicNotes.GET("", classNotesController.BrowseByAcademicID)
+	// eClassNotes.PUT("/:id", classNotesController.Update)
+	// eClassNotes.DELETE("/:id", classNotesController.Delete)
 }
