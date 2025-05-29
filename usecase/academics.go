@@ -54,6 +54,9 @@ func (s *academicsUsecase) Browse(page, limit int, search string) (interface{}, 
 			Major:           academic.Major,
 			HomeroomTeacher: academic.HomeroomTeacher.Name,
 			Students:        len(academic.Students),
+			CreatedAt:       academic.CreatedAt,
+			UpdatedAt:       academic.UpdatedAt,
+			DeletedAt:       academic.DeletedAt,
 		}
 		responses = append(responses, response)
 	}
