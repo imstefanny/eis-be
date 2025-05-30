@@ -39,8 +39,9 @@ func (u *teacherAttsController) Browse(c echo.Context) error {
 	if sortOrder != "asc" && sortOrder != "desc" {
 		sortOrder = "desc"
 	}
+	date := c.QueryParam("date")
 
-	blogs, total, err := u.useCase.Browse(page, limit, search)
+	blogs, total, err := u.useCase.Browse(page, limit, search, date)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
