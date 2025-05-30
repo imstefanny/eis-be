@@ -14,7 +14,7 @@ type SubjectSchedules struct {
 	SubjectID   uint                `json:"subject_id"`
 	Subject     Subjects            `json:"subject" gorm:"foreignKey:SubjectID"`
 	TeacherID   uint                `json:"teacher_id" gorm:"default:null"`
-	Teacher     Users               `json:"teacher" gorm:"foreignKey:TeacherID"`
+	Teacher     Teachers            `json:"teacher" gorm:"foreignKey:TeacherID"`
 	Day         string              `json:"day"`
 	StartHour   string              `json:"start_hour"`
 	EndHour     string              `json:"end_hour"`
