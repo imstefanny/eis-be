@@ -177,6 +177,26 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		}
 		schedules = append(schedules, schedule)
 	}
+	classnotes := []dto.GetClassNoteResponse{}
+	for _, note := range academic.ClassNotes {
+		entries := []dto.GetClassNoteEntryResponse{}
+		for _, entry := range note.Details {
+			classNoteEntry := dto.GetClassNoteEntryResponse{
+				ID:         entry.ID,
+				Subject:    entry.SubjSched.Subject.Name,
+				Teacher:    entry.SubjSched.Teacher.Name,
+				TeacherAct: entry.Teacher.Name,
+				Materials:  entry.Materials,
+				Notes:      entry.Notes,
+			}
+			entries = append(entries, classNoteEntry)
+		}
+		classNote := dto.GetClassNoteResponse{
+			Date:    note.Date,
+			Entries: entries,
+		}
+		classnotes = append(classnotes, classNote)
+	}
 
 	response := dto.GetAcademicDetailResponse{
 		ID:              academic.ID,
@@ -188,6 +208,7 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		HomeroomTeacher: academic.HomeroomTeacher.Name,
 		Students:        students,
 		SubjScheds:      schedules,
+		ClassNotes:      classnotes,
 		CreatedAt:       academic.CreatedAt,
 		UpdatedAt:       academic.UpdatedAt,
 		DeletedAt:       academic.DeletedAt,
