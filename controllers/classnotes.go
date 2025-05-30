@@ -145,42 +145,42 @@ func (u *classNotesController) Find(c echo.Context) error {
 	})
 }
 
-// func (u *classNotesController) Update(c echo.Context) error {
-// 	id, _ := strconv.Atoi(c.Param("id"))
-// 	classNote := dto.CreateClassNotesRequest{}
+func (u *classNotesController) Update(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	classNote := dto.CreateClassNotesRequest{}
 
-// 	if err := c.Bind(&classNote); err != nil {
-// 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-// 			"error": err.Error(),
-// 		})
-// 	}
+	if err := c.Bind(&classNote); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
 
-// 	classNoteUpdated, err := u.useCase.Update(id, classNote)
+	classNoteUpdated, err := u.useCase.Update(id, classNote)
 
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-// 			"error": err.Error(),
-// 		})
-// 	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
 
-// 	return c.JSON(http.StatusOK, map[string]interface{}{
-// 		"data":    classNoteUpdated,
-// 		"message": "Data updated successfully",
-// 	})
-// }
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":    classNoteUpdated,
+		"message": "Data updated successfully",
+	})
+}
 
-// func (u *classNotesController) Delete(c echo.Context) error {
-// 	id, _ := strconv.Atoi(c.Param("id"))
+func (u *classNotesController) Delete(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
-// 	err := u.useCase.Delete(id)
+	err := u.useCase.Delete(id)
 
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-// 			"error": err.Error(),
-// 		})
-// 	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
 
-// 	return c.JSON(http.StatusOK, map[string]interface{}{
-// 		"message": "Data deleted successfully",
-// 	})
-// }
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data deleted successfully",
+	})
+}
