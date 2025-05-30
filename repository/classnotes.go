@@ -13,7 +13,7 @@ type ClassNotesRepository interface {
 	Create(classNotes models.ClassNotes) error
 	CreateBatch(classNotes []models.ClassNotes) error
 	Find(id int) (models.ClassNotes, error)
-	// Update(id int, classNote models.ClassNotes) error
+	Update(id int, params map[string]interface{}) error
 	// Delete(id int) error
 }
 
@@ -77,18 +77,32 @@ func (r *classNotesRepository) Find(id int) (models.ClassNotes, error) {
 	return classNote, nil
 }
 
-// func (r *classNotesRepository) Update(id int, classNote models.ClassNotes) error {
-// 	oldClassNote := models.ClassNotes{}
-// 	if e := r.db.Find(&oldClassNote, id).Error; e != nil {
-// 		return e
-// 	}
-// 	r.db.Model(&oldClassNote).Association("Students").Clear()
-// 	query := r.db.Model(&classNote).Updates(classNote)
-// 	if err := query.Error; err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func (r *classNotesRepository) Update(id int, params map[string]interface{}) error {
+	classNote := models.ClassNotes{}
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		addIDs := params["addIDs"].([]models.ClassNotes)
+		if len(addIDs) > 0 {
+			if err := tx.Create(&addIDs).Error; err != nil {
+				return err
+			}
+		}
+		if len(params["updateIDs"].([]int)) > 0 {
+			if err := tx.Save(params["incomingUpdate"]).Error; err != nil {
+				return err
+			}
+		}
+		if len(params["removeIDs"].([]int)) > 0 {
+			if err := tx.Unscoped().Delete(&classNote, params["removeIDs"]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 // func (r *classNotesRepository) Delete(id int) error {
 // 	classNote := models.ClassNotes{}

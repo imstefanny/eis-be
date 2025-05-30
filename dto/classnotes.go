@@ -7,6 +7,7 @@ type CreateClassNotesRequest struct {
 }
 
 type CreateClassNotesDetailsRequest struct {
+	ID          uint   `json:"id"`
 	SubjSchedID uint   `json:"subj_sched_id" validate:"required"`
 	TeacherID   uint   `json:"teacher_id" validate:"required"`
 	Materials   string `json:"materials" validate:"required"`

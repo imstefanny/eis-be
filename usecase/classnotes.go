@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -15,7 +17,7 @@ type ClassNotesUsecase interface {
 	Create(classNote dto.CreateClassNotesRequest) error
 	CreateBatch(classNote dto.CreateBatchClassNotesRequest) error
 	Find(id int) (interface{}, error)
-	// Update(id int, classNote dto.CreateClassNotesRequest) (models.ClassNotes, error)
+	Update(id int, classNote dto.CreateClassNotesRequest) (models.ClassNotes, error)
 	// Delete(id int) error
 }
 
@@ -161,47 +163,75 @@ func (s *classNotesUsecase) Find(id int) (interface{}, error) {
 	return classNote, nil
 }
 
-// func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest) (models.ClassNotes, error) {
-// 	classNoteData, err := s.classNotesRepository.Find(id)
+func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest) (models.ClassNotes, error) {
+	classNoteData, err := s.classNotesRepository.Find(id)
 
-// 	if err != nil {
-// 		return models.ClassNotes{}, err
-// 	}
+	if err != nil {
+		return models.ClassNotes{}, err
+	}
 
-// 	students := []models.Students{}
-// 	if len(classNote.Students) > 0 {
-// 		studentsData, e := s.studentsRepository.GetByIds(classNote.Students)
-// 		if e != nil {
-// 			return models.ClassNotes{}, e
-// 		}
-// 		if len(studentsData) == 0 {
-// 			return models.ClassNotes{}, fmt.Errorf("Students not found")
-// 		}
-// 		students = studentsData
-// 	}
+	existing := classNoteData.Details
+	existingIDs := []int{}
+	for _, eDetail := range existing {
+		existingIDs = append(existingIDs, int(eDetail.ID))
+	}
+	incomingDetails := classNote.Details
+	incomingIDs := []int{}
+	addIDs := []models.ClassNotesDetails{}
+	for _, iDetail := range incomingDetails {
+		if iDetail.ID != 0 {
+			incomingIDs = append(incomingIDs, int(iDetail.ID))
+		} else {
+			addData := models.ClassNotesDetails{
+				NoteID:      classNoteData.ID,
+				SubjSchedID: iDetail.SubjSchedID,
+				TeacherID:   iDetail.TeacherID,
+				Materials:   iDetail.Materials,
+				Notes:       iDetail.Notes,
+			}
+			addIDs = append(addIDs, addData)
+		}
+	}
+	removeIDs := helpers.Difference(existingIDs, incomingIDs)
+	updateIDs := helpers.Intersection(incomingIDs, existingIDs)
+	incomingUpdate := []models.ClassNotesDetails{}
+	for _, iDetail := range incomingDetails {
+		for _, id := range updateIDs {
+			if int(iDetail.ID) == id {
+				incomingUpdate = append(incomingUpdate, models.ClassNotesDetails{
+					ID:          iDetail.ID,
+					NoteID:      classNoteData.ID,
+					SubjSchedID: iDetail.SubjSchedID,
+					TeacherID:   iDetail.TeacherID,
+					Materials:   iDetail.Materials,
+					Notes:       iDetail.Notes,
+				})
+			}
+		}
+	}
+	if len(addIDs) == 0 && len(updateIDs) == 0 && len(removeIDs) == 0 {
+		return models.ClassNotes{}, fmt.Errorf("no changes detected")
+	}
 
-// 	classNoteData.DisplayName = classNote.DisplayName
-// 	classNoteData.StartYear = classNote.StartYear
-// 	classNoteData.EndYear = classNote.EndYear
-// 	classNoteData.ClassroomID = classNote.ClassroomID
-// 	classNoteData.Major = classNote.Major
-// 	classNoteData.HomeroomTeacherID = classNote.HomeroomTeacherID
-// 	classNoteData.Students = students
+	details := map[string]interface{}{
+		"addIDs":      addIDs,
+		"updateIDs":   updateIDs,
+		"removeIDs":   removeIDs,
+		"incomingUpdate": incomingUpdate,
+	}
+	eTrx := s.classNotesRepository.Update(id, details)
+	if eTrx != nil {
+		return models.ClassNotes{}, eTrx
+	}
 
-// 	e := s.classNotesRepository.Update(id, classNoteData)
+	classNoteUpdated, err := s.classNotesRepository.Find(id)
 
-// 	if e != nil {
-// 		return models.ClassNotes{}, e
-// 	}
+	if err != nil {
+		return models.ClassNotes{}, err
+	}
 
-// 	classNoteUpdated, err := s.classNotesRepository.Find(id)
-
-// 	if err != nil {
-// 		return models.ClassNotes{}, err
-// 	}
-
-// 	return classNoteUpdated, nil
-// }
+	return classNoteUpdated, nil
+}
 
 // func (s *classNotesUsecase) Delete(id int) error {
 // 	err := s.classNotesRepository.Delete(id)
