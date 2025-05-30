@@ -15,5 +15,6 @@ type CreateTeachersRequest struct {
 	LevelID     uint           `json:"level_id"`
 	WorkSchedID uint           `json:"work_sched_id"`
 	ProfilePic  string         `json:"profile_pic"`
+	MachineID   uint           `json:"machine_id"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty"`
 }

@@ -109,6 +109,7 @@ func (s *teachersUsecase) Create(teacher dto.CreateTeachersRequest, claims jwt.M
 		UserID:      userID,
 		WorkSchedID: teacher.WorkSchedID,
 		ProfilePic:  teacher.ProfilePic,
+		MachineID:   teacher.MachineID,
 	}
 
 	err := s.teachersRepository.Create(tx, teacherData)
@@ -144,6 +145,7 @@ func (s *teachersUsecase) Update(id int, teacher dto.CreateTeachersRequest) (mod
 	teacherData.WorkSchedID = teacher.WorkSchedID
 	teacherData.ProfilePic = teacher.ProfilePic
 	teacherData.DeletedAt = teacher.DeletedAt
+	teacherData.MachineID = teacher.MachineID
 
 	errUnscope := s.teachersRepository.UndeleteTeacher(id)
 	if errUnscope != nil {
