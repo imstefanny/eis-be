@@ -228,8 +228,8 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eClassNotes.POST("", classNotesController.Create)
 	eClassNotes.POST("/batch", classNotesController.CreateBatch)
 	eClassNotes.PUT("/:id", classNotesController.Update)
+	eClassNotes.DELETE("/:id", classNotesController.Delete)
 
 	eAcademicNotes := eAcademics.Group("/:academic_id/classnotes")
 	eAcademicNotes.GET("", classNotesController.BrowseByAcademicID)
-	// eClassNotes.DELETE("/:id", classNotesController.Delete)
 }

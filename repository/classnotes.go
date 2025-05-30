@@ -14,7 +14,7 @@ type ClassNotesRepository interface {
 	CreateBatch(classNotes []models.ClassNotes) error
 	Find(id int) (models.ClassNotes, error)
 	Update(id int, params map[string]interface{}) error
-	// Delete(id int) error
+	Delete(id int) error
 }
 
 type classNotesRepository struct {
@@ -117,10 +117,20 @@ func (r *classNotesRepository) Update(id int, params map[string]interface{}) err
 	return nil
 }
 
-// func (r *classNotesRepository) Delete(id int) error {
-// 	classNote := models.ClassNotes{}
-// 	if err := r.db.Delete(&classNote, id).Error; err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func (r *classNotesRepository) Delete(id int) error {
+	classNote := models.ClassNotes{}
+	classNoteDetails := models.ClassNotesDetails{}
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("note_id = ?", id).Delete(&classNoteDetails).Error; err != nil {
+			return err
+		}
+		if err := tx.Where("id = ?", id).Delete(&classNote).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}

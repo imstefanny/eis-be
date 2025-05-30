@@ -18,7 +18,7 @@ type ClassNotesUsecase interface {
 	CreateBatch(classNote dto.CreateBatchClassNotesRequest) error
 	Find(id int) (dto.GetClassNotesResponse, error)
 	Update(id int, classNote dto.CreateClassNotesRequest) (dto.GetClassNotesResponse, error)
-	// Delete(id int) error
+	Delete(id int) error
 }
 
 type classNotesUsecase struct {
@@ -302,12 +302,12 @@ func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest
 	return response, nil
 }
 
-// func (s *classNotesUsecase) Delete(id int) error {
-// 	err := s.classNotesRepository.Delete(id)
+func (s *classNotesUsecase) Delete(id int) error {
+	err := s.classNotesRepository.Delete(id)
 
-// 	if err != nil {
-// 		return err
-// 	}
+	if err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	return nil
+}

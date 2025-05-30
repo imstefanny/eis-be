@@ -169,18 +169,18 @@ func (u *classNotesController) Update(c echo.Context) error {
 	})
 }
 
-// func (u *classNotesController) Delete(c echo.Context) error {
-// 	id, _ := strconv.Atoi(c.Param("id"))
+func (u *classNotesController) Delete(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
-// 	err := u.useCase.Delete(id)
+	err := u.useCase.Delete(id)
 
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-// 			"error": err.Error(),
-// 		})
-// 	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
 
-// 	return c.JSON(http.StatusOK, map[string]interface{}{
-// 		"message": "Data deleted successfully",
-// 	})
-// }
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data deleted successfully",
+	})
+}
