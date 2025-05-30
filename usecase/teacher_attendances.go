@@ -122,14 +122,13 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 		if err != nil {
 			return err
 		}
-		teacher, err := s.teacherRepository.Find(int(teacherAtt.TeacherID))
+		teacher, err := s.teacherRepository.GetByMachineID(int(teacherAtt.TeacherID))
 		if err != nil {
 			return err
 		}
-
 		teacherAttData := models.TeacherAttendances{
 			DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
-			TeacherID:         teacherAtt.TeacherID,
+			TeacherID:         teacher.ID,
 			WorkingScheduleID: teacherAtt.WorkingScheduleID,
 			Date:              parseDate,
 			LogInTime:         time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, parseDate.Location()),

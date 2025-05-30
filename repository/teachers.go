@@ -11,6 +11,7 @@ import (
 type TeachersRepository interface {
 	Browse(page, limit int, search string) ([]models.Teachers, int64, error)
 	Find(id int) (models.Teachers, error)
+	GetByMachineID(machineID int) (models.Teachers, error)
 	GetByToken(id int) (models.Teachers, error)
 	Create(tx *gorm.DB, teachers models.Teachers) error
 	Update(id int, teacher models.Teachers) error
@@ -51,6 +52,14 @@ func (r *teachersRepository) Browse(page, limit int, search string) ([]models.Te
 func (r *teachersRepository) Find(id int) (models.Teachers, error) {
 	teacher := models.Teachers{}
 	if err := r.db.Preload("Level").Preload("WorkSched").Preload("User").Unscoped().First(&teacher, id).Error; err != nil {
+		return teacher, err
+	}
+	return teacher, nil
+}
+
+func (r *teachersRepository) GetByMachineID(machineID int) (models.Teachers, error) {
+	teacher := models.Teachers{}
+	if err := r.db.Where("machine_id = ?", machineID).Unscoped().First(&teacher).Error; err != nil {
 		return teacher, err
 	}
 	return teacher, nil
