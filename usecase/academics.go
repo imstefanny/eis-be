@@ -162,7 +162,9 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		}
 		scheduleEntry := dto.GetSubjectScheduleEntryResponse{
 			ID:        schedule.ID,
+			SubjectID: schedule.Subject.ID,
 			Subject:   schedule.Subject.Name,
+			TeacherID: schedule.Teacher.ID,
 			Teacher:   schedule.Teacher.Name,
 			StartHour: schedule.StartHour,
 			EndHour:   schedule.EndHour,

@@ -43,8 +43,10 @@ type GetSubjectScheduleResponse struct {
 }
 type GetSubjectScheduleEntryResponse struct {
 	ID        uint   `json:"id"`
+	SubjectID uint   `json:"subject_id"`
 	Subject   string `json:"subject"`
 	Teacher   string `json:"teacher"`
+	TeacherID uint   `json:"teacher_id"`
 	StartHour string `json:"start_hour"`
 	EndHour   string `json:"end_hour"`
 }
