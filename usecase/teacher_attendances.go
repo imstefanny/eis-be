@@ -20,13 +20,13 @@ type TeacherAttsUsecase interface {
 
 type teacherAttsUsecase struct {
 	teacherAttsRepository repository.TeacherAttsRepository
-	teacherRepository    repository.TeachersRepository
+	teacherRepository     repository.TeachersRepository
 }
 
 func NewTeacherAttsUsecase(teacherAttsRepo repository.TeacherAttsRepository, teachersRepo repository.TeachersRepository) *teacherAttsUsecase {
 	return &teacherAttsUsecase{
 		teacherAttsRepository: teacherAttsRepo,
-		teacherRepository:    teachersRepo,
+		teacherRepository:     teachersRepo,
 	}
 }
 
@@ -57,6 +57,7 @@ func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) err
 		return e
 	}
 
+	loc, _ := time.LoadLocation("Asia/Jakarta")
 	parseDate, err := time.Parse("2006-01-02", teacherAtt.Date)
 	if err != nil {
 		return err
@@ -72,6 +73,7 @@ func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) err
 	if err != nil {
 		return err
 	}
+
 	teacher, err := s.teacherRepository.Find(int(teacherAtt.TeacherID))
 	if err != nil {
 		return err
@@ -80,9 +82,9 @@ func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) err
 		DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
 		TeacherID:         teacherAtt.TeacherID,
 		WorkingScheduleID: teacherAtt.WorkingScheduleID,
-		Date:              parseDate,
-		LogInTime:         time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, parseDate.Location()),
-		LogOutTime:        time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, parseDate.Location()),
+		Date:              time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc),
+		LogInTime:         time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc),
+		LogOutTime:        time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc),
 		Remark:            teacherAtt.Remark,
 		Note:              teacherAtt.Note,
 	}
@@ -124,6 +126,7 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 		if err != nil {
 			return err
 		}
+
 		teacherAttData := models.TeacherAttendances{
 			DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
 			TeacherID:         teacherAtt.TeacherID,
@@ -175,11 +178,13 @@ func (s *teacherAttsUsecase) Update(id int, teacherAtt dto.CreateTeacherAttsRequ
 	if err != nil {
 		return models.TeacherAttendances{}, err
 	}
+
+	loc, _ := time.LoadLocation("Asia/Jakarta")
 	teacherAttData.TeacherID = teacherAtt.TeacherID
 	teacherAttData.WorkingScheduleID = teacherAtt.WorkingScheduleID
-	teacherAttData.Date = parseDate
-	teacherAttData.LogInTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, parseDate.Location())
-	teacherAttData.LogOutTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, parseDate.Location())
+	teacherAttData.Date = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc)
+	teacherAttData.LogInTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc)
+	teacherAttData.LogOutTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc)
 	teacherAttData.Remark = teacherAtt.Remark
 	teacherAttData.Note = teacherAtt.Note
 
