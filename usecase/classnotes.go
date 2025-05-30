@@ -13,11 +13,11 @@ import (
 
 type ClassNotesUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
-	BrowseByAcademicID(academicID, page, limit int, search string) (interface{}, int64, error)
+	BrowseByAcademicID(academicID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error)
 	Create(classNote dto.CreateClassNotesRequest) error
 	CreateBatch(classNote dto.CreateBatchClassNotesRequest) error
-	Find(id int) (interface{}, error)
-	Update(id int, classNote dto.CreateClassNotesRequest) (models.ClassNotes, error)
+	Find(id int) (dto.GetClassNotesResponse, error)
+	Update(id int, classNote dto.CreateClassNotesRequest) (dto.GetClassNotesResponse, error)
 	// Delete(id int) error
 }
 
@@ -53,14 +53,39 @@ func (s *classNotesUsecase) Browse(page, limit int, search string) (interface{},
 	return classNotes, total, nil
 }
 
-func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, search string) (interface{}, int64, error) {
+func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error) {
 	classNotes, total, err := s.classNotesRepository.BrowseByAcademicID(academicID, page, limit, search)
 
 	if err != nil {
 		return nil, total, err
 	}
 
-	return classNotes, total, nil
+	responses := []dto.GetClassNotesResponse{}
+	for _, classNote := range classNotes {
+		details := []dto.GetClassNoteEntryResponse{}
+		for _, detail := range classNote.Details {
+			detailData := dto.GetClassNoteEntryResponse{
+				ID:         detail.ID,
+				Subject:    detail.SubjSched.Subject.Name,
+				Teacher:    detail.SubjSched.Teacher.Name,
+				TeacherAct: detail.Teacher.Name,
+				Materials:  detail.Materials,
+				Notes:      detail.Notes,
+			}
+			details = append(details, detailData)
+		}
+		responses = append(responses, dto.GetClassNotesResponse{
+			ID:         classNote.ID,
+			AcademicID: classNote.AcademicID,
+			Date:       classNote.Date,
+			Details:    details,
+			CreatedAt:  classNote.CreatedAt,
+			UpdatedAt:  classNote.UpdatedAt,
+			DeletedAt:  classNote.DeletedAt,
+		})
+	}
+
+	return responses, total, nil
 }
 
 func (s *classNotesUsecase) Create(classNote dto.CreateClassNotesRequest) error {
@@ -153,21 +178,43 @@ func (s *classNotesUsecase) CreateBatch(classNote dto.CreateBatchClassNotesReque
 	return nil
 }
 
-func (s *classNotesUsecase) Find(id int) (interface{}, error) {
+func (s *classNotesUsecase) Find(id int) (dto.GetClassNotesResponse, error) {
 	classNote, err := s.classNotesRepository.Find(id)
 
 	if err != nil {
-		return nil, err
+		return dto.GetClassNotesResponse{}, err
 	}
 
-	return classNote, nil
+	details := []dto.GetClassNoteEntryResponse{}
+	for _, detail := range classNote.Details {
+		detailData := dto.GetClassNoteEntryResponse{
+			ID:         detail.ID,
+			Subject:    detail.SubjSched.Subject.Name,
+			Teacher:    detail.SubjSched.Teacher.Name,
+			TeacherAct: detail.Teacher.Name,
+			Materials:  detail.Materials,
+			Notes:      detail.Notes,
+		}
+		details = append(details, detailData)
+	}
+	response := dto.GetClassNotesResponse{
+		ID:         classNote.ID,
+		AcademicID: classNote.AcademicID,
+		Date:       classNote.Date,
+		Details:    details,
+		CreatedAt:  classNote.CreatedAt,
+		UpdatedAt:  classNote.UpdatedAt,
+		DeletedAt:  classNote.DeletedAt,
+	}
+
+	return response, nil
 }
 
-func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest) (models.ClassNotes, error) {
+func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest) (dto.GetClassNotesResponse, error) {
 	classNoteData, err := s.classNotesRepository.Find(id)
 
 	if err != nil {
-		return models.ClassNotes{}, err
+		return dto.GetClassNotesResponse{}, err
 	}
 
 	existing := classNoteData.Details
@@ -210,27 +257,49 @@ func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest
 		}
 	}
 	if len(addIDs) == 0 && len(updateIDs) == 0 && len(removeIDs) == 0 {
-		return models.ClassNotes{}, fmt.Errorf("no changes detected")
+		return dto.GetClassNotesResponse{}, fmt.Errorf("no changes detected")
 	}
 
 	details := map[string]interface{}{
-		"addIDs":      addIDs,
-		"updateIDs":   updateIDs,
-		"removeIDs":   removeIDs,
+		"addIDs":         addIDs,
+		"updateIDs":      updateIDs,
+		"removeIDs":      removeIDs,
 		"incomingUpdate": incomingUpdate,
 	}
 	eTrx := s.classNotesRepository.Update(id, details)
 	if eTrx != nil {
-		return models.ClassNotes{}, eTrx
+		return dto.GetClassNotesResponse{}, eTrx
 	}
 
 	classNoteUpdated, err := s.classNotesRepository.Find(id)
 
 	if err != nil {
-		return models.ClassNotes{}, err
+		return dto.GetClassNotesResponse{}, err
 	}
 
-	return classNoteUpdated, nil
+	updatedDetails := []dto.GetClassNoteEntryResponse{}
+	for _, detail := range classNoteUpdated.Details {
+		detailData := dto.GetClassNoteEntryResponse{
+			ID:         detail.ID,
+			Subject:    detail.SubjSched.Subject.Name,
+			Teacher:    detail.SubjSched.Teacher.Name,
+			TeacherAct: detail.Teacher.Name,
+			Materials:  detail.Materials,
+			Notes:      detail.Notes,
+		}
+		updatedDetails = append(updatedDetails, detailData)
+	}
+	response := dto.GetClassNotesResponse{
+		ID:         classNoteUpdated.ID,
+		AcademicID: classNoteUpdated.AcademicID,
+		Date:       classNoteUpdated.Date,
+		Details:    updatedDetails,
+		CreatedAt:  classNoteUpdated.CreatedAt,
+		UpdatedAt:  classNoteUpdated.UpdatedAt,
+		DeletedAt:  classNoteUpdated.DeletedAt,
+	}
+
+	return response, nil
 }
 
 // func (s *classNotesUsecase) Delete(id int) error {

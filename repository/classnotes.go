@@ -44,7 +44,15 @@ func (r *classNotesRepository) BrowseByAcademicID(academicID, page, limit int, s
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).Limit(limit).Offset(offset).Preload("Academic").Preload("Details").Find(&classNotes).Error; err != nil {
+	if err := r.db.Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).
+		Limit(limit).
+		Offset(offset).
+		Preload("Academic").
+		Preload("Details").
+		Preload("Details.SubjSched.Teacher").
+		Preload("Details.SubjSched.Subject").
+		Preload("Details.Teacher").
+		Find(&classNotes).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.ClassNotes{}).Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).Count(&total).Error; err != nil {
@@ -71,16 +79,21 @@ func (r *classNotesRepository) CreateBatch(classNotes []models.ClassNotes) error
 
 func (r *classNotesRepository) Find(id int) (models.ClassNotes, error) {
 	classNote := models.ClassNotes{}
-	if err := r.db.Preload("Academic").Preload("Details").First(&classNote, id).Error; err != nil {
+	if err := r.db.Preload("Academic").
+		Preload("Details").
+		Preload("Details.SubjSched.Teacher").
+		Preload("Details.SubjSched.Subject").
+		Preload("Details.Teacher").
+		First(&classNote, id).Error; err != nil {
 		return classNote, err
 	}
 	return classNote, nil
 }
 
 func (r *classNotesRepository) Update(id int, params map[string]interface{}) error {
-	classNote := models.ClassNotes{}
+	classNote := models.ClassNotesDetails{}
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		addIDs := params["addIDs"].([]models.ClassNotes)
+		addIDs := params["addIDs"].([]models.ClassNotesDetails)
 		if len(addIDs) > 0 {
 			if err := tx.Create(&addIDs).Error; err != nil {
 				return err
