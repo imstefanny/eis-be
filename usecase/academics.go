@@ -185,12 +185,13 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		entries := []dto.GetClassNoteEntryResponse{}
 		for _, entry := range note.Details {
 			classNoteEntry := dto.GetClassNoteEntryResponse{
-				ID:         entry.ID,
-				Subject:    entry.SubjSched.Subject.Name,
-				Teacher:    entry.SubjSched.Teacher.Name,
-				TeacherAct: entry.Teacher.Name,
-				Materials:  entry.Materials,
-				Notes:      entry.Notes,
+				ID:                entry.ID,
+				Subject:           entry.SubjSched.Subject.Name,
+				SubjectScheduleId: entry.SubjSched.ID,
+				Teacher:           entry.SubjSched.Teacher.Name,
+				TeacherAct:        entry.Teacher.Name,
+				Materials:         entry.Materials,
+				Notes:             entry.Notes,
 			}
 			entries = append(entries, classNoteEntry)
 		}
