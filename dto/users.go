@@ -1,10 +1,11 @@
 package dto
 
 type RegisterUsersRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	RoleID   uint   `json:"role_id"`
+	ProfilePic string `json:"profile_pic" validate:"omitempty,url"`
+	Name       string `json:"name" validate:"required"`
+	Email      string `json:"email" validate:"required,email"`
+	Password   string `json:"password" validate:"required,min=8"`
+	RoleID     uint   `json:"role_id" validate:"required,gt=0"`
 }
 
 type LoginUsersRequest struct {
