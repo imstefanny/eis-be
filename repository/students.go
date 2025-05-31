@@ -81,9 +81,13 @@ func (r *studentsRepository) UpdateStudentAcademicId(academic_id int, studentIDs
 	if err := r.db.Where("id IN ?", studentIDs).Find(&students).Error; err != nil {
 		return err
 	}
-	if err := r.db.Model(&academic).Association("Students").Replace(students); err != nil {
+	if err := r.db.Model(&models.Students{}).Where("id IN ?", studentIDs).Update("current_academic_id", academic_id).Error; err != nil {
 		return err
 	}
+	if err := r.db.Model(&academic).Association("Students").Append(students); err != nil {
+		return err
+	}
+
 	return nil
 }
 
