@@ -9,6 +9,7 @@ import (
 	"errors"
 	"reflect"
 
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -28,13 +29,8 @@ func NewUsersUsecase(usersRepo repository.UsersRepository, db *gorm.DB) *usersUs
 }
 
 func validateRegisterUsersRequest(req dto.RegisterUsersRequest) error {
-	val := reflect.ValueOf(req)
-	for i := 0; i < val.NumField(); i++ {
-		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("field can't be empty")
-		}
-	}
-	return nil
+	validate := validator.New()
+	return validate.Struct(req)
 }
 
 func validateLoginUsersRequest(req dto.LoginUsersRequest) error {
@@ -55,10 +51,11 @@ func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 	}
 
 	userData := models.Users{
-		Name:     data.Name,
-		Email:    data.Email,
-		Password: data.Password,
-		RoleID:   data.RoleID,
+		ProfilePic: data.ProfilePic,
+		Name:       data.Name,
+		Email:      data.Email,
+		Password:   data.Password,
+		RoleID:     data.RoleID,
 	}
 
 	_, err := s.usersRepository.Create(s.db, userData)
