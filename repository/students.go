@@ -73,8 +73,15 @@ func (r *studentsRepository) Update(id int, student models.Students) error {
 }
 
 func (r *studentsRepository) UpdateStudentAcademicId(academic_id int, studentIDs []uint) error {
-	query := r.db.Model(&models.Students{}).Where("id IN ?", studentIDs).Update("current_academic_id", academic_id)
-	if err := query.Error; err != nil {
+	var academic models.Academics
+	if err := r.db.First(&academic, academic_id).Error; err != nil {
+		return err
+	}
+	var students []models.Students
+	if err := r.db.Where("id IN ?", studentIDs).Find(&students).Error; err != nil {
+		return err
+	}
+	if err := r.db.Model(&academic).Association("Students").Replace(students); err != nil {
 		return err
 	}
 	return nil
