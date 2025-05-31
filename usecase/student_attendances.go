@@ -4,13 +4,14 @@ import (
 	"eis-be/dto"
 	"eis-be/models"
 	"eis-be/repository"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 )
 
 type StudentAttsUsecase interface {
-	// Browse(page, limit int, search string, date string) (interface{}, int64, error)
+	BrowseByAcademicID(academicID, page, limit int, search string, date string) (dto.GetAllStudentAttsRequest, int64, error)
 	// Create(studentAtt dto.CreateStudentAttsRequest) error
 	CreateBatch(studentAtts dto.CreateBatchStudentAttsRequest) error
 	// Find(id int) (interface{}, error)
@@ -42,15 +43,44 @@ func validateCreateBatchStudentAttsRequest(req dto.CreateBatchStudentAttsRequest
 	return validate.Struct(req)
 }
 
-// func (s *studentAttsUsecase) Browse(page, limit int, search string, date string) (interface{}, int64, error) {
-// 	blogs, total, err := s.studentAttsRepository.Browse(page, limit, search, date)
+func (s *studentAttsUsecase) BrowseByAcademicID(academicID, page, limit int, search string, date string) (dto.GetAllStudentAttsRequest, int64, error) {
+	studentAtts, total, err := s.studentAttsRepository.BrowseByAcademicID(academicID, page, limit, search, date)
 
-// 	if err != nil {
-// 		return nil, total, err
-// 	}
+	if err != nil {
+		return dto.GetAllStudentAttsRequest{}, total, err
+	}
 
-// 	return blogs, total, nil
-// }
+	academic, err := s.academicsRepository.Find(academicID)
+	if err != nil {
+		return dto.GetAllStudentAttsRequest{}, total, fmt.Errorf("academic with ID %d not found", academicID)
+	}
+	students := []dto.GetAllStudentAttsEntryRequest{}
+	for _, studentAtt := range studentAtts {
+		student, err := s.studentsRepository.Find(int(studentAtt.StudentID))
+		if err != nil {
+			return dto.GetAllStudentAttsRequest{}, total, fmt.Errorf("failed to find student with ID %d: %w", studentAtt.StudentID, err)
+		}
+		entry := dto.GetAllStudentAttsEntryRequest{
+			ID:          studentAtt.ID,
+			Student:     student.FullName,
+			DisplayName: studentAtt.DisplayName,
+			Status:      studentAtt.Status,
+			Remarks:     studentAtt.Remarks,
+			CreatedAt:   studentAtt.CreatedAt,
+			UpdatedAt:   studentAtt.UpdatedAt,
+			DeletedAt:   studentAtt.DeletedAt,
+		}
+		students = append(students, entry)
+	}
+
+	response := dto.GetAllStudentAttsRequest{
+		Academic: academic.DisplayName,
+		Date:     date,
+		Students: students,
+	}
+
+	return response, total, nil
+}
 
 // func (s *studentAttsUsecase) Create(studentAtt dto.CreateStudentAttsRequest) error {
 // 	e := validateCreateStudentAttsRequest(studentAtt)

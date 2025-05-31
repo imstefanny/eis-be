@@ -2,7 +2,6 @@ package repository
 
 import (
 	"eis-be/models"
-	"fmt"
 	"strings"
 
 	"gorm.io/gorm"
@@ -66,7 +65,6 @@ func (r *teachersRepository) GetByMachineID(machineID int) (models.Teachers, err
 }
 
 func (r *teachersRepository) GetByToken(id int) (models.Teachers, error) {
-	fmt.Println("ID", id)
 	teacher := models.Teachers{}
 	if err := r.db.Where("user_id = ?", id).Preload("Level").Preload("WorkSched").Preload("User").Unscoped().First(&teacher).Error; err != nil {
 		return teacher, err

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"eis-be/dto"
 	"eis-be/usecase"
@@ -20,41 +21,39 @@ func NewStudentAttsController(studentAttsUsecase usecase.StudentAttsUsecase) *st
 	return &studentAttsController{studentAttsUsecase}
 }
 
-// func (u *studentAttsController) Browse(c echo.Context) error {
-// 	page, err := strconv.Atoi(c.QueryParam("page"))
-// 	if err != nil || page < 1 {
-// 		page = 1
-// 	}
-// 	limit, err := strconv.Atoi(c.QueryParam("limit"))
-// 	if err != nil || limit < 1 {
-// 		limit = 10
-// 	}
-// 	search := c.QueryParam("search")
-// 	sortColumn := c.QueryParam("sortColumn")
-// 	if sortColumn == "" {
-// 		sortColumn = "created_at"
-// 	}
-// 	sortOrder := c.QueryParam("sortOrder")
-// 	if sortOrder != "asc" && sortOrder != "desc" {
-// 		sortOrder = "desc"
-// 	}
-// 	date := c.QueryParam("date")
+func (u *studentAttsController) BrowseByAcademicID(c echo.Context) error {
+	academicID, err := strconv.Atoi(c.Param("academic_id"))
+	if err != nil || academicID < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid academic ID",
+		})
+	}
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+	search := c.QueryParam("search")
+	date := c.QueryParam("date")
 
-// 	blogs, total, err := u.useCase.Browse(page, limit, search, date)
+	studentAtts, total, err := u.useCase.BrowseByAcademicID(academicID, page, limit, search, date)
 
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-// 			"error": err.Error(),
-// 		})
-// 	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
 
-// 	return c.JSON(http.StatusOK, map[string]interface{}{
-// 		"data":  blogs,
-// 		"page":  page,
-// 		"limit": limit,
-// 		"total": total,
-// 	})
-// }
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":  studentAtts,
+		"page":  page,
+		"limit": limit,
+		"total": total,
+	})
+}
 
 // func (u *studentAttsController) Create(c echo.Context) error {
 // 	studentAtt := dto.CreateStudentAttsRequest{}

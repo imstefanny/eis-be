@@ -220,6 +220,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eAcademicAtts := eAcademics.Group("/:academic_id/attendances")
 	eAcademicAtts.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eAcademicAtts.GET("", studentAttsController.BrowseByAcademicID)
 	eStudentAtts := eStudents.Group("/attendances")
 	eStudentAtts.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eStudentAtts.POST("/batch", studentAttsController.CreateBatch)

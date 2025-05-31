@@ -2,13 +2,14 @@ package repository
 
 import (
 	"eis-be/models"
+	"strings"
 
 	"gorm.io/gorm"
 )
 
 type StudentAttsRepository interface {
 	// Browse(page, limit int, search string) ([]models.StudentAttendances, int64, error)
-	// BrowseByAcademicID(academicID, page, limit int, search string) ([]models.StudentAttendances, int64, error)
+	BrowseByAcademicID(academicID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error)
 	// Create(studentAtts models.StudentAttendances) error
 	CreateBatch(studentAtts []models.StudentAttendances) error
 	// Find(id int) (models.StudentAttendances, error)
@@ -38,27 +39,32 @@ func NewStudentAttsRepository(db *gorm.DB) *studentAttsRepository {
 // 	return studentAtts, total, nil
 // }
 
-// func (r *studentAttsRepository) BrowseByAcademicID(academicID, page, limit int, search string) ([]models.StudentAttendances, int64, error) {
-// 	var studentAtts []models.StudentAttendances
-// 	var total int64
-// 	offset := (page - 1) * limit
-// 	search = "%" + strings.ToLower(search) + "%"
-// 	if err := r.db.Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).
-// 		Limit(limit).
-// 		Offset(offset).
-// 		Preload("Academic").
-// 		Preload("Details").
-// 		Preload("Details.SubjSched.Teacher").
-// 		Preload("Details.SubjSched.Subject").
-// 		Preload("Details.Teacher").
-// 		Find(&studentAtts).Error; err != nil {
-// 		return nil, 0, err
-// 	}
-// 	if err := r.db.Model(&models.StudentAttendances{}).Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).Count(&total).Error; err != nil {
-// 		return nil, 0, err
-// 	}
-// 	return studentAtts, total, nil
-// }
+func (r *studentAttsRepository) BrowseByAcademicID(academicID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error) {
+	var studentAtts []models.StudentAttendances
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+	query := r.db.
+		Where("academic_id = ?", academicID).
+		Limit(limit).
+		Offset(offset).
+		Preload("Academic").
+		Preload("Student")
+	if search != "" {
+		query = query.Where("LOWER(display_name) LIKE ?", search)
+	}
+	if date != "" {
+		query = query.Where("DATE(date) = ?", date)
+	}
+
+	if err := query.Find(&studentAtts).Error; err != nil {
+		return nil, 0, err
+	}
+	if err := r.db.Model(&models.StudentAttendances{}).Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	return studentAtts, total, nil
+}
 
 // func (r *studentAttsRepository) Create(studentAtts models.StudentAttendances) error {
 // 	err := r.db.Create(&studentAtts)

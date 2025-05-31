@@ -41,7 +41,7 @@ func (r *academicsRepository) Browse(page, limit int, search string) ([]models.A
 
 func (r *academicsRepository) GetAll() ([]models.Academics, error) {
 	var academics []models.Academics
-	if err := r.db.Preload("SubjScheds").Find(&academics).Error; err != nil {
+	if err := r.db.Preload("SubjScheds").Preload("Students").Find(&academics).Error; err != nil {
 		return nil, err
 	}
 	return academics, nil
