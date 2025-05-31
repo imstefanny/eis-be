@@ -13,6 +13,7 @@ type StudentsRepository interface {
 	GetByIds(ids []int) ([]models.Students, error)
 	Find(id int) (models.Students, error)
 	Update(id int, student models.Students) error
+	UpdateStudentAcademicId(academic_id int, student []uint) error
 	Undelete(id int) error
 	Delete(id int) error
 }
@@ -65,6 +66,14 @@ func (r *studentsRepository) GetByIds(ids []int) ([]models.Students, error) {
 
 func (r *studentsRepository) Update(id int, student models.Students) error {
 	query := r.db.Model(&student).Updates(student)
+	if err := query.Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *studentsRepository) UpdateStudentAcademicId(academic_id int, studentIDs []uint) error {
+	query := r.db.Model(&models.Students{}).Where("id IN ?", studentIDs).Update("current_academic_id", academic_id)
 	if err := query.Error; err != nil {
 		return err
 	}

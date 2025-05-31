@@ -17,6 +17,7 @@ type StudentsUsecase interface {
 	Create(student dto.CreateStudentsRequest, c echo.Context) (uint, error)
 	Find(id int) (interface{}, error)
 	Update(id int, student dto.CreateStudentsRequest) (models.Students, error)
+	UpdateStudentAcademicId(id int, academic []uint) error
 	Delete(id int) error
 }
 
@@ -177,6 +178,14 @@ func (s *studentsUsecase) Update(id int, student dto.CreateStudentsRequest) (mod
 	}
 
 	return studentUpdated, nil
+}
+
+func (s *studentsUsecase) UpdateStudentAcademicId(academic_id int, studentIDs []uint) error {
+	err := s.studentsRepository.UpdateStudentAcademicId(academic_id, studentIDs)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *studentsUsecase) Delete(id int) error {

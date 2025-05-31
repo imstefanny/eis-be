@@ -112,6 +112,29 @@ func (u *studentsController) Update(c echo.Context) error {
 	})
 }
 
+func (u *studentsController) UpdateStudentAcademicId(c echo.Context) error {
+	academic_id, _ := strconv.Atoi(c.Param("academic_id"))
+	student := dto.UpdateStudentAcademicIdRequest{}
+
+	if err := c.Bind(&student); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	err := u.useCase.UpdateStudentAcademicId(academic_id, student.StudentIDs)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data updated successfully",
+	})
+}
+
 func (u *studentsController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 

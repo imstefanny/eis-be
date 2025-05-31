@@ -20,3 +20,7 @@ type CreateStudentsRequest struct {
 	LivingWith        string `json:"living_with" validate:"required"`
 	ChildStatus       string `json:"child_status" validate:"required"`
 }
+
+type UpdateStudentAcademicIdRequest struct {
+	StudentIDs []uint `json:"student_ids" validate:"required"`
+}
