@@ -19,11 +19,13 @@ type ClassroomsUsecase interface {
 
 type classroomsUsecase struct {
 	classroomsRepository repository.ClassroomsRepository
+	levelsRepository     repository.LevelsRepository
 }
 
-func NewClassroomsUsecase(classroomsRepo repository.ClassroomsRepository) *classroomsUsecase {
+func NewClassroomsUsecase(classroomsRepo repository.ClassroomsRepository, levelsRepo repository.LevelsRepository) *classroomsUsecase {
 	return &classroomsUsecase{
 		classroomsRepository: classroomsRepo,
+		levelsRepository:     levelsRepo,
 	}
 }
 
@@ -54,14 +56,19 @@ func (s *classroomsUsecase) Create(classroom dto.CreateClassroomsRequest) error 
 		return e
 	}
 
+	level, err := s.levelsRepository.Find(int(classroom.LevelID))
+	if err != nil {
+		return err
+	}
+
 	classroomData := models.Classrooms{
-		DisplayName: classroom.DisplayName,
+		DisplayName: level.Name + " - " + classroom.Grade + classroom.Name,
 		LevelID:     classroom.LevelID,
 		Grade:       classroom.Grade,
 		Name:        classroom.Name,
 	}
 
-	err := s.classroomsRepository.Create(classroomData)
+	err = s.classroomsRepository.Create(classroomData)
 
 	if err != nil {
 		return err
@@ -87,7 +94,12 @@ func (s *classroomsUsecase) Update(id int, classroom dto.CreateClassroomsRequest
 		return models.Classrooms{}, err
 	}
 
-	classroomData.DisplayName = classroom.DisplayName
+	level, err := s.levelsRepository.Find(int(classroom.LevelID))
+	if err != nil {
+		return models.Classrooms{}, err
+	}
+
+	classroomData.DisplayName = level.Name + " - " + classroom.Grade + classroom.Name
 	classroomData.LevelID = classroom.LevelID
 	classroomData.Grade = classroom.Grade
 	classroomData.Name = classroom.Name

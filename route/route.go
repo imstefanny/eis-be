@@ -67,7 +67,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	levelHistoriesController := controllers.NewLevelHistoriesController(levelHistoriesService)
 
 	classroomsRepository := repository.NewClassroomsRepository(db)
-	classroomsService := usecase.NewClassroomsUsecase(classroomsRepository)
+	classroomsService := usecase.NewClassroomsUsecase(classroomsRepository, levelsRepository)
 	classroomsController := controllers.NewClassroomsController(classroomsService)
 
 	academicsRepository := repository.NewAcademicsRepository(db)
