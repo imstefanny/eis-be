@@ -15,7 +15,7 @@ type Academics struct {
 	Classroom         Classrooms         `json:"classroom" gorm:"foreignKey:ClassroomID"`
 	Major             string             `json:"major" gorm:"default:'General'"`
 	HomeroomTeacherID uint               `json:"homeroom_teacher_id" gorm:"default:null"`
-	HomeroomTeacher   Users              `json:"homeroom_teacher" gorm:"foreignKey:HomeroomTeacherID"`
+	HomeroomTeacher   Teachers           `json:"homeroom_teacher" gorm:"foreignKey:HomeroomTeacherID"`
 	Students          []Students         `json:"students" gorm:"many2many:academic_students;"`
 	SubjScheds        []SubjectSchedules `json:"subj_schedules" gorm:"foreignKey:AcademicID"`
 	ClassNotes        []ClassNotes       `json:"class_notes" gorm:"foreignKey:AcademicID"`

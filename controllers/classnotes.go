@@ -169,6 +169,30 @@ func (u *classNotesController) Update(c echo.Context) error {
 	})
 }
 
+func (u *classNotesController) UpdateDetail(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	classNote := dto.CreateClassNotesDetailsRequest{}
+
+	if err := c.Bind(&classNote); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	classNoteUpdated, err := u.useCase.UpdateDetail(id, classNote)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":    classNoteUpdated,
+		"message": "Data updated successfully",
+	})
+}
+
 func (u *classNotesController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 

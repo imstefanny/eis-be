@@ -25,6 +25,7 @@ type GetAcademicsResponse struct {
 	ID              uint           `json:"id"`
 	DisplayName     string         `json:"display_name"`
 	Classroom       string         `json:"classroom"`
+	LevelName       string         `json:"level_name"`
 	Major           string         `json:"major"`
 	HomeroomTeacher string         `json:"homeroom_teacher"`
 	Students        int            `json:"students"`
@@ -34,16 +35,18 @@ type GetAcademicsResponse struct {
 }
 
 type GetAcademicDetailResponse struct {
-	ID              uint                         `json:"id"`
-	DisplayName     string                       `json:"display_name"`
-	StartYear       string                       `json:"start_year"`
-	EndYear         string                       `json:"end_year"`
-	Classroom       string                       `json:"classroom"`
-	Major           string                       `json:"major"`
-	HomeroomTeacher string                       `json:"homeroom_teacher"`
-	Students        []GetStudentResponse         `json:"students"`
-	SubjScheds      []GetSubjectScheduleResponse `json:"subject_schedules"`
-	ClassNotes      []GetClassNoteResponse       `json:"class_notes"`
+	ID                uint                         `json:"id"`
+	DisplayName       string                       `json:"display_name"`
+	StartYear         string                       `json:"start_year"`
+	EndYear           string                       `json:"end_year"`
+	Classroom         string                       `json:"classroom"`
+	LevelName         string                       `json:"level_name"`
+	Major             string                       `json:"major"`
+	HomeroomTeacherId uint                         `json:"homeroom_teacher_id"`
+	HomeroomTeacher   string                       `json:"homeroom_teacher"`
+	Students          []GetStudentResponse         `json:"students"`
+	SubjScheds        []GetSubjectScheduleResponse `json:"subject_schedules"`
+	ClassNotes        []GetClassNoteResponse       `json:"class_notes"`
 	// Attendances     []GetAttendanceResponse      `json:"attendances"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
@@ -61,10 +64,11 @@ type GetClassNoteResponse struct {
 	Entries []GetClassNoteEntryResponse `json:"entries"`
 }
 type GetClassNoteEntryResponse struct {
-	ID         uint   `json:"id"`
-	Subject    string `json:"subject"`
-	Teacher    string `json:"teacher"`
-	TeacherAct string `json:"teacher_act"`
-	Materials  string `json:"materials"`
-	Notes      string `json:"notes"`
+	ID                uint   `json:"id"`
+	Subject           string `json:"subject"`
+	SubjectScheduleId uint   `json:"subject_schedule_id"`
+	Teacher           string `json:"teacher"`
+	TeacherAct        string `json:"teacher_act"`
+	Materials         string `json:"materials"`
+	Notes             string `json:"notes"`
 }

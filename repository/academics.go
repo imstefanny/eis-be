@@ -30,7 +30,7 @@ func (r *academicsRepository) Browse(page, limit int, search string) ([]models.A
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Classroom").Preload("HomeroomTeacher").Preload("Students").Find(&academics).Error; err != nil {
+	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Classroom").Preload("Classroom.Level").Preload("HomeroomTeacher").Preload("Students").Find(&academics).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Academics{}).Where("LOWER(display_name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -69,6 +69,7 @@ func (r *academicsRepository) CreateBatch(academics []models.Academics) error {
 func (r *academicsRepository) Find(id int) (models.Academics, error) {
 	academic := models.Academics{}
 	if err := r.db.Preload("Classroom").
+		Preload("Classroom.Level").
 		Preload("HomeroomTeacher").
 		Preload("Students").
 		Preload("SubjScheds").
