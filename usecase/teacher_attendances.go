@@ -81,7 +81,7 @@ func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) err
 	teacherAttData := models.TeacherAttendances{
 		DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
 		TeacherID:         teacherAtt.TeacherID,
-		WorkingScheduleID: teacherAtt.WorkingScheduleID,
+		WorkingScheduleID: teacher.WorkSchedID,
 		Date:              time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc),
 		LogInTime:         time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc),
 		LogOutTime:        time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc),
@@ -106,6 +106,7 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 	}
 
 	teacherAttsData := []models.TeacherAttendances{}
+	loc, _ := time.LoadLocation("Asia/Jakarta")
 	for _, teacherAtt := range teacherAtts.Entries {
 		parseDate, err := time.Parse("2006-01-02", teacherAtt.Date)
 		if err != nil {
@@ -129,10 +130,10 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 		teacherAttData := models.TeacherAttendances{
 			DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
 			TeacherID:         teacher.ID,
-			WorkingScheduleID: teacherAtt.WorkingScheduleID,
-			Date:              parseDate,
-			LogInTime:         time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, parseDate.Location()),
-			LogOutTime:        time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, parseDate.Location()),
+			WorkingScheduleID: teacher.WorkSchedID,
+			Date:              time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc),
+			LogInTime:         time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc),
+			LogOutTime:        time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc),
 			Remark:            teacherAtt.Remark,
 			Note:              teacherAtt.Note,
 		}
