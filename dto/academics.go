@@ -13,7 +13,7 @@ type CreateAcademicsRequest struct {
 	ClassroomID       uint   `json:"classroom_id" validate:"required"`
 	Major             string `json:"major"`
 	HomeroomTeacherID uint   `json:"homeroom_teacher_id" validate:"required"`
-	Students          []int  `json:"students" validate:"required"`
+	Students          []int  `json:"students"`
 }
 
 type CreateBatchAcademicsRequest struct {
