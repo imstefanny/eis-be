@@ -114,29 +114,29 @@ func (u *studentAttsController) CreateBatch(c echo.Context) error {
 // 	})
 // }
 
-// func (u *studentAttsController) Update(c echo.Context) error {
-// 	id, _ := strconv.Atoi(c.Param("id"))
-// 	studentAtt := dto.CreateStudentAttsRequest{}
+func (u *studentAttsController) UpdateByAcademicID(c echo.Context) error {
+	academicID, _ := strconv.Atoi(c.Param("academic_id"))
+	studentAtt := dto.UpdateStudentAttsRequest{}
 
-// 	if err := c.Bind(&studentAtt); err != nil {
-// 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-// 			"error": err.Error(),
-// 		})
-// 	}
+	if err := c.Bind(&studentAtt); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
 
-// 	studentAttUpdated, err := u.useCase.Update(id, studentAtt)
+	studentAttUpdated, err := u.useCase.UpdateByAcademicID(academicID, studentAtt)
 
-// 	if err != nil {
-// 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-// 			"error": err.Error(),
-// 		})
-// 	}
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
 
-// 	return c.JSON(http.StatusOK, map[string]interface{}{
-// 		"data":    studentAttUpdated,
-// 		"message": "Data updated successfully",
-// 	})
-// }
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":    studentAttUpdated,
+		"message": "Data updated successfully",
+	})
+}
 
 // func (u *studentAttsController) Delete(c echo.Context) error {
 // 	id, _ := strconv.Atoi(c.Param("id"))

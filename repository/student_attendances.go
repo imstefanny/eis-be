@@ -12,8 +12,9 @@ type StudentAttsRepository interface {
 	BrowseByAcademicID(academicID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error)
 	// Create(studentAtts models.StudentAttendances) error
 	CreateBatch(studentAtts []models.StudentAttendances) error
+	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
 	// Find(id int) (models.StudentAttendances, error)
-	// Update(id int, params map[string]interface{}) error
+	UpdateByAcademicID(academicID int, studentAtt []models.StudentAttendances) error
 	// Delete(id int) error
 }
 
@@ -66,6 +67,20 @@ func (r *studentAttsRepository) BrowseByAcademicID(academicID, page, limit int, 
 	return studentAtts, total, nil
 }
 
+func (r *studentAttsRepository) FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error) {
+	var studentAtts []models.StudentAttendances
+	query := r.db.Where("academic_id = ?", academicID).Where("DATE(date) = ?", date).
+		Preload("Academic").
+		Preload("Student")
+	if err := query.Find(&studentAtts).Error; err != nil {
+		return nil, err
+	}
+	if len(studentAtts) == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return studentAtts, nil
+}
+
 // func (r *studentAttsRepository) Create(studentAtts models.StudentAttendances) error {
 // 	err := r.db.Create(&studentAtts)
 // 	if err.Error != nil {
@@ -94,6 +109,14 @@ func (r *studentAttsRepository) CreateBatch(studentAtts []models.StudentAttendan
 // 	}
 // 	return studentAtt, nil
 // }
+
+func (r *studentAttsRepository) UpdateByAcademicID(academicID int, studentAtts []models.StudentAttendances) error {
+	query := r.db.Save(studentAtts)
+	if err := query.Error; err != nil {
+		return err
+	}
+	return nil
+}
 
 // func (r *studentAttsRepository) Update(id int, params map[string]interface{}) error {
 // 	studentAtt := models.StudentAttendancesDetails{}

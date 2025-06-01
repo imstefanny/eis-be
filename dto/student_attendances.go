@@ -30,12 +30,14 @@ type UpdateStudentAttsEntryRequest struct {
 }
 
 type GetAllStudentAttsRequest struct {
-	Academic string                          `json:"academic"`
-	Date     string                          `json:"date"`
-	Students []GetAllStudentAttsEntryRequest `json:"students"`
+	AcademicID uint                            `json:"academic_id"`
+	Academic   string                          `json:"academic"`
+	Date       string                          `json:"date"`
+	Students   []GetAllStudentAttsEntryRequest `json:"students"`
 }
 type GetAllStudentAttsEntryRequest struct {
 	ID          uint           `json:"id"`
+	StudentID   uint           `json:"student_id"`
 	Student     string         `json:"student"`
 	DisplayName string         `json:"display_name"`
 	Status      string         `json:"status"`

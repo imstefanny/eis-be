@@ -15,7 +15,7 @@ type StudentAttsUsecase interface {
 	// Create(studentAtt dto.CreateStudentAttsRequest) error
 	CreateBatch(studentAtts dto.CreateBatchStudentAttsRequest) error
 	// Find(id int) (interface{}, error)
-	// Update(id int, studentAtt dto.CreateStudentAttsRequest) (models.StudentAttendances, error)
+	UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error)
 	// Delete(id int) error
 }
 
@@ -62,6 +62,7 @@ func (s *studentAttsUsecase) BrowseByAcademicID(academicID, page, limit int, sea
 		}
 		entry := dto.GetAllStudentAttsEntryRequest{
 			ID:          studentAtt.ID,
+			StudentID:   student.ID,
 			Student:     student.FullName,
 			DisplayName: studentAtt.DisplayName,
 			Status:      studentAtt.Status,
@@ -74,9 +75,10 @@ func (s *studentAttsUsecase) BrowseByAcademicID(academicID, page, limit int, sea
 	}
 
 	response := dto.GetAllStudentAttsRequest{
-		Academic: academic.DisplayName,
-		Date:     date,
-		Students: students,
+		AcademicID: academic.ID,
+		Academic:   academic.DisplayName,
+		Date:       date,
+		Students:   students,
 	}
 
 	return response, total, nil
@@ -181,49 +183,71 @@ func (s *studentAttsUsecase) CreateBatch(studentAtt dto.CreateBatchStudentAttsRe
 // 	return studentAtt, nil
 // }
 
-// func (s *studentAttsUsecase) Update(id int, studentAtt dto.CreateStudentAttsRequest) (models.StudentAttendances, error) {
-// 	studentAttData, err := s.studentAttsRepository.Find(id)
+func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error) {
+	academic, err := s.academicsRepository.Find(academicID)
+	if err != nil {
+		return dto.GetAllStudentAttsRequest{}, fmt.Errorf("academic with ID %d not found", academicID)
+	}
+	parseDate, err := time.Parse("2006-01-02", studentAtt.Date)
+	if err != nil {
+		return dto.GetAllStudentAttsRequest{}, err
+	}
 
-// 	if err != nil {
-// 		return models.StudentAttendances{}, err
-// 	}
+	studentAttsData, err := s.studentAttsRepository.FindByAcademicDate(academicID, parseDate.Format("2006-01-02"))
+	if err != nil {
+		return dto.GetAllStudentAttsRequest{}, err
+	}
 
-// 	parseDate, err := time.Parse("2006-01-02", studentAtt.Date)
-// 	if err != nil {
-// 		return models.StudentAttendances{}, err
-// 	}
-// 	parseInTime, err := time.Parse("15:04:05", studentAtt.LogInTime)
-// 	if err != nil {
-// 		return models.StudentAttendances{}, err
-// 	}
-// 	parseOutTime, err := time.Parse("15:04:05", studentAtt.LogOutTime)
-// 	if err != nil {
-// 		return models.StudentAttendances{}, err
-// 	}
+	toBeUpdated := []models.StudentAttendances{}
+	for _, studentAttData := range studentAttsData {
+		for _, student := range studentAtt.Students {
+			if studentAttData.StudentID == student.StudentID {
+				studentAttData.Status = student.Status
+				studentAttData.Remarks = student.Remarks
+			}
+		}
+		toBeUpdated = append(toBeUpdated, studentAttData)
+	}
 
-// 	loc, _ := time.LoadLocation("Asia/Jakarta")
-// 	studentAttData.StudentID = studentAtt.StudentID
-// 	studentAttData.WorkingScheduleID = studentAtt.WorkingScheduleID
-// 	studentAttData.Date = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc)
-// 	studentAttData.LogInTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc)
-// 	studentAttData.LogOutTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc)
-// 	studentAttData.Remark = studentAtt.Remark
-// 	studentAttData.Note = studentAtt.Note
+	e := s.studentAttsRepository.UpdateByAcademicID(academicID, toBeUpdated)
+	if e != nil {
+		return dto.GetAllStudentAttsRequest{}, e
+	}
 
-// 	e := s.studentAttsRepository.Update(id, studentAttData)
+	studentAttUpdated, err := s.studentAttsRepository.FindByAcademicDate(academicID, parseDate.Format("2006-01-02"))
+	if err != nil {
+		return dto.GetAllStudentAttsRequest{}, err
+	}
 
-// 	if e != nil {
-// 		return models.StudentAttendances{}, e
-// 	}
+	students := []dto.GetAllStudentAttsEntryRequest{}
+	for _, studentAtt := range studentAttUpdated {
+		student, err := s.studentsRepository.Find(int(studentAtt.StudentID))
+		if err != nil {
+			return dto.GetAllStudentAttsRequest{}, fmt.Errorf("failed to find student with ID %d: %w", studentAtt.StudentID, err)
+		}
+		entry := dto.GetAllStudentAttsEntryRequest{
+			ID:          studentAtt.ID,
+			StudentID:   student.ID,
+			Student:     student.FullName,
+			DisplayName: studentAtt.DisplayName,
+			Status:      studentAtt.Status,
+			Remarks:     studentAtt.Remarks,
+			CreatedAt:   studentAtt.CreatedAt,
+			UpdatedAt:   studentAtt.UpdatedAt,
+			DeletedAt:   studentAtt.DeletedAt,
+		}
+		students = append(students, entry)
+	}
 
-// 	studentAttUpdated, err := s.studentAttsRepository.Find(id)
+	response := dto.GetAllStudentAttsRequest{
+		AcademicID: uint(academicID),
+		Academic:   academic.DisplayName,
+		Date:       studentAtt.Date,
+		Students:   students,
+	}
 
-// 	if err != nil {
-// 		return models.StudentAttendances{}, err
-// 	}
-
-// 	return studentAttUpdated, nil
-// }
+	return response, nil
+}
 
 // func (s *studentAttsUsecase) Delete(id int) error {
 // 	err := s.studentAttsRepository.Delete(id)
