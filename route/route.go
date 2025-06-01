@@ -82,6 +82,11 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classNotesService := usecase.NewClassNotesUsecase(classNotesRepository, academicsRepository)
 	classNotesController := controllers.NewClassNotesController(classNotesService)
 
+	studentAttsRepository := repository.NewStudentAttsRepository(db)
+	studentAttsService := usecase.NewStudentAttsUsecase(studentAttsRepository, studentsRepository, academicsRepository)
+	studentAttsController := controllers.NewStudentAttsController(studentAttsService)
+
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -212,6 +217,15 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademics.POST("", academicsController.Create)
 	eAcademics.PUT("/:id", academicsController.Update)
 	eAcademics.DELETE("/:id", academicsController.Delete)
+
+	eAcademicAtts := eAcademics.Group("/:academic_id/attendances")
+	eAcademicAtts.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eAcademicAtts.GET("", studentAttsController.BrowseByAcademicID)
+	eAcademicAtts.PUT("", studentAttsController.UpdateByAcademicID)
+
+	eStudentAtts := eStudents.Group("/attendances")
+	eStudentAtts.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eStudentAtts.POST("/batch", studentAttsController.CreateBatch)
 
 	eSubjScheds := e.Group("/subjectschedules")
 	eSubjScheds.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
