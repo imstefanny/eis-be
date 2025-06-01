@@ -128,6 +128,30 @@ func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.U
 	}
 
 	studentAttsData, err := s.studentAttsRepository.FindByAcademicDate(academicID, parseDate.Format("2006-01-02"))
+	if len(studentAttsData) == 0 {
+		toBeCreated := []models.StudentAttendances{}
+		for _, student := range studentAtt.Students {
+			studentDetail, _ := s.studentsRepository.Find(int(student.StudentID))
+			toBeCreated = append(toBeCreated, models.StudentAttendances{
+				DisplayName: studentDetail.FullName,
+				AcademicID:  uint(academicID),
+				StudentID:   student.StudentID,
+				Date:        parseDate,
+				Status:      student.Status,
+				Remarks:     student.Remarks,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			})
+		}
+		s.studentAttsRepository.CreateBatch(toBeCreated)
+		return dto.GetAllStudentAttsRequest{
+			AcademicID: uint(academicID),
+			Academic:   academic.DisplayName,
+			Date:       studentAtt.Date,
+			Students:   []dto.GetAllStudentAttsEntryRequest{},
+		}, nil
+	}
+
 	if err != nil {
 		return dto.GetAllStudentAttsRequest{}, err
 	}
