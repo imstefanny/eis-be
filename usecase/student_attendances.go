@@ -12,11 +12,8 @@ import (
 
 type StudentAttsUsecase interface {
 	BrowseByAcademicID(academicID, page, limit int, search string, date string) (dto.GetAllStudentAttsRequest, int64, error)
-	// Create(studentAtt dto.CreateStudentAttsRequest) error
 	CreateBatch(studentAtts dto.CreateBatchStudentAttsRequest) error
-	// Find(id int) (interface{}, error)
 	UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error)
-	// Delete(id int) error
 }
 
 type studentAttsUsecase struct {
@@ -32,11 +29,6 @@ func NewStudentAttsUsecase(studentAttsRepo repository.StudentAttsRepository, stu
 		academicsRepository:   academicsRepo,
 	}
 }
-
-// func validateCreateStudentAttsRequest(req dto.CreateStudentAttsRequest) error {
-// 	validate := validator.New()
-// 	return validate.Struct(req)
-// }
 
 func validateCreateBatchStudentAttsRequest(req dto.CreateBatchStudentAttsRequest) error {
 	validate := validator.New()
@@ -84,54 +76,6 @@ func (s *studentAttsUsecase) BrowseByAcademicID(academicID, page, limit int, sea
 	return response, total, nil
 }
 
-// func (s *studentAttsUsecase) Create(studentAtt dto.CreateStudentAttsRequest) error {
-// 	e := validateCreateStudentAttsRequest(studentAtt)
-
-// 	if e != nil {
-// 		return e
-// 	}
-
-// 	loc, _ := time.LoadLocation("Asia/Jakarta")
-// 	parseDate, err := time.Parse("2006-01-02", studentAtt.Date)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	parseInTime, err := time.Parse("15:04:05", studentAtt.LogInTime)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if studentAtt.LogOutTime == "" {
-// 		studentAtt.LogOutTime = "00:00:00"
-// 	}
-// 	parseOutTime, err := time.Parse("15:04:05", studentAtt.LogOutTime)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	student, err := s.studentRepository.Find(int(studentAtt.StudentID))
-// 	if err != nil {
-// 		return err
-// 	}
-// 	studentAttData := models.StudentAttendances{
-// 		DisplayName:       student.Name + " - " + parseDate.Format("2006-01-02"),
-// 		StudentID:         studentAtt.StudentID,
-// 		WorkingScheduleID: student.WorkSchedID,
-// 		Date:              time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc),
-// 		LogInTime:         time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc),
-// 		LogOutTime:        time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc),
-// 		Remark:            studentAtt.Remark,
-// 		Note:              studentAtt.Note,
-// 	}
-
-// 	err = s.studentAttsRepository.Create(studentAttData)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
 func (s *studentAttsUsecase) CreateBatch(studentAtt dto.CreateBatchStudentAttsRequest) error {
 	e := validateCreateBatchStudentAttsRequest(studentAtt)
 
@@ -157,8 +101,8 @@ func (s *studentAttsUsecase) CreateBatch(studentAtt dto.CreateBatchStudentAttsRe
 				AcademicID:  academic.ID,
 				StudentID:   student.ID,
 				Date:        parsedDate,
-				Status:      "Present", // Default status
-				Remarks:     "",        // Default remarks
+				Status:      "Present",
+				Remarks:     "",
 			}
 			studentAttsData = append(studentAttsData, studentAttData)
 		}
@@ -172,16 +116,6 @@ func (s *studentAttsUsecase) CreateBatch(studentAtt dto.CreateBatchStudentAttsRe
 
 	return nil
 }
-
-// func (s *studentAttsUsecase) Find(id int) (interface{}, error) {
-// 	studentAtt, err := s.studentAttsRepository.Find(id)
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return studentAtt, nil
-// }
 
 func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error) {
 	academic, err := s.academicsRepository.Find(academicID)
@@ -248,13 +182,3 @@ func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.U
 
 	return response, nil
 }
-
-// func (s *studentAttsUsecase) Delete(id int) error {
-// 	err := s.studentAttsRepository.Delete(id)
-
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }

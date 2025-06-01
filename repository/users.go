@@ -9,7 +9,6 @@ import (
 
 type UsersRepository interface {
 	Create(tx *gorm.DB, user models.Users) (uint, error)
-	// Create(user models.Users) (uint, error)
 	Find(id int) (models.Users, error)
 	Login(data models.Users) (models.Users, error)
 	Browse(page, limit int, search string) ([]models.Users, int64, error)

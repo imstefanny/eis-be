@@ -95,7 +95,6 @@ func (s *subjSchedsUsecase) Update(id int, subjSched dto.UpdateSubjSchedsRequest
 		return models.SubjectSchedules{}, err
 	}
 
-	// subjSchedData.AcademicID = subjSched.AcademicID
 	subjSchedData.SubjectID = subjSched.SubjectID
 	subjSchedData.TeacherID = subjSched.TeacherID
 	subjSchedData.Day = subjSched.Day

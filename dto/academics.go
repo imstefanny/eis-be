@@ -47,10 +47,9 @@ type GetAcademicDetailResponse struct {
 	Students          []GetStudentResponse         `json:"students"`
 	SubjScheds        []GetSubjectScheduleResponse `json:"subject_schedules"`
 	ClassNotes        []GetClassNoteResponse       `json:"class_notes"`
-	// Attendances     []GetAttendanceResponse      `json:"attendances"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	CreatedAt         time.Time                    `json:"created_at"`
+	UpdatedAt         time.Time                    `json:"updated_at"`
+	DeletedAt         gorm.DeletedAt               `json:"deleted_at"`
 }
 
 type GetStudentResponse struct {
