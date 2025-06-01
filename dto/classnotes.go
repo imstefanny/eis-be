@@ -24,12 +24,40 @@ type CreateBatchClassNotesRequest struct {
 	Date string `json:"date" validate:"required"`
 }
 
+type GetClassNoteResponse struct {
+	Date    time.Time                   `json:"date"`
+	Entries []GetClassNoteEntryResponse `json:"entries"`
+}
+type GetClassNoteEntryResponse struct {
+	ID                uint   `json:"id"`
+	Subject           string `json:"subject"`
+	SubjectScheduleId uint   `json:"subject_schedule_id"`
+	Teacher           string `json:"teacher"`
+	TeacherAct        string `json:"teacher_act"`
+	Materials         string `json:"materials"`
+	Notes             string `json:"notes"`
+}
+
 type GetClassNotesResponse struct {
-	ID         uint                        `json:"id"`
-	AcademicID uint                        `json:"academic_id"`
-	Date       time.Time                   `json:"date"`
-	Details    []GetClassNoteEntryResponse `json:"details"`
-	CreatedAt  time.Time                   `json:"created_at"`
-	UpdatedAt  time.Time                   `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt              `json:"deleted_at"`
+	ID             uint                          `json:"id"`
+	AcademicID     uint                          `json:"academic_id"`
+	Date           time.Time                     `json:"date"`
+	Details        []GetClassNoteEntryResponse   `json:"details"`
+	AbsenceCount   []GetClassNoteAbsenceResponse `json:"absence_count"`
+	AbsenceDetails []GetClassNoteAbsenceDetails  `json:"absence_details"`
+	CreatedAt      time.Time                     `json:"created_at"`
+	UpdatedAt      time.Time                     `json:"updated_at"`
+	DeletedAt      gorm.DeletedAt                `json:"deleted_at"`
+}
+type GetClassNoteAbsenceResponse struct {
+	Status string `json:"status"`
+	Total  int    `json:"total"`
+}
+
+type GetClassNoteAbsenceDetails struct {
+	ID        uint   `json:"attendance_id"`
+	StudentID uint   `json:"student_id"`
+	FullName  string `json:"full_name"`
+	Status    string `json:"status"`
+	Remarks   string `json:"remarks"`
 }

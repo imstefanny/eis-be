@@ -77,15 +77,15 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	subjSchedsRepository := repository.NewSubjSchedsRepository(db)
 	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository, academicsRepository)
 	subjSchedsController := controllers.NewSubjSchedsController(subjSchedsService)
-
-	classNotesRepository := repository.NewClassNotesRepository(db)
-	classNotesService := usecase.NewClassNotesUsecase(classNotesRepository, academicsRepository)
-	classNotesController := controllers.NewClassNotesController(classNotesService)
-
+	
 	studentAttsRepository := repository.NewStudentAttsRepository(db)
 	studentAttsService := usecase.NewStudentAttsUsecase(studentAttsRepository, studentsRepository, academicsRepository)
 	studentAttsController := controllers.NewStudentAttsController(studentAttsService)
 
+	classNotesRepository := repository.NewClassNotesRepository(db)
+	classNotesService := usecase.NewClassNotesUsecase(classNotesRepository, academicsRepository, studentAttsRepository)
+	classNotesController := controllers.NewClassNotesController(classNotesService)
+	
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
