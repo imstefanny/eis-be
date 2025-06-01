@@ -23,14 +23,16 @@ type ClassNotesUsecase interface {
 }
 
 type classNotesUsecase struct {
-	classNotesRepository repository.ClassNotesRepository
-	academicsRepository  repository.AcademicsRepository
+	classNotesRepository  repository.ClassNotesRepository
+	academicsRepository   repository.AcademicsRepository
+	studentAttsRepository repository.StudentAttsRepository
 }
 
-func NewClassNotesUsecase(classNotesRepo repository.ClassNotesRepository, academicsRepo repository.AcademicsRepository) *classNotesUsecase {
+func NewClassNotesUsecase(classNotesRepo repository.ClassNotesRepository, academicsRepo repository.AcademicsRepository, studentAttsRepo repository.StudentAttsRepository) *classNotesUsecase {
 	return &classNotesUsecase{
-		classNotesRepository: classNotesRepo,
-		academicsRepository:  academicsRepo,
+		classNotesRepository:  classNotesRepo,
+		academicsRepository:   academicsRepo,
+		studentAttsRepository: studentAttsRepo,
 	}
 }
 
@@ -76,14 +78,42 @@ func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, sear
 			}
 			details = append(details, detailData)
 		}
+		absences, err := s.studentAttsRepository.FindByAcademicDate(academicID, classNote.Date.Format("2006-01-02"))
+		if err != nil {
+			return nil, total, err
+		}
+		absenceCount := []dto.GetClassNoteAbsenceResponse{}
+		absenceDetails := []dto.GetClassNoteAbsenceDetails{}
+		absenceCountMap := make(map[string]int)
+		for _, absence := range absences {
+			absenceCountMap[absence.Status]++
+			if absence.Status == "Permission" || absence.Status == "Alpha" || absence.Status == "Sick" {
+				absenceCountMap["Leaves"]++
+				absenceDetails = append(absenceDetails, dto.GetClassNoteAbsenceDetails{
+					ID:        absence.ID,
+					StudentID: absence.StudentID,
+					FullName:  absence.Student.FullName,
+					Status:    absence.Status,
+					Remarks:   absence.Remarks,
+				})
+			}
+		}
+		for status, count := range absenceCountMap {
+			absenceCount = append(absenceCount, dto.GetClassNoteAbsenceResponse{
+				Status: status,
+				Total:  count,
+			})
+		}
 		responses = append(responses, dto.GetClassNotesResponse{
-			ID:         classNote.ID,
-			AcademicID: classNote.AcademicID,
-			Date:       classNote.Date,
-			Details:    details,
-			CreatedAt:  classNote.CreatedAt,
-			UpdatedAt:  classNote.UpdatedAt,
-			DeletedAt:  classNote.DeletedAt,
+			ID:             classNote.ID,
+			AcademicID:     classNote.AcademicID,
+			Date:           classNote.Date,
+			Details:        details,
+			AbsenceCount:   absenceCount,
+			AbsenceDetails: absenceDetails,
+			CreatedAt:      classNote.CreatedAt,
+			UpdatedAt:      classNote.UpdatedAt,
+			DeletedAt:      classNote.DeletedAt,
 		})
 	}
 
