@@ -78,10 +78,7 @@ func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, sear
 			}
 			details = append(details, detailData)
 		}
-		absences, err := s.studentAttsRepository.FindByAcademicDate(academicID, classNote.Date.Format("2006-01-02"))
-		if err != nil {
-			return nil, total, err
-		}
+		absences, _ := s.studentAttsRepository.FindByAcademicDate(academicID, classNote.Date.Format("2006-01-02"))
 		absenceCount := []dto.GetClassNoteAbsenceResponse{}
 		absenceDetails := []dto.GetClassNoteAbsenceDetails{}
 		absenceCountMap := make(map[string]int)
