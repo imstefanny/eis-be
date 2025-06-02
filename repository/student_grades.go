@@ -9,6 +9,7 @@ import (
 type StudentGradesRepository interface {
 	GetAll(academicID int) ([]models.StudentGrades, error)
 	Create(studentGrades []models.StudentGrades) error
+	UpdateByAcademicID(studentGrades []models.StudentGrades) error
 }
 
 type studentGradesRepository struct {
@@ -35,6 +36,14 @@ func (r *studentGradesRepository) Create(studentGrades []models.StudentGrades) e
 	err := r.db.Create(&studentGrades)
 	if err.Error != nil {
 		return err.Error
+	}
+	return nil
+}
+
+func (r *studentGradesRepository) UpdateByAcademicID(studentGrades []models.StudentGrades) error {
+	query := r.db.Save(studentGrades)
+	if err := query.Error; err != nil {
+		return err
 	}
 	return nil
 }

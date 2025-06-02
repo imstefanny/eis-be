@@ -12,6 +12,7 @@ import (
 type StudentGradesUsecase interface {
 	GetAll(academicID int) (dto.GetStudentGradesResponse, error)
 	Create(studentGrade dto.CreateStudentGradesRequest) error
+	UpdateByAcademicID(academicID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error)
 }
 
 type studentGradesUsecase struct {
@@ -31,6 +32,11 @@ func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepositor
 }
 
 func validateCreateStudentGradesRequest(req dto.CreateStudentGradesRequest) error {
+	validate := validator.New()
+	return validate.Struct(req)
+}
+
+func validateUpdateStudentGradesRequest(req dto.UpdateStudentGradesRequest) error {
 	validate := validator.New()
 	return validate.Struct(req)
 }
@@ -123,4 +129,85 @@ func (s *studentGradesUsecase) Create(studentGrade dto.CreateStudentGradesReques
 	}
 
 	return nil
+}
+
+func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error) {
+	e := validateUpdateStudentGradesRequest(studentGrade)
+	if e != nil {
+		return dto.GetStudentGradesResponse{}, e
+	}
+	academic, err := s.academicsRepository.Find(academicID)
+	if err != nil {
+		return dto.GetStudentGradesResponse{}, fmt.Errorf("academic with ID %d not found: %w", academicID, err)
+	}
+
+	studentGradeData, err := s.studentGradesRepository.GetAll(academicID)
+	if err != nil {
+		return dto.GetStudentGradesResponse{}, fmt.Errorf("error browsing student grades: %w", err)
+	}
+
+	existingGrades := make(map[uint]models.StudentGrades)
+	for _, grade := range studentGradeData {
+		existingGrades[grade.ID] = grade
+	}
+	studentGradesData := []models.StudentGrades{}
+	for _, detail := range studentGrade.Details {
+		for _, grade := range detail.Students {
+			studentGradesData = append(studentGradesData, models.StudentGrades{
+				ID:          grade.ID,
+				DisplayName: existingGrades[grade.ID].DisplayName,
+				AcademicID:  existingGrades[grade.ID].AcademicID,
+				StudentID:   existingGrades[grade.ID].StudentID,
+				SubjectID:   detail.SubjectID,
+				Quiz:        grade.Quiz,
+				FirstMonth:  grade.FirstMonth,
+				SecondMonth: grade.SecondMonth,
+				Finals:      grade.Finals,
+				Remarks:     grade.Remarks,
+			})
+		}
+	}
+
+	err = s.studentGradesRepository.UpdateByAcademicID(studentGradesData)
+	if err != nil {
+		return dto.GetStudentGradesResponse{}, fmt.Errorf("error updating student grades for academic ID %d: %w", academicID, err)
+	}
+
+	studentGradesUpdated, err := s.studentGradesRepository.GetAll(academicID)
+	if err != nil {
+		return dto.GetStudentGradesResponse{}, fmt.Errorf("error browsing student grades: %w", err)
+	}
+
+	details := make(map[uint]*dto.GetStudentGradesDetailResponse)
+	for _, grade := range studentGradesUpdated {
+		if _, exists := details[grade.SubjectID]; !exists {
+			details[grade.SubjectID] = &dto.GetStudentGradesDetailResponse{
+				SubjectID: grade.SubjectID,
+				Subject:   grade.Subject.Name,
+				Students:  []dto.GetStudentGradesEntryResponse{},
+			}
+		}
+		details[grade.SubjectID].Students = append(details[grade.SubjectID].Students, dto.GetStudentGradesEntryResponse{
+			ID:          grade.ID,
+			StudentID:   grade.StudentID,
+			StudentName: grade.Student.FullName,
+			DisplayName: grade.DisplayName,
+			Quiz:        grade.Quiz,
+			FirstMonth:  grade.FirstMonth,
+			SecondMonth: grade.SecondMonth,
+			Finals:      grade.Finals,
+			Remarks:     grade.Remarks,
+		})
+	}
+	var detailsList []dto.GetStudentGradesDetailResponse
+	for _, detail := range details {
+		detailsList = append(detailsList, *detail)
+	}
+	response := dto.GetStudentGradesResponse{
+		AcademicID: uint(academicID),
+		Academic:   academic.DisplayName,
+		Details:    detailsList,
+	}
+
+	return response, nil
 }

@@ -256,4 +256,5 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademicGrades.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eAcademicGrades.GET("", studentGradesController.GetAll)
 	eAcademicGrades.POST("", studentGradesController.Create)
+	eAcademicGrades.PUT("", studentGradesController.UpdateByAcademicID)
 }
