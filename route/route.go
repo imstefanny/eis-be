@@ -98,6 +98,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eUser := e.Group("/users")
 	eUser.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eUser.GET("", usersController.Browse)
+	eUser.PUT("/:id", usersController.Update)
 
 	eBlogs := e.Group("/blogs")
 	eBlogs.GET("", blogsController.Browse)

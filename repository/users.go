@@ -12,6 +12,7 @@ type UsersRepository interface {
 	Find(id int) (models.Users, error)
 	Login(data models.Users) (models.Users, error)
 	Browse(page, limit int, search string) ([]models.Users, int64, error)
+	Update(user models.Users) error
 }
 
 type usersRepository struct {
@@ -45,6 +46,13 @@ func (r *usersRepository) Find(id int) (models.Users, error) {
 		return user, err
 	}
 	return user, nil
+}
+
+func (r *usersRepository) Update(user models.Users) error {
+	if err := r.db.Save(&user).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *usersRepository) Browse(page, limit int, search string) ([]models.Users, int64, error) {

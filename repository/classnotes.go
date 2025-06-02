@@ -13,6 +13,7 @@ type ClassNotesRepository interface {
 	Create(classNotes models.ClassNotes) error
 	CreateBatch(classNotes []models.ClassNotes) error
 	Find(id int) (models.ClassNotes, error)
+	FindClassNoteDetail(id int) (models.ClassNotesDetails, error)
 	Update(id int, params map[string]interface{}) error
 	UpdateDetail(models.ClassNotesDetails) error
 	Delete(id int) error
@@ -91,6 +92,18 @@ func (r *classNotesRepository) Find(id int) (models.ClassNotes, error) {
 	return classNote, nil
 }
 
+func (r *classNotesRepository) FindClassNoteDetail(id int) (models.ClassNotesDetails, error) {
+	classNoteDetail := models.ClassNotesDetails{}
+	if err := r.db.
+		Where("id = ?", id).
+		Order("id").
+		Limit(1).
+		Find(&classNoteDetail).Error; err != nil {
+		return classNoteDetail, err
+	}
+	return classNoteDetail, nil
+}
+
 func (r *classNotesRepository) Update(id int, params map[string]interface{}) error {
 	classNote := models.ClassNotesDetails{}
 	err := r.db.Transaction(func(tx *gorm.DB) error {
@@ -120,9 +133,6 @@ func (r *classNotesRepository) Update(id int, params map[string]interface{}) err
 
 func (r *classNotesRepository) UpdateDetail(classNoteDetail models.ClassNotesDetails) error {
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Save(&classNoteDetail).Error; err != nil {
-			return err
-		}
 		if err := tx.Save(&classNoteDetail).Error; err != nil {
 			return err
 		}

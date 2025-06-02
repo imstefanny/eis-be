@@ -93,3 +93,24 @@ func (u *usersController) Browse(c echo.Context) error {
 		"total": total,
 	})
 }
+
+func (u *usersController) Update(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	user := dto.UpdateUsersRequest{}
+	if err := c.Bind(&user); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	err := u.useCase.Update(uint(id), user)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data updated successfully",
+	})
+}
