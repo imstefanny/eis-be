@@ -77,7 +77,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	subjSchedsRepository := repository.NewSubjSchedsRepository(db)
 	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository, academicsRepository)
 	subjSchedsController := controllers.NewSubjSchedsController(subjSchedsService)
-	
+
 	studentAttsRepository := repository.NewStudentAttsRepository(db)
 	studentAttsService := usecase.NewStudentAttsUsecase(studentAttsRepository, studentsRepository, academicsRepository)
 	studentAttsController := controllers.NewStudentAttsController(studentAttsService)
@@ -85,7 +85,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classNotesRepository := repository.NewClassNotesRepository(db)
 	classNotesService := usecase.NewClassNotesUsecase(classNotesRepository, academicsRepository, studentAttsRepository)
 	classNotesController := controllers.NewClassNotesController(classNotesService)
-	
+
+	studentGradesRepository := repository.NewStudentGradesRepository(db)
+	studentGradesService := usecase.NewStudentGradesUsecase(studentGradesRepository, academicsRepository, studentsRepository, subjectsRepository)
+	studentGradesController := controllers.NewStudentGradesController(studentGradesService)
 
 	e.Pre(middleware.RemoveTrailingSlash())
 
@@ -248,4 +251,8 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eAcademicNotes := eAcademics.Group("/:academic_id/classnotes")
 	eAcademicNotes.GET("", classNotesController.BrowseByAcademicID)
+
+	eAcademicGrades := eAcademics.Group("/:academic_id/grades")
+	eAcademicGrades.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eAcademicGrades.POST("", studentGradesController.Create)
 }
