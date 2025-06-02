@@ -7,7 +7,7 @@ type CreateStudentGradesRequest struct {
 
 type CreateStudentGradesDetailRequest struct {
 	SubjectID uint                              `json:"subject_id"`
-	Entries   []CreateStudentGradesEntryRequest `json:"entries" validate:"required,dive"`
+	Students  []CreateStudentGradesEntryRequest `json:"students" validate:"required,dive"`
 }
 
 type CreateStudentGradesEntryRequest struct {
@@ -15,7 +15,28 @@ type CreateStudentGradesEntryRequest struct {
 	Quiz        float64 `json:"quiz"`
 	FirstMonth  float64 `json:"first_month"`
 	SecondMonth float64 `json:"second_month"`
-	Midterm     float64 `json:"midterm"`
+	Finals      float64 `json:"finals"`
+	Remarks     string  `json:"remarks"`
+}
+
+type GetStudentGradesResponse struct {
+	AcademicID uint                             `json:"academic_id"`
+	Academic   string                           `json:"academic"`
+	Details    []GetStudentGradesDetailResponse `json:"details"`
+}
+type GetStudentGradesDetailResponse struct {
+	SubjectID uint                            `json:"subject_id"`
+	Subject   string                          `json:"subject"`
+	Students  []GetStudentGradesEntryResponse `json:"students"`
+}
+type GetStudentGradesEntryResponse struct {
+	ID          uint    `json:"id"`
+	StudentID   uint    `json:"student_id"`
+	StudentName string  `json:"student_name"`
+	DisplayName string  `json:"display_name"`
+	Quiz        float64 `json:"quiz"`
+	FirstMonth  float64 `json:"first_month"`
+	SecondMonth float64 `json:"second_month"`
 	Finals      float64 `json:"finals"`
 	Remarks     string  `json:"remarks"`
 }
