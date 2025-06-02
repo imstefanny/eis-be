@@ -17,6 +17,7 @@ type UsersUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
 	Register(data dto.RegisterUsersRequest) error
 	Login(data dto.LoginUsersRequest) (interface{}, error)
+	Update(id uint, data dto.UpdateUsersRequest) error
 }
 
 type usersUsecase struct {
@@ -100,6 +101,26 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 	}
 
 	return userResponse, nil
+}
+
+func (s *usersUsecase) Update(id uint, data dto.UpdateUsersRequest) error {
+	userData, _ := s.usersRepository.Find(int(id))
+	if data.Password != "" {
+		userData.Password = data.Password
+	}
+	if data.ProfilePic != "" {
+		userData.ProfilePic = data.ProfilePic
+	}
+	userData.Name = data.Name
+	userData.RoleID = data.RoleID
+
+	err := s.usersRepository.Update(userData)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *usersUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
