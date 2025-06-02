@@ -86,6 +86,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classNotesService := usecase.NewClassNotesUsecase(classNotesRepository, academicsRepository, studentAttsRepository)
 	classNotesController := controllers.NewClassNotesController(classNotesService)
 
+	studentGradesRepository := repository.NewStudentGradesRepository(db)
+	studentGradesService := usecase.NewStudentGradesUsecase(studentGradesRepository, academicsRepository, studentsRepository, subjectsRepository)
+	studentGradesController := controllers.NewStudentGradesController(studentGradesService)
+
 	e.Pre(middleware.RemoveTrailingSlash())
 
 	e.POST("/register", usersController.Register)
@@ -248,4 +252,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eAcademicNotes := eAcademics.Group("/:academic_id/classnotes")
 	eAcademicNotes.GET("", classNotesController.BrowseByAcademicID)
+
+	eAcademicGrades := eAcademics.Group("/:academic_id/grades")
+	eAcademicGrades.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eAcademicGrades.GET("", studentGradesController.GetAll)
+	eAcademicGrades.POST("", studentGradesController.Create)
+	eAcademicGrades.PUT("", studentGradesController.UpdateByAcademicID)
 }

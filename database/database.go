@@ -55,4 +55,5 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.SubjectSchedules{})
 	DB.AutoMigrate(&models.ClassNotes{})
 	DB.AutoMigrate(&models.ClassNotesDetails{})
+	DB.AutoMigrate(&models.StudentGrades{})
 }
