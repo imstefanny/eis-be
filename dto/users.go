@@ -14,11 +14,12 @@ type LoginUsersRequest struct {
 }
 
 type LoginUsersResponse struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"name"`
-	Email  string `json:"email"`
-	Token  string `json:"token"`
-	RoleID uint   `json:"role_id"`
+	ID          uint     `json:"id"`
+	Name        string   `json:"name"`
+	Email       string   `json:"email"`
+	Token       string   `json:"token"`
+	RoleID      uint     `json:"role_id"`
+	Permissions []string `json:"permissions"`
 }
 
 type UpdateUsersRequest struct {

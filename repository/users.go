@@ -33,7 +33,7 @@ func (r *usersRepository) Create(tx *gorm.DB, user models.Users) (uint, error) {
 
 func (r *usersRepository) Login(data models.Users) (models.Users, error) {
 	user := models.Users{}
-	err := r.db.Where("email = ? AND password = ?", data.Email, data.Password).First(&user).Error
+	err := r.db.Where("email = ? AND password = ?", data.Email, data.Password).Preload("Role.Permissions").First(&user).Error
 	if err != nil {
 		return models.Users{}, err
 	}

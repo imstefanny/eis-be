@@ -92,12 +92,24 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 		return nil, err
 	}
 
+	if user.RoleID == 0 {
+		return nil, errors.New("user role not found")
+	}
+	if user.Role.Permissions == nil {
+		return nil, errors.New("user permissions not found")
+	}
+	permissions := make([]string, len(user.Role.Permissions))
+	for i, perm := range user.Role.Permissions {
+		permissions[i] = perm.Name
+	}
+
 	userResponse := dto.LoginUsersResponse{
-		ID:     user.ID,
-		Name:   user.Name,
-		Email:  user.Email,
-		Token:  token,
-		RoleID: user.RoleID,
+		ID:          user.ID,
+		Name:        user.Name,
+		Email:       user.Email,
+		Token:       token,
+		RoleID:      user.RoleID,
+		Permissions: permissions,
 	}
 
 	return userResponse, nil
