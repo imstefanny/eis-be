@@ -14,7 +14,7 @@ var DB *gorm.DB
 func init() {
 	InitDB()
 	InitialMigration()
-	PopulateRoles()
+	PopulateRolesPermissions()
 }
 
 func InitDB() *gorm.DB {
@@ -60,23 +60,152 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.Roles{}, &models.Permissions{})
 }
 
-func PopulateRoles() {
-	var roles []models.Roles
-	if err := DB.Find(&roles).Error; err == nil && len(roles) > 0 {
+func PopulateRolesPermissions() {
+	var count int64
+	if err := DB.Model(&models.Roles{}).Count(&count).Error; err != nil || count > 0 {
 		return
 	}
 
-	defaultRoles := []models.Roles{
-		{Name: "Admin"},
-		{Name: "Teacher"},
-		{Name: "Student"},
-		{Name: "Principal"},
-		{Name: "Applicant"},
+	permNames := []string{
+		"registration:read","registration:write",
+		"student:read","student:write",
+		"academic:read","academic:write",
+		"studentatt:read","studentatt:write",
+		"subject:read","subject:write",
+		"classnote:read","classnote:write",
+		"studentattrep:read","studentattrep:write",
+		"examrecap:read","examrecap:write",
+		"grade:read","grade:write",
+		"class:read","class:write",
+		"subjsched:read","subjsched:write",
+		"document:read","document:write",
+		"doctype:read","doctype:write",
+		"teacher:read","teacher:write",
+		"teacheratt:read","teacheratt:write",
+		"teacherattrep:read","teacherattrep:write",
+		"worksched:read","worksched:write",
+		"news:read","news:write",
+		"users:read","users:write",
+		"accessrights:read","accessrights:write",
 	}
 
-	for _, role := range defaultRoles {
+	permissions := []models.Permissions{}
+    for _, name := range permNames {
+        permissions = append(permissions, models.Permissions{Name: name})
+    }
+    if err := DB.Create(&permissions).Error; err != nil {
+		fmt.Printf("Error creating permissions: %v\n", err)
+		return
+	}
+
+	permMap := make(map[string]models.Permissions)
+	if err := DB.Find(&permissions).Error; err != nil {
+		fmt.Printf("Error retrieving permissions: %v\n", err)
+		return
+	}
+	for _, perm := range permissions {
+		permMap[perm.Name] = perm
+	}
+
+	roles := []models.Roles{
+		{Name: "Admin", Permissions: []models.Permissions{
+			permMap["registration:read"],
+			permMap["registration:write"],
+			permMap["student:read"],
+			permMap["student:write"],
+			permMap["academic:read"],
+			permMap["academic:write"],
+			permMap["studentatt:read"],
+			permMap["studentatt:write"],
+			permMap["subject:read"],
+			permMap["subject:write"],
+			permMap["classnote:read"],
+			permMap["classnote:write"],
+			permMap["studentattrep:read"],
+			permMap["studentattrep:write"],
+			permMap["examrecap:read"],
+			permMap["examrecap:write"],
+			permMap["grade:read"],
+			permMap["grade:write"],
+			permMap["class:read"],
+			permMap["class:write"],
+			permMap["subjsched:read"],
+			permMap["subjsched:write"],
+			permMap["document:read"],
+			permMap["document:write"],
+			permMap["doctype:read"],
+			permMap["doctype:write"],
+			permMap["teacher:read"],
+			permMap["teacher:write"],
+			permMap["teacheratt:read"],
+			permMap["teacheratt:write"],
+			permMap["teacherattrep:read"],
+			permMap["teacherattrep:write"],
+			permMap["worksched:read"],
+			permMap["worksched:write"],
+			permMap["news:read"],
+			permMap["news:write"],
+			permMap["users:read"],
+			permMap["users:write"],
+			permMap["accessrights:read"],
+			permMap["accessrights:write"],
+		}},
+		{Name: "Teacher", Permissions: []models.Permissions{
+			permMap["student:read"],
+			permMap["academic:read"],
+			permMap["academic:write"],
+			permMap["studentatt:read"],
+			permMap["studentatt:write"],
+			permMap["classnote:read"],
+			permMap["classnote:write"],
+			permMap["studentattrep:read"],
+			permMap["examrecap:read"],
+			permMap["teacher:read"],
+			permMap["teacher:write"],
+			permMap["teacheratt:read"],
+			permMap["teacherattrep:read"],
+			permMap["worksched:read"],
+			permMap["news:read"],
+		}},
+		{Name: "Student", Permissions: []models.Permissions{
+			permMap["student:read"],
+			permMap["student:write"],
+			permMap["studentatt:read"],
+			permMap["studentattrep:read"],
+			permMap["examrecap:read"],
+			permMap["subjsched:read"],
+			permMap["news:read"],
+		}},
+		{Name: "Principal", Permissions: []models.Permissions{
+			permMap["registration:read"],
+			permMap["student:read"],
+			permMap["academic:read"],
+			permMap["studentatt:read"],
+			permMap["subject:read"],
+			permMap["classnote:read"],
+			permMap["studentattrep:read"],
+			permMap["examrecap:read"],
+			permMap["grade:read"],
+			permMap["class:read"],
+			permMap["subjsched:read"],
+			permMap["document:read"],
+			permMap["doctype:read"],
+			permMap["teacher:read"],
+			permMap["teacheratt:read"],
+			permMap["teacherattrep:read"],
+			permMap["worksched:read"],
+			permMap["news:read"],
+		}},
+		{Name: "Applicant", Permissions: []models.Permissions{
+			permMap["news:read"],
+			permMap["registration:read"],
+			permMap["registration:write"],
+		}},
+	}
+	for _, role := range roles {
 		if err := DB.Create(&role).Error; err != nil {
 			fmt.Printf("Error creating role %s: %v\n", role.Name, err)
+			continue
 		}
 	}
 }
