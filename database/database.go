@@ -14,6 +14,7 @@ var DB *gorm.DB
 func init() {
 	InitDB()
 	InitialMigration()
+	PopulateRoles()
 }
 
 func InitDB() *gorm.DB {
@@ -56,4 +57,26 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.ClassNotes{})
 	DB.AutoMigrate(&models.ClassNotesDetails{})
 	DB.AutoMigrate(&models.StudentGrades{})
+	DB.AutoMigrate(&models.Roles{}, &models.Permissions{})
+}
+
+func PopulateRoles() {
+	var roles []models.Roles
+	if err := DB.Find(&roles).Error; err == nil && len(roles) > 0 {
+		return
+	}
+
+	defaultRoles := []models.Roles{
+		{Name: "Admin"},
+		{Name: "Teacher"},
+		{Name: "Student"},
+		{Name: "Principal"},
+		{Name: "Applicant"},
+	}
+
+	for _, role := range defaultRoles {
+		if err := DB.Create(&role).Error; err != nil {
+			fmt.Printf("Error creating role %s: %v\n", role.Name, err)
+		}
+	}
 }
