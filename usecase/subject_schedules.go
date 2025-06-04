@@ -17,17 +17,22 @@ type SubjSchedsUsecase interface {
 	Update(id int, subjSched dto.UpdateSubjSchedsRequest) (models.SubjectSchedules, error)
 	UpdateByAcademicID(subjSched dto.UpdateBatchSubjSchedsRequest) (dto.UpdateSubjSchedsResponse, error)
 	Delete(id int) error
+
+	// Teacher specific methods
+	GetAllByTeacher(teacherUserID int) ([]dto.GetTeacherSubjSchedsResponse, error)
 }
 
 type subjSchedsUsecase struct {
 	subjSchedsRepository repository.SubjSchedsRepository
 	academicsRepository  repository.AcademicsRepository
+	teachersRepository   repository.TeachersRepository
 }
 
-func NewSubjSchedsUsecase(subjSchedsRepo repository.SubjSchedsRepository, academicsRepo repository.AcademicsRepository) *subjSchedsUsecase {
+func NewSubjSchedsUsecase(subjSchedsRepo repository.SubjSchedsRepository, academicsRepo repository.AcademicsRepository, teachersRepo repository.TeachersRepository) *subjSchedsUsecase {
 	return &subjSchedsUsecase{
 		subjSchedsRepository: subjSchedsRepo,
 		academicsRepository:  academicsRepo,
+		teachersRepository:   teachersRepo,
 	}
 }
 
@@ -170,9 +175,9 @@ func (s *subjSchedsUsecase) UpdateByAcademicID(subjSched dto.UpdateBatchSubjSche
 	}
 
 	details := map[string]interface{}{
-		"addIDs":      addIDs,
-		"updateIDs":   updateIDs,
-		"removeIDs":   removeIDs,
+		"addIDs":         addIDs,
+		"updateIDs":      updateIDs,
+		"removeIDs":      removeIDs,
 		"incomingUpdate": incomingUpdate,
 	}
 	eTrx := s.subjSchedsRepository.UpdateBatch(details)
@@ -224,4 +229,47 @@ func (s *subjSchedsUsecase) Delete(id int) error {
 	}
 
 	return nil
+}
+
+func (s *subjSchedsUsecase) GetAllByTeacher(teacherUserID int) ([]dto.GetTeacherSubjSchedsResponse, error) {
+	teacherID, err := s.teachersRepository.GetByToken(teacherUserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get teacher by user ID: %w", err)
+	}
+	subjScheds, err := s.subjSchedsRepository.GetAllByTeacher(int(teacherID.ID))
+
+	if err != nil {
+		return nil, err
+	}
+
+	response := []dto.GetTeacherSubjSchedsResponse{}
+	scheduleDays := map[string][]models.SubjectSchedules{}
+	for _, subjSched := range subjScheds {
+		day := subjSched.Day
+		if _, exists := scheduleDays[day]; !exists {
+			scheduleDays[day] = []models.SubjectSchedules{}
+		}
+		scheduleDays[day] = append(scheduleDays[day], subjSched)
+	}
+	for day, entries := range scheduleDays {
+		schedule := dto.GetTeacherSubjSchedsResponse{
+			Day:     day,
+			Details: []dto.GetTeacherSubjSchedsDetailsResponse{},
+		}
+		for _, entry := range entries {
+			schedule.Details = append(schedule.Details, dto.GetTeacherSubjSchedsDetailsResponse{
+				SubjSchedID: entry.ID,
+				ClassID:     entry.Academic.ClassroomID,
+				Class:       entry.Academic.Classroom.Name,
+				SubjectID:   entry.SubjectID,
+				Subject:     entry.Subject.Name,
+				TeacherID:   entry.TeacherID,
+				StartHour:   entry.StartHour,
+				EndHour:     entry.EndHour,
+			})
+		}
+		response = append(response, schedule)
+	}
+
+	return response, nil
 }

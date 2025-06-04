@@ -50,3 +50,19 @@ type GetSubjectScheduleEntryResponse struct {
 	StartHour string `json:"start_hour"`
 	EndHour   string `json:"end_hour"`
 }
+
+// below is the response for the class notes list for the teacher view
+type GetTeacherSubjSchedsResponse struct {
+	Day     string                                `json:"day"`
+	Details []GetTeacherSubjSchedsDetailsResponse `json:"details"`
+}
+type GetTeacherSubjSchedsDetailsResponse struct {
+	SubjSchedID uint   `json:"subj_sched_id"`
+	ClassID     uint   `json:"class_id"`
+	Class       string `json:"class"`
+	SubjectID   uint   `json:"subject_id"`
+	Subject     string `json:"subject"`
+	TeacherID   uint   `json:"teacher_id"`
+	StartHour   string `json:"start_hour"`
+	EndHour     string `json:"end_hour"`
+}

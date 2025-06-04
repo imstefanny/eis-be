@@ -14,6 +14,9 @@ type SubjSchedsRepository interface {
 	Update(id int, subjSched models.SubjectSchedules) error
 	UpdateBatch(map[string]interface{}) error
 	Delete(id int) error
+
+	// Teacher specific methods
+	GetAllByTeacher(teacherUserID int) ([]models.SubjectSchedules, error)
 }
 
 type subjSchedsRepository struct {
@@ -102,4 +105,18 @@ func (r *subjSchedsRepository) Delete(id int) error {
 		return err
 	}
 	return nil
+}
+
+// Teacher specific methods
+func (r *subjSchedsRepository) GetAllByTeacher(teacherUserID int) ([]models.SubjectSchedules, error) {
+	var subjScheds []models.SubjectSchedules
+	if err := r.db.
+		Where("teacher_id = ?", teacherUserID).
+		Preload("Academic.Classroom").
+		Preload("Subject").
+		Preload("Teacher").
+		Find(&subjScheds).Error; err != nil {
+		return nil, err
+	}
+	return subjScheds, nil
 }
