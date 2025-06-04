@@ -240,7 +240,7 @@ func (s *academicsUsecase) Update(id int, academic dto.CreateAcademicsRequest) (
 			return models.Academics{}, e
 		}
 		if len(studentsData) == 0 {
-			return models.Academics{}, fmt.Errorf("Students not found")
+			return models.Academics{}, fmt.Errorf("students not found")
 		}
 		students = studentsData
 	}

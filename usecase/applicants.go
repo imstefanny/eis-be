@@ -164,7 +164,7 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	}
 
 	if applicant.State == "approved" {
-		return fmt.Errorf("Applicant with ID %d is already approved", id)
+		return fmt.Errorf("applicant with ID %d is already approved", id)
 	}
 
 	applicant.State = "approved"
