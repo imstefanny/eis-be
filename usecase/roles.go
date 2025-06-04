@@ -4,6 +4,7 @@ import (
 	"eis-be/dto"
 	"eis-be/models"
 	"eis-be/repository"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -17,12 +18,14 @@ type RolesUsecase interface {
 }
 
 type rolesUsecase struct {
-	rolesRepository repository.RolesRepository
+	rolesRepository       repository.RolesRepository
+	permissionsRepository repository.PermissionsRepository
 }
 
-func NewRolesUsecase(rolesRepo repository.RolesRepository) *rolesUsecase {
+func NewRolesUsecase(rolesRepo repository.RolesRepository, permissionsRepo repository.PermissionsRepository) *rolesUsecase {
 	return &rolesUsecase{
-		rolesRepository: rolesRepo,
+		rolesRepository:       rolesRepo,
+		permissionsRepository: permissionsRepo,
 	}
 }
 
@@ -48,8 +51,20 @@ func (s *rolesUsecase) Create(role dto.CreateRolesRequest) error {
 		return e
 	}
 
+	permissions := []models.Permissions{}
+	if len(role.Permissions) > 0 {
+		permissionsData, e := s.permissionsRepository.GetByIds(role.Permissions)
+		if e != nil {
+			return e
+		}
+		if len(permissionsData) == 0 {
+			return models.ErrPermissionsNotFound{}
+		}
+		permissions = permissionsData
+	}
 	roleData := models.Roles{
-		Name: role.Name,
+		Name:        role.Name,
+		Permissions: permissions,
 	}
 
 	err := s.rolesRepository.Create(roleData)
@@ -99,7 +114,21 @@ func (s *rolesUsecase) Update(id int, role dto.CreateRolesRequest) (models.Roles
 		return models.Roles{}, models.ErrCannotUpdateRole{}
 	}
 
+	permissions := []models.Permissions{}
+	if len(role.Permissions) > 0 {
+		fmt.Println("more than 1 permissions")
+		permissionsData, e := s.permissionsRepository.GetByIds(role.Permissions)
+		if e != nil {
+			return models.Roles{}, e
+		}
+		if len(permissionsData) == 0 {
+			return models.Roles{}, models.ErrPermissionsNotFound{}
+		}
+		permissions = permissionsData
+	}
+
 	roleData.Name = role.Name
+	roleData.Permissions = permissions
 	e := s.rolesRepository.Update(id, roleData)
 
 	if e != nil {

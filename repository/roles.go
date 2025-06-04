@@ -58,8 +58,12 @@ func (r *rolesRepository) Find(id int) (models.Roles, error) {
 }
 
 func (r *rolesRepository) Update(id int, role models.Roles) error {
-	query := r.db.Model(&role).Updates(role)
-	if err := query.Error; err != nil {
+	oldRole := models.Roles{}
+	if err := r.db.Find(&oldRole, id).Error; err != nil {
+		return err
+	}
+	r.db.Model(&oldRole).Association("Permissions").Clear()
+	if err := r.db.Model(&role).Updates(role).Error; err != nil {
 		return err
 	}
 	return nil
@@ -67,7 +71,7 @@ func (r *rolesRepository) Update(id int, role models.Roles) error {
 
 func (r *rolesRepository) Delete(id int) error {
 	role := models.Roles{}
-	if err := r.db.Delete(&role, id).Error; err != nil {
+	if err := r.db.Unscoped().Delete(&role, id).Error; err != nil {
 		return err
 	}
 	return nil

@@ -28,3 +28,9 @@ type ErrCannotUpdateRole struct{}
 func (e ErrCannotUpdateRole) Error() string {
 	return "cannot update this role"
 }
+
+type ErrPermissionsNotFound struct{}
+
+func (e ErrPermissionsNotFound) Error() string {
+	return "permissions not found"
+}

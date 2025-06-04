@@ -18,7 +18,8 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	usersController := controllers.NewUsersController(usersService)
 
 	rolesRepository := repository.NewRolesRepository(db)
-	rolesService := usecase.NewRolesUsecase(rolesRepository)
+	permissionsRepository := repository.NewPermissionsRepository(db)
+	rolesService := usecase.NewRolesUsecase(rolesRepository, permissionsRepository)
 	rolesController := controllers.NewRolesController(rolesService)
 
 	blogsRepository := repository.NewBlogsRepository(db)
