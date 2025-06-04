@@ -33,7 +33,9 @@ type GetClassNoteEntryResponse struct {
 	Subject           string `json:"subject"`
 	SubjectScheduleId uint   `json:"subject_schedule_id"`
 	Teacher           string `json:"teacher"`
+	TeacherID         uint   `json:"teacher_id"`
 	TeacherAct        string `json:"teacher_act"`
+	TeacherActID      uint   `json:"teacher_act_id"`
 	Materials         string `json:"materials"`
 	Notes             string `json:"notes"`
 }
@@ -60,4 +62,15 @@ type GetClassNoteAbsenceDetails struct {
 	FullName  string `json:"full_name"`
 	Status    string `json:"status"`
 	Remarks   string `json:"remarks"`
+}
+
+type BrowseClassNotesResponse struct {
+	ID          uint           `json:"id"`
+	DisplayName string         `json:"display_name"`
+	AcademicID  uint           `json:"academic_id"`
+	Academic    string         `json:"academic"`
+	Date        time.Time      `json:"date"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `json:"deleted_at"`
 }

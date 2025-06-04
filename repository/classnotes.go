@@ -32,7 +32,7 @@ func (r *classNotesRepository) Browse(page, limit int, search string) ([]models.
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Academic").Preload("Details").Find(&classNotes).Error; err != nil {
+	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&classNotes).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.ClassNotes{}).Where("LOWER(display_name) LIKE ?", search).Count(&total).Error; err != nil {
