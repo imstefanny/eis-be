@@ -236,8 +236,8 @@ func (s *subjSchedsUsecase) GetAllByTeacher(teacherUserID int) ([]dto.GetTeacher
 	if err != nil {
 		return nil, fmt.Errorf("failed to get teacher by user ID: %w", err)
 	}
-	subjScheds, err := s.subjSchedsRepository.GetAllByTeacher(int(teacherID.ID))
 
+	subjScheds, err := s.subjSchedsRepository.GetAllByTeacher(int(teacherID.ID))
 	if err != nil {
 		return nil, err
 	}

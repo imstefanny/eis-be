@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
@@ -206,5 +207,34 @@ func (u *classNotesController) Delete(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Data deleted successfully",
+	})
+}
+
+// Teacher methods
+func (u *classNotesController) FindByTeacher(c echo.Context) error {
+	schedID, _ := strconv.Atoi(c.Param("sched_id"))
+	if schedID < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid subject schedule ID",
+		})
+	}
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	id := int(claims["userId"].(float64))
+	date := c.QueryParam("date")
+
+	classNotes, err := u.useCase.FindByTeacher(id, schedID, date)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": classNotes,
 	})
 }
