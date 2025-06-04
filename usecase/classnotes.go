@@ -12,7 +12,7 @@ import (
 )
 
 type ClassNotesUsecase interface {
-	Browse(page, limit int, search string) (interface{}, int64, error)
+	Browse(page, limit int, search string) ([]dto.BrowseClassNotesResponse, int64, error)
 	BrowseByAcademicID(academicID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error)
 	Create(classNote dto.CreateClassNotesRequest) error
 	CreateBatch(classNote dto.CreateBatchClassNotesRequest) error
@@ -46,14 +46,33 @@ func validateCreateBatchClassNotesRequest(req dto.CreateBatchClassNotesRequest) 
 	return validate.Struct(req)
 }
 
-func (s *classNotesUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
+func (s *classNotesUsecase) Browse(page, limit int, search string) ([]dto.BrowseClassNotesResponse, int64, error) {
 	classNotes, total, err := s.classNotesRepository.Browse(page, limit, search)
 
 	if err != nil {
 		return nil, total, err
 	}
 
-	return classNotes, total, nil
+	responses := []dto.BrowseClassNotesResponse{}
+	for _, classNote := range classNotes {
+		academic, err := s.academicsRepository.Find(int(classNote.AcademicID))
+		if err != nil {
+			return nil, total, err
+		}
+		response := dto.BrowseClassNotesResponse{
+			ID:          classNote.ID,
+			DisplayName: classNote.DisplayName,
+			AcademicID:  classNote.AcademicID,
+			Academic:    academic.DisplayName,
+			Date:        classNote.Date,
+			CreatedAt:   classNote.CreatedAt,
+			UpdatedAt:   classNote.UpdatedAt,
+			DeletedAt:   classNote.DeletedAt,
+		}
+		responses = append(responses, response)
+	}
+
+	return responses, total, nil
 }
 
 func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error) {
@@ -70,9 +89,11 @@ func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, sear
 			detailData := dto.GetClassNoteEntryResponse{
 				ID:                detail.ID,
 				Subject:           detail.SubjSched.Subject.Name,
-				SubjectScheduleId: detail.SubjSched.ID,
+				SubjectScheduleId: detail.SubjSchedID,
 				Teacher:           detail.SubjSched.Teacher.Name,
+				TeacherID:         detail.SubjSched.TeacherID,
 				TeacherAct:        detail.Teacher.Name,
+				TeacherActID:      detail.TeacherID,
 				Materials:         detail.Materials,
 				Notes:             detail.Notes,
 			}
@@ -217,12 +238,15 @@ func (s *classNotesUsecase) Find(id int) (dto.GetClassNotesResponse, error) {
 	details := []dto.GetClassNoteEntryResponse{}
 	for _, detail := range classNote.Details {
 		detailData := dto.GetClassNoteEntryResponse{
-			ID:         detail.ID,
-			Subject:    detail.SubjSched.Subject.Name,
-			Teacher:    detail.SubjSched.Teacher.Name,
-			TeacherAct: detail.Teacher.Name,
-			Materials:  detail.Materials,
-			Notes:      detail.Notes,
+			ID:           detail.ID,
+			Subject:      detail.SubjSched.Subject.Name,
+			SubjectScheduleId: detail.SubjSchedID,
+			Teacher:      detail.SubjSched.Teacher.Name,
+			TeacherID:    detail.SubjSched.TeacherID,
+			TeacherAct:   detail.Teacher.Name,
+			TeacherActID: detail.TeacherID,
+			Materials:    detail.Materials,
+			Notes:        detail.Notes,
 		}
 		details = append(details, detailData)
 	}
@@ -309,12 +333,15 @@ func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest
 	updatedDetails := []dto.GetClassNoteEntryResponse{}
 	for _, detail := range classNoteUpdated.Details {
 		detailData := dto.GetClassNoteEntryResponse{
-			ID:         detail.ID,
-			Subject:    detail.SubjSched.Subject.Name,
-			Teacher:    detail.SubjSched.Teacher.Name,
-			TeacherAct: detail.Teacher.Name,
-			Materials:  detail.Materials,
-			Notes:      detail.Notes,
+			ID:           detail.ID,
+			Subject:      detail.SubjSched.Subject.Name,
+			SubjectScheduleId: detail.SubjSchedID,
+			Teacher:      detail.SubjSched.Teacher.Name,
+			TeacherID:    detail.SubjSched.TeacherID,
+			TeacherAct:   detail.Teacher.Name,
+			TeacherActID: detail.TeacherID,
+			Materials:    detail.Materials,
+			Notes:        detail.Notes,
 		}
 		updatedDetails = append(updatedDetails, detailData)
 	}
