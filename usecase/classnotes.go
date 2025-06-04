@@ -20,19 +20,24 @@ type ClassNotesUsecase interface {
 	Update(id int, classNote dto.CreateClassNotesRequest) (dto.GetClassNotesResponse, error)
 	UpdateDetail(id int, classNote dto.CreateClassNotesDetailsRequest) (dto.GetClassNoteEntryResponse, error)
 	Delete(id int) error
+
+	// Teacher methods
+	FindByTeacher(teacherUserID, schedID int, date string) ([]dto.GetClassNotesResponse, error)
 }
 
 type classNotesUsecase struct {
 	classNotesRepository  repository.ClassNotesRepository
 	academicsRepository   repository.AcademicsRepository
 	studentAttsRepository repository.StudentAttsRepository
+	teachersRepository    repository.TeachersRepository
 }
 
-func NewClassNotesUsecase(classNotesRepo repository.ClassNotesRepository, academicsRepo repository.AcademicsRepository, studentAttsRepo repository.StudentAttsRepository) *classNotesUsecase {
+func NewClassNotesUsecase(classNotesRepo repository.ClassNotesRepository, academicsRepo repository.AcademicsRepository, studentAttsRepo repository.StudentAttsRepository, teachersRepo repository.TeachersRepository) *classNotesUsecase {
 	return &classNotesUsecase{
 		classNotesRepository:  classNotesRepo,
 		academicsRepository:   academicsRepo,
 		studentAttsRepository: studentAttsRepo,
+		teachersRepository:    teachersRepo,
 	}
 }
 
@@ -422,4 +427,47 @@ func (s *classNotesUsecase) Delete(id int) error {
 	}
 
 	return nil
+}
+
+// Teacher methods
+func (s *classNotesUsecase) FindByTeacher(teacherUserID, schedID int, date string) ([]dto.GetClassNotesResponse, error) {
+	teacherID, err := s.teachersRepository.GetByToken(teacherUserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get teacher by user ID: %w", err)
+	}
+	classNotes, err := s.classNotesRepository.FindByTeacher(int(teacherID.ID), schedID, date)
+
+	responses := []dto.GetClassNotesResponse{}
+	for _, classNote := range classNotes {
+		details := []dto.GetClassNoteEntryResponse{}
+		for _, detail := range classNote.Details {
+			if detail.TeacherID != teacherID.ID || detail.SubjSchedID != uint(schedID) {
+				continue
+			}
+			detailData := dto.GetClassNoteEntryResponse{
+				ID:                detail.ID,
+				Subject:           detail.SubjSched.Subject.Name,
+				SubjectScheduleId: detail.SubjSchedID,
+				Teacher:           detail.SubjSched.Teacher.Name,
+				TeacherID:         detail.SubjSched.TeacherID,
+				TeacherAct:        detail.Teacher.Name,
+				TeacherActID:      detail.TeacherID,
+				Materials:         detail.Materials,
+				Notes:             detail.Notes,
+			}
+			details = append(details, detailData)
+		}
+		response := dto.GetClassNotesResponse{
+			ID:         classNote.ID,
+			AcademicID: classNote.AcademicID,
+			Date:       classNote.Date,
+			Details:    details,
+			CreatedAt:  classNote.CreatedAt,
+			UpdatedAt:  classNote.UpdatedAt,
+			DeletedAt:  classNote.DeletedAt,
+		}
+		responses = append(responses, response)
+	}
+
+	return responses, err
 }

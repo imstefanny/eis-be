@@ -18,6 +18,9 @@ type ClassNotesRepository interface {
 	CreateDetail(models.ClassNotesDetails) error
 	UpdateDetail(models.ClassNotesDetails) error
 	Delete(id int) error
+
+	// Teacher specific methods
+	FindByTeacher(teacherID, schedID int, date string) ([]models.ClassNotes, error)
 }
 
 type classNotesRepository struct {
@@ -174,4 +177,24 @@ func (r *classNotesRepository) Delete(id int) error {
 		return err
 	}
 	return nil
+}
+
+// Teacher specific methods
+func (r *classNotesRepository) FindByTeacher(teacherID, schedID int, date string) ([]models.ClassNotes, error) {
+	var classNotes []models.ClassNotes
+
+	if err := r.db.Preload("Academic").
+		Preload("Details").
+		Preload("Details.SubjSched.Teacher").
+		Preload("Details.SubjSched.Subject").
+		Preload("Details.Teacher").
+		Joins("JOIN class_notes_details ON class_notes.id = class_notes_details.note_id").
+		Joins("JOIN subject_schedules ON class_notes_details.subj_sched_id = subject_schedules.id").
+		Where("class_notes_details.teacher_id = ?", teacherID).
+		Where("subject_schedules.id = ?", schedID).
+		Where("DATE(class_notes.date) = ?", date).Find(&classNotes).Error; err != nil {
+		return nil, err
+	}
+
+	return classNotes, nil
 }

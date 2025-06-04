@@ -160,7 +160,7 @@ func (u *subjSchedsController) GetAllByTeacher(c echo.Context) error {
 		})
 	}
 
-	var id int = int(claims["userId"].(float64))
+	id := int(claims["userId"].(float64))
 
 	subjScheds, err := u.useCase.GetAllByTeacher(id)
 
