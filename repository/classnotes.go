@@ -15,6 +15,7 @@ type ClassNotesRepository interface {
 	Find(id int) (models.ClassNotes, error)
 	FindClassNoteDetail(id int) (models.ClassNotesDetails, error)
 	Update(id int, params map[string]interface{}) error
+	CreateDetail(models.ClassNotesDetails) error
 	UpdateDetail(models.ClassNotesDetails) error
 	Delete(id int) error
 }
@@ -122,6 +123,19 @@ func (r *classNotesRepository) Update(id int, params map[string]interface{}) err
 			if err := tx.Unscoped().Delete(&classNote, params["removeIDs"]).Error; err != nil {
 				return err
 			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *classNotesRepository) CreateDetail(classNoteDetail models.ClassNotesDetails) error {
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&classNoteDetail).Error; err != nil {
+			return err
 		}
 		return nil
 	})

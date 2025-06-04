@@ -238,15 +238,15 @@ func (s *classNotesUsecase) Find(id int) (dto.GetClassNotesResponse, error) {
 	details := []dto.GetClassNoteEntryResponse{}
 	for _, detail := range classNote.Details {
 		detailData := dto.GetClassNoteEntryResponse{
-			ID:           detail.ID,
-			Subject:      detail.SubjSched.Subject.Name,
+			ID:                detail.ID,
+			Subject:           detail.SubjSched.Subject.Name,
 			SubjectScheduleId: detail.SubjSchedID,
-			Teacher:      detail.SubjSched.Teacher.Name,
-			TeacherID:    detail.SubjSched.TeacherID,
-			TeacherAct:   detail.Teacher.Name,
-			TeacherActID: detail.TeacherID,
-			Materials:    detail.Materials,
-			Notes:        detail.Notes,
+			Teacher:           detail.SubjSched.Teacher.Name,
+			TeacherID:         detail.SubjSched.TeacherID,
+			TeacherAct:        detail.Teacher.Name,
+			TeacherActID:      detail.TeacherID,
+			Materials:         detail.Materials,
+			Notes:             detail.Notes,
 		}
 		details = append(details, detailData)
 	}
@@ -333,15 +333,15 @@ func (s *classNotesUsecase) Update(id int, classNote dto.CreateClassNotesRequest
 	updatedDetails := []dto.GetClassNoteEntryResponse{}
 	for _, detail := range classNoteUpdated.Details {
 		detailData := dto.GetClassNoteEntryResponse{
-			ID:           detail.ID,
-			Subject:      detail.SubjSched.Subject.Name,
+			ID:                detail.ID,
+			Subject:           detail.SubjSched.Subject.Name,
 			SubjectScheduleId: detail.SubjSchedID,
-			Teacher:      detail.SubjSched.Teacher.Name,
-			TeacherID:    detail.SubjSched.TeacherID,
-			TeacherAct:   detail.Teacher.Name,
-			TeacherActID: detail.TeacherID,
-			Materials:    detail.Materials,
-			Notes:        detail.Notes,
+			Teacher:           detail.SubjSched.Teacher.Name,
+			TeacherID:         detail.SubjSched.TeacherID,
+			TeacherAct:        detail.Teacher.Name,
+			TeacherActID:      detail.TeacherID,
+			Materials:         detail.Materials,
+			Notes:             detail.Notes,
 		}
 		updatedDetails = append(updatedDetails, detailData)
 	}
@@ -365,18 +365,38 @@ func (s *classNotesUsecase) UpdateDetail(id int, classNote dto.CreateClassNotesD
 		return dto.GetClassNoteEntryResponse{}, err
 	}
 
+	var teacherId uint
+	var noteId uint
+	if classNote.ID == 0 {
+		teacherId = classNote.TeacherID
+	} else {
+		teacherId = classNoteData.TeacherID
+	}
+
+	if classNoteData.NoteID == 0 {
+		noteId = classNote.NoteID
+	} else {
+		noteId = classNoteData.NoteID
+	}
+
 	detail := models.ClassNotesDetails{
 		ID:          classNote.ID,
-		NoteID:      classNoteData.NoteID,
+		NoteID:      noteId,
 		SubjSchedID: classNote.SubjSchedID,
-		TeacherID:   classNote.TeacherID,
+		TeacherID:   teacherId,
 		Materials:   classNote.Materials,
 		Notes:       classNote.Notes,
 	}
 
-	eTrx := s.classNotesRepository.UpdateDetail(detail)
-	if eTrx != nil {
-		return dto.GetClassNoteEntryResponse{}, eTrx
+	var errTrx error
+	if classNote.ID == 0 {
+		errTrx = s.classNotesRepository.CreateDetail(detail)
+	} else {
+		errTrx = s.classNotesRepository.UpdateDetail(detail)
+	}
+
+	if errTrx != nil {
+		return dto.GetClassNoteEntryResponse{}, errTrx
 	}
 
 	classNoteUpdated, err := s.classNotesRepository.FindClassNoteDetail(id)
