@@ -210,6 +210,9 @@ func (s *classNotesUsecase) CreateBatch(classNote dto.CreateBatchClassNotesReque
 	for _, academic := range academics {
 		details := []models.ClassNotesDetails{}
 		for _, subjSched := range academic.SubjScheds {
+			if subjSched.Day != parsedDate.Weekday().String() {
+				continue
+			}
 			detailData := models.ClassNotesDetails{
 				SubjSchedID: subjSched.ID,
 				TeacherID:   subjSched.TeacherID,
