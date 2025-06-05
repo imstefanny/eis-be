@@ -12,41 +12,68 @@ type ClassNotesDetailsUsecase interface {
 type classNotesDetailsUsecase struct {
 	classNotesDetailsRepository repository.ClassNotesDetailsRepository
 	teachersRepository          repository.TeachersRepository
+	studentAttsRepository       repository.StudentAttsRepository
 }
 
-func NewClassNotesDetailsUsecase(classNotesDetailsRepo repository.ClassNotesDetailsRepository, teachersRepo repository.TeachersRepository) *classNotesDetailsUsecase {
+func NewClassNotesDetailsUsecase(classNotesDetailsRepo repository.ClassNotesDetailsRepository, teachersRepo repository.TeachersRepository, studentAttsRepo repository.StudentAttsRepository) *classNotesDetailsUsecase {
 	return &classNotesDetailsUsecase{
 		classNotesDetailsRepository: classNotesDetailsRepo,
 		teachersRepository:          teachersRepo,
+		studentAttsRepository:       studentAttsRepo,
 	}
 }
 
-func (u *classNotesDetailsUsecase) GetAllByTeacher(id int, date string) ([]dto.GetTeacherSchedsResponse, error) {
-	teacherID, err := u.teachersRepository.GetByToken(id)
+func (s *classNotesDetailsUsecase) GetAllByTeacher(id int, date string) ([]dto.GetTeacherSchedsResponse, error) {
+	teacherID, err := s.teachersRepository.GetByToken(id)
 	if err != nil {
 		return nil, err
 	}
 
-	details, err := u.classNotesDetailsRepository.GetAllByTeacher(int(teacherID.ID), date)
+	details, err := s.classNotesDetailsRepository.GetAllByTeacher(int(teacherID.ID), date)
 	if err != nil {
 		return nil, err
 	}
 
 	var response []dto.GetTeacherSchedsResponse
 	for _, detail := range details {
+		absences, _ := s.studentAttsRepository.FindByAcademicDate(int(detail.Note.AcademicID), detail.Note.Date.Format("2006-01-02"))
+		absenceCount := []dto.GetClassNoteAbsenceResponse{}
+		absenceDetails := []dto.GetClassNoteAbsenceDetails{}
+		absenceCountMap := make(map[string]int)
+		for _, absence := range absences {
+			absenceCountMap[absence.Status]++
+			if absence.Status == "Permission" || absence.Status == "Alpha" || absence.Status == "Sick" {
+				absenceCountMap["Leaves"]++
+				absenceDetails = append(absenceDetails, dto.GetClassNoteAbsenceDetails{
+					ID:        absence.ID,
+					StudentID: absence.StudentID,
+					FullName:  absence.Student.FullName,
+					Status:    absence.Status,
+					Remarks:   absence.Remarks,
+				})
+			}
+		}
+		for status, count := range absenceCountMap {
+			absenceCount = append(absenceCount, dto.GetClassNoteAbsenceResponse{
+				Status: status,
+				Total:  count,
+			})
+		}
 		response = append(response, dto.GetTeacherSchedsResponse{
-			ID:          detail.ID,
-			NoteID:      detail.NoteID,
-			Date:        detail.Note.Date,
-			Day:         detail.SubjSched.Day,
-			Class:       detail.SubjSched.Academic.Classroom.Name,
-			Subject:     detail.SubjSched.Subject.Name,
-			SubjSchedID: detail.SubjSchedID,
-			Teacher:     detail.Teacher.Name,
-			StartHour:   detail.SubjSched.StartHour,
-			EndHour:     detail.SubjSched.EndHour,
-			Materials:   detail.Materials,
-			Notes:       detail.Notes,
+			ID:             detail.ID,
+			NoteID:         detail.NoteID,
+			Date:           detail.Note.Date,
+			Day:            detail.SubjSched.Day,
+			Class:          detail.SubjSched.Academic.Classroom.Name,
+			Subject:        detail.SubjSched.Subject.Name,
+			SubjSchedID:    detail.SubjSchedID,
+			Teacher:        detail.Teacher.Name,
+			StartHour:      detail.SubjSched.StartHour,
+			EndHour:        detail.SubjSched.EndHour,
+			Materials:      detail.Materials,
+			Notes:          detail.Notes,
+			AbsenceCount:   absenceCount,
+			AbsenceDetails: absenceDetails,
 		})
 	}
 

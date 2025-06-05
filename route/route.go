@@ -92,7 +92,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classNotesController := controllers.NewClassNotesController(classNotesService)
 
 	classNotesDetailsRepository := repository.NewClassNotesDetailsRepository(db)
-	classNotesDetailsService := usecase.NewClassNotesDetailsUsecase(classNotesDetailsRepository, teachersRepository)
+	classNotesDetailsService := usecase.NewClassNotesDetailsUsecase(classNotesDetailsRepository, teachersRepository, studentAttsRepository)
 	classNotesDetailsController := controllers.NewClassNotesDetailsController(classNotesDetailsService)
 
 	studentGradesRepository := repository.NewStudentGradesRepository(db)
