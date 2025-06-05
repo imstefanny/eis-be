@@ -19,6 +19,7 @@ type LoginUsersResponse struct {
 	Email       string   `json:"email"`
 	Token       string   `json:"token"`
 	RoleID      uint     `json:"role_id"`
+	RoleName    string   `json:"role_name"`
 	Permissions []string `json:"permissions"`
 }
 

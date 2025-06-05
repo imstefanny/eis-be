@@ -111,6 +111,7 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 		Email:       user.Email,
 		Token:       token,
 		RoleID:      user.RoleID,
+		RoleName:    user.Role.Name,
 		Permissions: permissions,
 	}
 
