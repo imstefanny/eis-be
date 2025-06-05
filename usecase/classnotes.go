@@ -372,10 +372,10 @@ func (s *classNotesUsecase) UpdateDetail(id int, classNote dto.CreateClassNotesD
 
 	var teacherId uint
 	var noteId uint
-	if classNote.ID == 0 {
-		teacherId = classNote.TeacherID
-	} else {
+	if classNote.TeacherID == 0 {
 		teacherId = classNoteData.TeacherID
+	} else {
+		teacherId = classNote.TeacherID
 	}
 
 	if classNoteData.NoteID == 0 {
