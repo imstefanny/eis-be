@@ -36,7 +36,7 @@ func (s *classNotesDetailsUsecase) GetAllByTeacher(id int, date string) ([]dto.G
 
 	var response []dto.GetTeacherSchedsResponse
 	for _, detail := range details {
-		absences, _ := s.studentAttsRepository.FindByAcademicDate(int(detail.Note.AcademicID), detail.Note.Date.Format("2006-01-02"))
+		absences, _ := s.studentAttsRepository.FindByAcademicDate(int(detail.AcademicID), detail.Date.Format("2006-01-02"))
 		absenceCount := []dto.GetClassNoteAbsenceResponse{}
 		absenceDetails := []dto.GetClassNoteAbsenceDetails{}
 		absenceCountMap := make(map[string]int)
@@ -62,14 +62,14 @@ func (s *classNotesDetailsUsecase) GetAllByTeacher(id int, date string) ([]dto.G
 		response = append(response, dto.GetTeacherSchedsResponse{
 			ID:             detail.ID,
 			NoteID:         detail.NoteID,
-			Date:           detail.Note.Date,
-			Day:            detail.SubjSched.Day,
-			Class:          detail.SubjSched.Academic.Classroom.Name,
-			Subject:        detail.SubjSched.Subject.Name,
+			Date:           detail.Date,
+			Day:            detail.Day,
+			Class:          detail.Class,
+			Subject:        detail.Subject,
 			SubjSchedID:    detail.SubjSchedID,
-			Teacher:        detail.Teacher.Name,
-			StartHour:      detail.SubjSched.StartHour,
-			EndHour:        detail.SubjSched.EndHour,
+			Teacher:        detail.Teacher,
+			StartHour:      detail.StartHour,
+			EndHour:        detail.EndHour,
 			Materials:      detail.Materials,
 			Notes:          detail.Notes,
 			AbsenceCount:   absenceCount,
