@@ -15,6 +15,8 @@ func init() {
 	InitDB()
 	InitialMigration()
 	PopulateRolesPermissions()
+	PopulateLevels()
+	PopulateDocTypes()
 }
 
 func InitDB() *gorm.DB {
@@ -205,6 +207,44 @@ func PopulateRolesPermissions() {
 	for _, role := range roles {
 		if err := DB.Create(&role).Error; err != nil {
 			fmt.Printf("Error creating role %s: %v\n", role.Name, err)
+			continue
+		}
+	}
+}
+
+func PopulateLevels() {
+	var count int64
+	if err := DB.Model(&models.Roles{}).Count(&count).Error; err != nil || count > 0 {
+		return
+	}
+	levels := []models.Levels{
+		{Name: "TK"},
+		{Name: "SD"},
+		{Name: "SMP"},
+		{Name: "SMA"},
+	}
+	for _, level := range levels {
+		if err := DB.Create(&level).Error; err != nil {
+			fmt.Printf("Error creating level %s: %v\n", level.Name, err)
+			continue
+		}
+	}
+}
+
+func PopulateDocTypes() {
+	var count int64
+	if err := DB.Model(&models.DocTypes{}).Count(&count).Error; err != nil || count > 0 {
+		return
+	}
+	docTypes := []models.DocTypes{
+		{Name: "Kartu Keluarga"},
+		{Name: "Akta Kelahiran"},
+		{Name: "KTP Orang Tua"},
+		{Name: "Bukti Pembayaran"},
+	}
+	for _, docType := range docTypes {
+		if err := DB.Create(&docType).Error; err != nil {
+			fmt.Printf("Error creating document type %s: %v\n", docType.Name, err)
 			continue
 		}
 	}
