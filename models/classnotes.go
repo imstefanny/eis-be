@@ -21,6 +21,7 @@ type ClassNotes struct {
 type ClassNotesDetails struct {
 	ID          uint             `json:"id" gorm:"primaryKey"`
 	NoteID      uint             `json:"note_id" gorm:"default:null"`
+	Note        ClassNotes       `json:"note" gorm:"foreignKey:NoteID"`
 	SubjSchedID uint             `json:"subj_sched_id" gorm:"default:null"`
 	SubjSched   SubjectSchedules `json:"subj_sched" gorm:"foreignKey:SubjSchedID"`
 	TeacherID   uint             `json:"teacher_id" gorm:"default:null"`
