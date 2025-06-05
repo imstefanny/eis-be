@@ -28,7 +28,7 @@ func (r *classNotesDetailsRepository) GetAllByTeacher(teacherID int, date string
 			class_notes.date,
 			classrooms.name AS class,
 			subjects.name AS subject,
-			class_notes_details.subj_sched_id,
+			subject_schedules.id AS subj_sched_id,
 			subject_schedules.academic_id,
 			teachers.name AS teacher,
 			subject_schedules.start_hour,
