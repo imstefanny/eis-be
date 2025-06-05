@@ -18,6 +18,8 @@ type UsersUsecase interface {
 	Register(data dto.RegisterUsersRequest) error
 	Login(data dto.LoginUsersRequest) (interface{}, error)
 	Update(id uint, data dto.UpdateUsersRequest) error
+	Undelete(id int) error
+	Delete(id int) error
 }
 
 type usersUsecase struct {
@@ -143,4 +145,24 @@ func (s *usersUsecase) Browse(page, limit int, search string) (interface{}, int6
 	}
 
 	return teachers, total, nil
+}
+
+func (s *usersUsecase) Undelete(id int) error {
+	err := s.usersRepository.Undelete(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *usersUsecase) Delete(id int) error {
+	err := s.usersRepository.Delete(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
