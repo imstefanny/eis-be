@@ -50,6 +50,20 @@ func (u *rolesController) Browse(c echo.Context) error {
 	})
 }
 
+func (u *rolesController) GetAllPermissions(c echo.Context) error {
+	permissions, err := u.useCase.GetAllPermissions()
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": permissions,
+	})
+}
+
 func (u *rolesController) Create(c echo.Context) error {
 	role := dto.CreateRolesRequest{}
 

@@ -11,6 +11,7 @@ import (
 
 type RolesUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
+	GetAllPermissions() ([]dto.GetPermissionsResponse, error)
 	Create(role dto.CreateRolesRequest) error
 	Find(id int) (dto.GetRolesResponse, error)
 	Update(id int, role dto.CreateRolesRequest) (models.Roles, error)
@@ -42,6 +43,24 @@ func (s *rolesUsecase) Browse(page, limit int, search string) (interface{}, int6
 	}
 
 	return roles, total, nil
+}
+
+func (s *rolesUsecase) GetAllPermissions() ([]dto.GetPermissionsResponse, error) {
+	permissions, err := s.permissionsRepository.GetAll()
+
+	if err != nil {
+		return nil, err
+	}
+
+	response := []dto.GetPermissionsResponse{}
+	for _, permission := range permissions {
+		response = append(response, dto.GetPermissionsResponse{
+			ID:   int(permission.ID),
+			Name: permission.Name,
+		})
+	}
+
+	return response, nil
 }
 
 func (s *rolesUsecase) Create(role dto.CreateRolesRequest) error {

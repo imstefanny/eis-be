@@ -108,6 +108,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eRoles := e.Group("/roles")
 	eRoles.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eRoles.GET("", rolesController.Browse)
+	eRoles.GET("/permissions", rolesController.GetAllPermissions)
 	eRoles.GET("/:id", rolesController.Find)
 	eRoles.POST("", rolesController.Create)
 	eRoles.PUT("/:id", rolesController.Update)
