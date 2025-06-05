@@ -61,12 +61,14 @@ func (s *classNotesDetailsUsecase) GetAllByTeacher(id int, date string) ([]dto.G
 		}
 		response = append(response, dto.GetTeacherSchedsResponse{
 			ID:             detail.ID,
+			AcademicID: 	 	detail.AcademicID,
 			NoteID:         detail.NoteID,
 			Date:           detail.Date,
 			Day:            detail.Day,
 			Class:          detail.Class,
 			Subject:        detail.Subject,
 			SubjSchedID:    detail.SubjSchedID,
+			TeacherID:      detail.TeacherID,
 			Teacher:        detail.Teacher,
 			StartHour:      detail.StartHour,
 			EndHour:        detail.EndHour,

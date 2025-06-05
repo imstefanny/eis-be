@@ -11,6 +11,7 @@ type ClassNotesRepoRes struct {
 	Subject     string    `json:"subject"`
 	SubjSchedID uint      `json:"subj_sched_id"`
 	AcademicID  uint      `json:"academic_id"`
+	TeacherID		uint      `json:"teacher_id"`
 	Teacher     string    `json:"teacher"`
 	StartHour   string    `json:"start_hour"`
 	EndHour     string    `json:"end_hour"`
@@ -27,6 +28,7 @@ type GetTeacherSchedsResponse struct {
 	Subject        string                        `json:"subject"`
 	SubjSchedID    uint                          `json:"subj_sched_id"`
 	AcademicID     uint                          `json:"academic_id"`
+	TeacherID      uint                        	 `json:"teacher_id"`
 	Teacher        string                        `json:"teacher"`
 	StartHour      string                        `json:"start_hour"`
 	EndHour        string                        `json:"end_hour"`
