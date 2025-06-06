@@ -85,6 +85,7 @@ func (r *studentsRepository) GetStudentScoreByUserId(userId int) (interface{}, e
 			student_grades.finals
 		FROM student_grades 
 		JOIN students ON students.id = student_grades.student_id
+		JOIN academics ON academics.id = students.current_academic_id AND student_grades.academic_id = academics.id
 		JOIN subject_schedules ON subject_schedules.academic_id = students.current_academic_id AND subject_schedules.subject_id = student_grades.subject_id
 		JOIN subjects ON subjects.id = subject_schedules.subject_id
 		WHERE students.user_id = ?
