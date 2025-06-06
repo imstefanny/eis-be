@@ -19,6 +19,7 @@ type StudentsUsecase interface {
 	Find(id int) (interface{}, error)
 	Update(id int, student dto.CreateStudentsRequest) (models.Students, error)
 	UpdateStudentAcademicId(id int, academic []uint) error
+	GetStudentScoreByUserId(userId int) (interface{}, error)
 	Delete(id int) error
 }
 
@@ -130,12 +131,20 @@ func (s *studentsUsecase) Find(id int) (interface{}, error) {
 }
 
 func (s *studentsUsecase) GetByToken(id int) (interface{}, error) {
-	teacher, err := s.studentsRepository.GetByToken(id)
+	student, err := s.studentsRepository.GetByToken(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return teacher, nil
+	return student, nil
+}
+
+func (s *studentsUsecase) GetStudentScoreByUserId(userId int) (interface{}, error) {
+	studentScore, err := s.studentsRepository.GetStudentScoreByUserId(userId)
+	if err != nil {
+		return nil, err
+	}
+	return studentScore, nil
 }
 
 func (s *studentsUsecase) Update(id int, student dto.CreateStudentsRequest) (models.Students, error) {

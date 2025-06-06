@@ -58,3 +58,11 @@ type UpdateStudentGradesEntryRequest struct {
 	Finals      float64 `json:"finals"`
 	Remarks     string  `json:"remarks"`
 }
+
+type StudentScoreResponse struct {
+	SubjectName string  `json:"subject_name"`
+	FirstMonth  float64 `json:"first_month"`
+	SecondMonth float64 `json:"second_month"`
+	Quiz        float64 `json:"quiz"`
+	Finals      float64 `json:"finals"`
+}
