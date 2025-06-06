@@ -19,20 +19,25 @@ type SubjSchedsUsecase interface {
 	Delete(id int) error
 
 	// Teacher specific methods
-	GetAllByTeacher(teacherUserID int) ([]dto.GetTeacherSubjSchedsResponse, error)
+	GetAllByTeacher(teacherUserID int) ([]dto.TeacherStudentGetSubjScheds, error)
+
+	// Student specific methods
+	GetScheduleByStudent(studentUserID int) ([]dto.TeacherStudentGetSubjScheds, error)
 }
 
 type subjSchedsUsecase struct {
 	subjSchedsRepository repository.SubjSchedsRepository
 	academicsRepository  repository.AcademicsRepository
 	teachersRepository   repository.TeachersRepository
+	studentsRepository   repository.StudentsRepository
 }
 
-func NewSubjSchedsUsecase(subjSchedsRepo repository.SubjSchedsRepository, academicsRepo repository.AcademicsRepository, teachersRepo repository.TeachersRepository) *subjSchedsUsecase {
+func NewSubjSchedsUsecase(subjSchedsRepo repository.SubjSchedsRepository, academicsRepo repository.AcademicsRepository, teachersRepo repository.TeachersRepository, studentsRepo repository.StudentsRepository) *subjSchedsUsecase {
 	return &subjSchedsUsecase{
 		subjSchedsRepository: subjSchedsRepo,
 		academicsRepository:  academicsRepo,
 		teachersRepository:   teachersRepo,
+		studentsRepository:   studentsRepo,
 	}
 }
 
@@ -231,7 +236,7 @@ func (s *subjSchedsUsecase) Delete(id int) error {
 	return nil
 }
 
-func (s *subjSchedsUsecase) GetAllByTeacher(teacherUserID int) ([]dto.GetTeacherSubjSchedsResponse, error) {
+func (s *subjSchedsUsecase) GetAllByTeacher(teacherUserID int) ([]dto.TeacherStudentGetSubjScheds, error) {
 	teacherID, err := s.teachersRepository.GetByToken(teacherUserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get teacher by user ID: %w", err)
@@ -242,7 +247,7 @@ func (s *subjSchedsUsecase) GetAllByTeacher(teacherUserID int) ([]dto.GetTeacher
 		return nil, err
 	}
 
-	response := []dto.GetTeacherSubjSchedsResponse{}
+	response := []dto.TeacherStudentGetSubjScheds{}
 	scheduleDays := map[string][]models.SubjectSchedules{}
 	for _, subjSched := range subjScheds {
 		day := subjSched.Day
@@ -252,12 +257,12 @@ func (s *subjSchedsUsecase) GetAllByTeacher(teacherUserID int) ([]dto.GetTeacher
 		scheduleDays[day] = append(scheduleDays[day], subjSched)
 	}
 	for day, entries := range scheduleDays {
-		schedule := dto.GetTeacherSubjSchedsResponse{
+		schedule := dto.TeacherStudentGetSubjScheds{
 			Day:     day,
-			Details: []dto.GetTeacherSubjSchedsDetailsResponse{},
+			Details: []dto.TeacherStudentGetSubjSchedsDetails{},
 		}
 		for _, entry := range entries {
-			schedule.Details = append(schedule.Details, dto.GetTeacherSubjSchedsDetailsResponse{
+			schedule.Details = append(schedule.Details, dto.TeacherStudentGetSubjSchedsDetails{
 				SubjSchedID: entry.ID,
 				ClassID:     entry.Academic.ClassroomID,
 				Class:       entry.Academic.Classroom.Name,
@@ -272,4 +277,47 @@ func (s *subjSchedsUsecase) GetAllByTeacher(teacherUserID int) ([]dto.GetTeacher
 	}
 
 	return response, nil
+}
+
+func (s *subjSchedsUsecase) GetScheduleByStudent(studentUserID int) ([]dto.TeacherStudentGetSubjScheds, error) {
+	student, err := s.studentsRepository.GetByToken(studentUserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get student by user ID: %w", err)
+	}
+
+	subjScheds, err := s.subjSchedsRepository.GetScheduleByStudent(int(student.CurrentAcademicID))
+	if err != nil {
+		return nil, err
+	}
+
+	responses := []dto.TeacherStudentGetSubjScheds{}
+	scheduleDays := map[string][]models.SubjectSchedules{}
+	for _, subjSched := range subjScheds {
+		day := subjSched.Day
+		if _, exists := scheduleDays[day]; !exists {
+			scheduleDays[day] = []models.SubjectSchedules{}
+		}
+		scheduleDays[day] = append(scheduleDays[day], subjSched)
+	}
+	for day, entries := range scheduleDays {
+		schedule := dto.TeacherStudentGetSubjScheds{
+			Day:     day,
+			Details: []dto.TeacherStudentGetSubjSchedsDetails{},
+		}
+		for _, entry := range entries {
+			schedule.Details = append(schedule.Details, dto.TeacherStudentGetSubjSchedsDetails{
+				SubjSchedID: entry.ID,
+				ClassID:     entry.Academic.ClassroomID,
+				Class:       entry.Academic.Classroom.Name,
+				SubjectID:   entry.SubjectID,
+				Subject:     entry.Subject.Name,
+				TeacherID:   entry.TeacherID,
+				StartHour:   entry.StartHour,
+				EndHour:     entry.EndHour,
+			})
+		}
+		responses = append(responses, schedule)
+	}
+
+	return responses, nil
 }

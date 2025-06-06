@@ -17,6 +17,9 @@ type SubjSchedsRepository interface {
 
 	// Teacher specific methods
 	GetAllByTeacher(teacherUserID int) ([]models.SubjectSchedules, error)
+
+	// Student specific methods
+	GetScheduleByStudent(academicID int) ([]models.SubjectSchedules, error)
 }
 
 type subjSchedsRepository struct {
@@ -108,10 +111,24 @@ func (r *subjSchedsRepository) Delete(id int) error {
 }
 
 // Teacher specific methods
-func (r *subjSchedsRepository) GetAllByTeacher(teacherUserID int) ([]models.SubjectSchedules, error) {
+func (r *subjSchedsRepository) GetAllByTeacher(teacherID int) ([]models.SubjectSchedules, error) {
 	var subjScheds []models.SubjectSchedules
 	if err := r.db.
-		Where("teacher_id = ?", teacherUserID).
+		Where("teacher_id = ?", teacherID).
+		Preload("Academic.Classroom").
+		Preload("Subject").
+		Preload("Teacher").
+		Find(&subjScheds).Error; err != nil {
+		return nil, err
+	}
+	return subjScheds, nil
+}
+
+// Student specific methods
+func (r *subjSchedsRepository) GetScheduleByStudent(academicID int) ([]models.SubjectSchedules, error) {
+	var subjScheds []models.SubjectSchedules
+	if err := r.db.
+		Where("academic_id = ?", academicID).
 		Preload("Academic.Classroom").
 		Preload("Subject").
 		Preload("Teacher").
