@@ -11,6 +11,7 @@ type StudentsRepository interface {
 	Browse(page, limit int, search string) ([]models.Students, int64, error)
 	Create(students models.Students) (uint, error)
 	GetByIds(ids []int) ([]models.Students, error)
+	GetByToken(id int) (models.Students, error)
 	Find(id int) (models.Students, error)
 	Update(id int, student models.Students) error
 	UpdateStudentAcademicId(academic_id int, student []uint) error
@@ -51,6 +52,20 @@ func (r *studentsRepository) Create(students models.Students) (uint, error) {
 func (r *studentsRepository) Find(id int) (models.Students, error) {
 	student := models.Students{}
 	if err := r.db.Preload("Applicant").Preload("User").Preload("Guardians").Preload("Documents").First(&student, id).Error; err != nil {
+		return student, err
+	}
+	return student, nil
+}
+
+func (r *studentsRepository) GetByToken(id int) (models.Students, error) {
+	student := models.Students{}
+	if err := r.db.Where("user_id = ?", id).
+		Preload("Guardians").
+		Preload("Academics").
+		Preload("Academics.Classroom").
+		Preload("User").
+		Unscoped().
+		First(&student).Error; err != nil {
 		return student, err
 	}
 	return student, nil

@@ -14,6 +14,7 @@ import (
 
 type StudentsUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
+	GetByToken(id int) (interface{}, error)
 	Create(student dto.CreateStudentsRequest, c echo.Context) (uint, error)
 	Find(id int) (interface{}, error)
 	Update(id int, student dto.CreateStudentsRequest) (models.Students, error)
@@ -126,6 +127,15 @@ func (s *studentsUsecase) Find(id int) (interface{}, error) {
 	}
 
 	return student, nil
+}
+
+func (s *studentsUsecase) GetByToken(id int) (interface{}, error) {
+	teacher, err := s.studentsRepository.GetByToken(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return teacher, nil
 }
 
 func (s *studentsUsecase) Update(id int, student dto.CreateStudentsRequest) (models.Students, error) {
