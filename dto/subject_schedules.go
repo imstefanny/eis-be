@@ -52,11 +52,11 @@ type GetSubjectScheduleEntryResponse struct {
 }
 
 // below is the response for the class notes list for the teacher view
-type GetTeacherSubjSchedsResponse struct {
-	Day     string                                `json:"day"`
-	Details []GetTeacherSubjSchedsDetailsResponse `json:"details"`
+type TeacherStudentGetSubjScheds struct {
+	Day     string                               `json:"day"`
+	Details []TeacherStudentGetSubjSchedsDetails `json:"details"`
 }
-type GetTeacherSubjSchedsDetailsResponse struct {
+type TeacherStudentGetSubjSchedsDetails struct {
 	SubjSchedID uint   `json:"subj_sched_id"`
 	ClassID     uint   `json:"class_id"`
 	Class       string `json:"class"`
