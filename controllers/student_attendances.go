@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
@@ -98,5 +99,33 @@ func (u *studentAttsController) UpdateByAcademicID(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data":    studentAttUpdated,
 		"message": "Data updated successfully",
+	})
+}
+
+// Students specific methods
+func (u *studentAttsController) GetAttendanceByStudent(c echo.Context) error {
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	id := int(claims["userId"].(float64))
+	month, err := strconv.Atoi(c.QueryParam("month"))
+	if month < 1 || month > 12 {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": "Invalid month parameter, must be between 1 and 12",
+		})
+	}
+	studentAtts, err := u.useCase.GetAttendanceByStudent(id, month)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": studentAtts,
 	})
 }

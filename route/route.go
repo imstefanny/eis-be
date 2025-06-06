@@ -284,4 +284,8 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	tSchedules.GET("", classNotesDetailsController.GetAllByTeacher)
 	tSchedules.GET("/origin", subjSchedsController.GetAllByTeacher)
 	tSchedules.GET("/:sched_id/classnotes", classNotesController.FindByTeacher)
+
+	sAttendances := eStudents.Group("/attendances/my")
+	sAttendances.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	sAttendances.GET("", studentAttsController.GetAttendanceByStudent)
 }

@@ -5,6 +5,7 @@ import (
 	"eis-be/models"
 	"eis-be/repository"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -14,6 +15,9 @@ type StudentAttsUsecase interface {
 	BrowseByAcademicID(academicID, page, limit int, search string, date string) (dto.GetAllStudentAttsRequest, int64, error)
 	CreateBatch(studentAtts dto.CreateBatchStudentAttsRequest) error
 	UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error)
+
+	// Students specific methods
+	GetAttendanceByStudent(id, month int) (dto.StudentGetAttendancesResponse, error)
 }
 
 type studentAttsUsecase struct {
@@ -202,6 +206,57 @@ func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.U
 		Academic:   academic.DisplayName,
 		Date:       studentAtt.Date,
 		Students:   students,
+	}
+
+	return response, nil
+}
+
+// Students specific methods
+func (s *studentAttsUsecase) GetAttendanceByStudent(id, month int) (dto.StudentGetAttendancesResponse, error) {
+	student, err := s.studentsRepository.GetByToken(id)
+	if err != nil {
+		return dto.StudentGetAttendancesResponse{}, fmt.Errorf("student with ID %d not found", id)
+	}
+
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	yearStr := student.Academics.StartYear
+	if month < 7 {
+		yearStr = student.Academics.EndYear
+	}
+	year, _ := strconv.Atoi(yearStr)
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, loc)
+	end := start.AddDate(0, 1, 0)
+	studentAtts, err := s.studentAttsRepository.GetAttendanceByStudent(int(student.ID), start.Format("2006-01-02"), end.Format("2006-01-02"))
+	if err != nil {
+		return dto.StudentGetAttendancesResponse{}, err
+	}
+
+	attendances := []dto.StudentAttendanceDetail{}
+	attMap := map[string]int{
+		"Present":    0,
+		"Permission": 0,
+		"Sick":       0,
+		"Alpha":      0,
+	}
+	for _, studentAtt := range studentAtts {
+		entry := dto.StudentAttendanceDetail{
+			ID:      studentAtt.ID,
+			Date:    studentAtt.Date.Format("2006-01-02"),
+			Status:  studentAtt.Status,
+			Remarks: studentAtt.Remarks,
+		}
+		attendances = append(attendances, entry)
+		attMap[studentAtt.Status]++
+	}
+	response := dto.StudentGetAttendancesResponse{
+		Month:           month,
+		Student:         student.FullName,
+		Academic:        student.Academics.DisplayName,
+		PresenceCount:   attMap["Present"],
+		PermissionCount: attMap["Permission"],
+		SickCount:       attMap["Sick"],
+		AlphaCount:      attMap["Alpha"],
+		Details:         attendances,
 	}
 
 	return response, nil

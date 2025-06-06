@@ -38,3 +38,20 @@ type GetAllStudentAttsEntryRequest struct {
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at"`
 }
+
+type StudentGetAttendancesResponse struct {
+	Month           int                       `json:"month"`
+	Student         string                    `json:"student"`
+	Academic        string                    `json:"academic"`
+	PresenceCount   int                       `json:"presence_count"`
+	PermissionCount int                       `json:"permission_count"`
+	SickCount       int                       `json:"sick_count"`
+	AlphaCount      int                       `json:"alpha_count"`
+	Details         []StudentAttendanceDetail `json:"details"`
+}
+type StudentAttendanceDetail struct {
+	ID      uint   `json:"id"`
+	Date    string `json:"date"`
+	Status  string `json:"status"`
+	Remarks string `json:"remarks"`
+}

@@ -12,6 +12,9 @@ type StudentAttsRepository interface {
 	CreateBatch(studentAtts []models.StudentAttendances) error
 	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
 	UpdateByAcademicID(academicID int, studentAtt []models.StudentAttendances) error
+
+	// Students specific methods
+	GetAttendanceByStudent(studentID int, start, end string) ([]models.StudentAttendances, error)
 }
 
 type studentAttsRepository struct {
@@ -77,4 +80,22 @@ func (r *studentAttsRepository) UpdateByAcademicID(academicID int, studentAtts [
 		return err
 	}
 	return nil
+}
+
+// Students specific methods
+func (r *studentAttsRepository) GetAttendanceByStudent(studentID int, start, end string) ([]models.StudentAttendances, error) {
+	var studentAtts []models.StudentAttendances
+	if err := r.db.Where("student_id = ?", studentID).
+		Where("academic_id = students.current_academic_id").
+		Where("date BETWEEN ? AND ?", start, end).
+		Preload("Academic").
+		Joins("JOIN students ON students.id = student_attendances.student_id").
+		Order("date ASC").
+		Find(&studentAtts).Error; err != nil {
+		return nil, err
+	}
+	if len(studentAtts) == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return studentAtts, nil
 }
