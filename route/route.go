@@ -80,7 +80,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	academicsController := controllers.NewAcademicsController(academicsService)
 
 	subjSchedsRepository := repository.NewSubjSchedsRepository(db)
-	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository, academicsRepository, teachersRepository)
+	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository, academicsRepository, teachersRepository, studentsRepository)
 	subjSchedsController := controllers.NewSubjSchedsController(subjSchedsService)
 
 	studentAttsRepository := repository.NewStudentAttsRepository(db)
@@ -286,7 +286,8 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	tSchedules.GET("/origin", subjSchedsController.GetAllByTeacher)
 	tSchedules.GET("/:sched_id/classnotes", classNotesController.FindByTeacher)
 
-	sAttendances := eStudents.Group("/attendances/my")
-	sAttendances.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	sAttendances.GET("", studentAttsController.GetAttendanceByStudent)
+	sStudents := eStudents.Group("/my")
+	sStudents.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	sStudents.GET("/attendances", studentAttsController.GetAttendanceByStudent)
+	sStudents.GET("/schedules", subjSchedsController.GetScheduleByStudent)
 }
