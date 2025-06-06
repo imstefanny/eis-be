@@ -63,6 +63,7 @@ type TeacherStudentGetSubjSchedsDetails struct {
 	SubjectID   uint   `json:"subject_id"`
 	Subject     string `json:"subject"`
 	TeacherID   uint   `json:"teacher_id"`
+	Teacher     string `json:"teacher"`
 	StartHour   string `json:"start_hour"`
 	EndHour     string `json:"end_hour"`
 }

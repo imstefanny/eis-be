@@ -311,6 +311,7 @@ func (s *subjSchedsUsecase) GetScheduleByStudent(studentUserID int) ([]dto.Teach
 				Class:       entry.Academic.Classroom.Name,
 				SubjectID:   entry.SubjectID,
 				Subject:     entry.Subject.Name,
+				Teacher: 	 	 entry.Teacher.Name,
 				TeacherID:   entry.TeacherID,
 				StartHour:   entry.StartHour,
 				EndHour:     entry.EndHour,
