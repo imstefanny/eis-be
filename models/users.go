@@ -10,7 +10,7 @@ type Users struct {
 	ID         uint           `json:"id" gorm:"primaryKey"`
 	ProfilePic string         `json:"profile_pic"`
 	Name       string         `json:"name"`
-	Email      string         `json:"email"`
+	Email      string         `json:"email" gorm:"uniqueIndex;size:100"`
 	Password   string         `json:"password"`
 	RoleID     uint           `json:"role_id"`
 	Role       Roles          `json:"role" gorm:"foreignKey:RoleID;references:ID"`

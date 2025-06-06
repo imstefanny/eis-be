@@ -13,6 +13,7 @@ type RolesRepository interface {
 	Find(id int) (models.Roles, error)
 	Update(id int, role models.Roles) error
 	Delete(id int) error
+	FindByName(name string) (models.Roles, error)
 }
 
 type rolesRepository struct {
@@ -75,4 +76,12 @@ func (r *rolesRepository) Delete(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (r *rolesRepository) FindByName(name string) (models.Roles, error) {
+	role := models.Roles{}
+	if err := r.db.Where("name = ?", name).First(&role).Error; err != nil {
+		return role, err
+	}
+	return role, nil
 }

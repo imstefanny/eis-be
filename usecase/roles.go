@@ -164,6 +164,11 @@ func (s *rolesUsecase) Update(id int, role dto.CreateRolesRequest) (models.Roles
 }
 
 func (s *rolesUsecase) Delete(id int) error {
+	roleData, _ := s.rolesRepository.Find(id)
+	if roleData.Name == "Applicant" || roleData.Name == "Student" || roleData.Name == "Admin" || roleData.Name == "Principal" || roleData.Name == "Teacher" {
+		return fmt.Errorf("cannot delete role %s", roleData.Name)
+	}
+
 	err := s.rolesRepository.Delete(id)
 
 	if err != nil {

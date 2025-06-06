@@ -24,11 +24,16 @@ type UsersUsecase interface {
 
 type usersUsecase struct {
 	usersRepository repository.UsersRepository
+	rolesRepository repository.RolesRepository
 	db              *gorm.DB
 }
 
-func NewUsersUsecase(usersRepo repository.UsersRepository, db *gorm.DB) *usersUsecase {
-	return &usersUsecase{usersRepository: usersRepo, db: db}
+func NewUsersUsecase(usersRepo repository.UsersRepository, rolesRepo repository.RolesRepository, db *gorm.DB) *usersUsecase {
+	return &usersUsecase{
+		usersRepository: usersRepo,
+		rolesRepository: rolesRepo,
+		db: db,
+	}
 }
 
 func validateRegisterUsersRequest(req dto.RegisterUsersRequest) error {
@@ -53,12 +58,13 @@ func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 		return e
 	}
 
+	role, _ := s.rolesRepository.FindByName("Applicant")
 	userData := models.Users{
 		ProfilePic: data.ProfilePic,
 		Name:       data.Name,
 		Email:      data.Email,
 		Password:   data.Password,
-		RoleID:     data.RoleID,
+		RoleID:     role.ID,
 	}
 
 	_, err := s.usersRepository.Create(s.db, userData)

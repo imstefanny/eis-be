@@ -13,21 +13,21 @@ import (
 )
 
 func Route(e *echo.Echo, db *gorm.DB) {
-	usersRepository := repository.NewUsersRepository(db)
-	usersService := usecase.NewUsersUsecase(usersRepository, db)
-	usersController := controllers.NewUsersController(usersService)
-
 	rolesRepository := repository.NewRolesRepository(db)
 	permissionsRepository := repository.NewPermissionsRepository(db)
 	rolesService := usecase.NewRolesUsecase(rolesRepository, permissionsRepository)
 	rolesController := controllers.NewRolesController(rolesService)
+
+	usersRepository := repository.NewUsersRepository(db)
+	usersService := usecase.NewUsersUsecase(usersRepository, rolesRepository, db)
+	usersController := controllers.NewUsersController(usersService)
 
 	blogsRepository := repository.NewBlogsRepository(db)
 	blogsService := usecase.NewBlogsUsecase(blogsRepository, usersRepository)
 	blogsController := controllers.NewBlogsController(blogsService)
 
 	studentsRepository := repository.NewStudentsRepository(db)
-	studentsService := usecase.NewStudentsUsecase(studentsRepository, usersRepository, db)
+	studentsService := usecase.NewStudentsUsecase(studentsRepository, usersRepository, rolesRepository, db)
 	studentsController := controllers.NewStudentsController(studentsService)
 
 	teachersRepository := repository.NewTeachersRepository(db)
@@ -43,7 +43,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	guardiansController := controllers.NewGuardiansController(guardiansService)
 
 	applicantsRepository := repository.NewApplicantsRepository(db)
-	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository, studentsRepository, guardiansRepository)
+	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository, studentsRepository, guardiansRepository, usersRepository, rolesRepository)
 	applicantsController := controllers.NewApplicantsController(applicantsService)
 
 	docTypesRepository := repository.NewDocTypesRepository(db)

@@ -25,13 +25,17 @@ type applicantsUsecase struct {
 	applicantsRepository repository.ApplicantsRepository
 	studentsRepository   repository.StudentsRepository
 	guardiansRepository  repository.GuardiansRepository
+	usersRepository      repository.UsersRepository
+	rolesRepository      repository.RolesRepository
 }
 
-func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository, studentsRepo repository.StudentsRepository, guardiansRepo repository.GuardiansRepository) *applicantsUsecase {
+func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository, studentsRepo repository.StudentsRepository, guardiansRepo repository.GuardiansRepository, usersRepo repository.UsersRepository, rolesRepo repository.RolesRepository) *applicantsUsecase {
 	return &applicantsUsecase{
 		applicantsRepository: applicantsRepo,
 		studentsRepository:   studentsRepo,
 		guardiansRepository:  guardiansRepo,
+		usersRepository:      usersRepo,
+		rolesRepository:      rolesRepo,
 	}
 }
 
@@ -63,6 +67,7 @@ func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest, claims
 	}
 
 	applicantData := models.Applicants{
+		ProfilePic:        applicant.ProfilePic,
 		FullName:          applicant.FullName,
 		IdentityNo:        applicant.IdentityNo,
 		PlaceOfBirth:      applicant.PlaceOfBirth,
@@ -174,11 +179,17 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 		return err
 	}
 
+	userData, _ := s.usersRepository.Find(int(applicant.CreatedBy))
+	role, _ := s.rolesRepository.FindByName("Student")
+	userData.RoleID = role.ID
+	_ = s.usersRepository.Update(userData)
+	userUpdated, _ := s.usersRepository.Find(int(applicant.CreatedBy))
+
 	year := applicant.DateOfBirth.Year()
 	lastThree := year % 1000
 	studentData := models.Students{
 		ApplicantID:      uint(id),
-		UserID:           applicant.CreatedBy,
+		UserID:           userUpdated.ID,
 		ProfilePic:       applicant.ProfilePic,
 		FullName:         applicant.FullName,
 		IdentityNo:       applicant.IdentityNo,

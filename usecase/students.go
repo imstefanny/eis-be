@@ -26,13 +26,15 @@ type StudentsUsecase interface {
 type studentsUsecase struct {
 	studentsRepository repository.StudentsRepository
 	usersRepository    repository.UsersRepository
+	rolesRepository    repository.RolesRepository
 	db                 *gorm.DB
 }
 
-func NewStudentsUsecase(studentsRepo repository.StudentsRepository, usersRepo repository.UsersRepository, db *gorm.DB) *studentsUsecase {
+func NewStudentsUsecase(studentsRepo repository.StudentsRepository, usersRepo repository.UsersRepository, rolesRepo repository.RolesRepository, db *gorm.DB) *studentsUsecase {
 	return &studentsUsecase{
 		studentsRepository: studentsRepo,
 		usersRepository:    usersRepo,
+		rolesRepository:    rolesRepo,
 		db:                 db,
 	}
 }
@@ -64,11 +66,12 @@ func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Conte
 		return 0, edate
 	}
 
+	role, _ := s.rolesRepository.FindByName("Student")
 	userData := models.Users{
 		Name:       student.FullName,
 		Email:      student.Email,
 		Password:   "123456",
-		RoleID:     1,
+		RoleID:     role.ID,
 		ProfilePic: student.ProfilePic,
 	}
 
