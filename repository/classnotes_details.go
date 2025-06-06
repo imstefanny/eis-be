@@ -100,6 +100,10 @@ func (r *classNotesDetailsRepository) GetAllByTeacher(teacherID int, date string
 		subject_schedules.id AS subj_sched_id,
 		subject_schedules.academic_id,
 		teachers.name AS teacher,
+		(SELECT subject_schedules.teacher_id FROM subject_schedules 
+		LEFT JOIN class_notes_details AS cnd ON subject_schedules.id = cnd.subj_sched_id
+        WHERE class_notes_details.note_id = 10 AND class_notes_details.id = cnd.id
+    ) AS teacher_act_id,
 		teachers.id AS teacher_id,
 		subject_schedules.start_hour,
 		subject_schedules.end_hour,

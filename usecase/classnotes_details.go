@@ -70,6 +70,7 @@ func (s *classNotesDetailsUsecase) GetAllByTeacher(id int, date string) ([]dto.G
 			SubjSchedID:    detail.SubjSchedID,
 			TeacherID:      detail.TeacherID,
 			Teacher:        detail.Teacher,
+			TeacherActID:   detail.TeacherActID,
 			StartHour:      detail.StartHour,
 			EndHour:        detail.EndHour,
 			Materials:      detail.Materials,
