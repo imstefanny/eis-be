@@ -242,6 +242,10 @@ func (s *academicsUsecase) Update(id int, academic dto.CreateAcademicsRequest) (
 		if len(studentsData) == 0 {
 			return models.Academics{}, fmt.Errorf("students not found")
 		}
+		for _, student := range studentsData {
+			student.CurrentAcademicID = academicData.ID
+			s.studentsRepository.Update(int(student.ID), student)
+		}
 		students = studentsData
 	}
 
