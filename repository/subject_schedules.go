@@ -12,7 +12,7 @@ type SubjSchedsRepository interface {
 	Create(subjScheds []models.SubjectSchedules) error
 	Find(id int) (models.SubjectSchedules, error)
 	Update(id int, subjSched models.SubjectSchedules) error
-	UpdateBatch(map[string]interface{}) error
+	UpdateBatch(params map[string]interface{}) error
 	Delete(id int) error
 
 	// Teacher specific methods

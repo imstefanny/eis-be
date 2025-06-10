@@ -8,7 +8,7 @@ import (
 )
 
 type TeacherAttsRepository interface {
-	Browse(page, limit int, search string, date string) ([]models.TeacherAttendances, int64, error)
+	Browse(page, limit int, search, start_date, end_date string) ([]models.TeacherAttendances, int64, error)
 	Create(teacherAtts models.TeacherAttendances) error
 	CreateBatch(teacherAtts []models.TeacherAttendances) error
 	Find(id int) (models.TeacherAttendances, error)
@@ -24,21 +24,18 @@ func NewTeacherAttsRepository(db *gorm.DB) *teacherAttsRepository {
 	return &teacherAttsRepository{db}
 }
 
-func (r *teacherAttsRepository) Browse(page, limit int, search string, filterDate string) ([]models.TeacherAttendances, int64, error) {
+func (r *teacherAttsRepository) Browse(page, limit int, search, start_date, end_date string) ([]models.TeacherAttendances, int64, error) {
 	var teacherAtts []models.TeacherAttendances
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
 	query := r.db.
 		Where("LOWER(display_name) LIKE ?", search).
+		Where("DATE(date) BETWEEN ? AND ?", start_date, end_date).
 		Limit(limit).
 		Offset(offset).
 		Preload("Teacher").
 		Preload("WorkingSchedule")
-
-	if filterDate != "" {
-		query = query.Where("DATE(date) = ?", filterDate)
-	}
 
 	if err := query.Find(&teacherAtts).Error; err != nil {
 		return nil, 0, err

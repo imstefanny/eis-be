@@ -6,6 +6,7 @@ import (
 	"eis-be/models"
 	"eis-be/repository"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -19,7 +20,7 @@ type TeacherAttsUsecase interface {
 	Update(id int, teacherAtt dto.CreateTeacherAttsRequest) (models.TeacherAttendances, error)
 	Delete(id int) error
 
-	GetReport(page, limit int, search, start_date, end_date string) (interface{}, int64, error)
+	GetReport(page, limit int, search, start_date, end_date string) ([]dto.GetTeacherAttsReport, int64, error)
 }
 
 type teacherAttsUsecase struct {
@@ -47,13 +48,13 @@ func validateCreateBatchTeacherAttsRequest(req dto.CreateBatchTeacherAttsRequest
 }
 
 func (s *teacherAttsUsecase) Browse(page, limit int, search string, date string) (interface{}, int64, error) {
-	blogs, total, err := s.teacherAttsRepository.Browse(page, limit, search, date)
+	teacherAtts, total, err := s.teacherAttsRepository.Browse(page, limit, search, date, date)
 
 	if err != nil {
 		return nil, total, err
 	}
 
-	return blogs, total, nil
+	return teacherAtts, total, nil
 }
 
 func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) error {
@@ -199,7 +200,7 @@ func (s *teacherAttsUsecase) Update(id int, teacherAtt dto.CreateTeacherAttsRequ
 	teacherAttData.LogInTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc)
 	teacherAttData.LogOutTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc)
 	teacherAttData.Note = teacherAtt.Note
-	
+
 	remark := helpers.TeacherAttsRemark(teacherAttData, workSched)
 	teacherAttData.Remark = remark
 
@@ -228,6 +229,36 @@ func (s *teacherAttsUsecase) Delete(id int) error {
 	return nil
 }
 
-func (s *teacherAttsUsecase) GetReport(page, limit int, search, start_date, end_date string) (interface{}, int64, error) {
-	return nil, 0, nil
+func (s *teacherAttsUsecase) GetReport(page, limit int, search, start_date, end_date string) ([]dto.GetTeacherAttsReport, int64, error) {
+	teacherAtts, total, err := s.teacherAttsRepository.Browse(page, limit, search, start_date, end_date)
+	if err != nil {
+		return []dto.GetTeacherAttsReport{}, 0, err
+	}
+
+	attMap := map[string]*dto.GetTeacherAttsReport{}
+	for _, att := range teacherAtts {
+		if _, exists := attMap[att.Teacher.Name]; !exists {
+			attMap[att.Teacher.Name] = &dto.GetTeacherAttsReport{
+				Teacher:         att.Teacher.Name,
+				LateCount:       0,
+				EarlyLeaveCount: 0,
+				AbsenceCount:    0,
+				PresentCount:    0,
+			}
+		}
+		if strings.Contains(att.Remark, "Terlambat") {
+			attMap[att.Teacher.Name].LateCount++
+		}
+		if strings.Contains(att.Remark, "Pulang Cepat") {
+			attMap[att.Teacher.Name].EarlyLeaveCount++
+		}
+		attMap[att.Teacher.Name].PresentCount++
+	}
+
+	responses := []dto.GetTeacherAttsReport{}
+	for _, entries := range attMap {
+		responses = append(responses, *entries)
+	}
+
+	return responses, total, nil
 }
