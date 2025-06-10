@@ -31,11 +31,15 @@ func (r *teacherAttsRepository) Browse(page, limit int, search, start_date, end_
 	search = "%" + strings.ToLower(search) + "%"
 	query := r.db.
 		Where("LOWER(display_name) LIKE ?", search).
-		Where("DATE(date) BETWEEN ? AND ?", start_date, end_date).
 		Limit(limit).
 		Offset(offset).
 		Preload("Teacher").
-		Preload("WorkingSchedule")
+		Preload("WorkingSchedule").
+		Preload("WorkingSchedule.Details")
+
+	if start_date != "" && end_date != "" {
+		query = query.Where("DATE(date) BETWEEN ? AND ?", start_date, end_date)
+	}
 
 	if err := query.Find(&teacherAtts).Error; err != nil {
 		return nil, 0, err

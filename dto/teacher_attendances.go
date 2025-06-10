@@ -31,4 +31,5 @@ type GetTeacherAttsReport struct {
 	EarlyLeaveCount int    `json:"early_leave"`
 	AbsenceCount    int    `json:"absence"`
 	PresentCount    int    `json:"present"`
+	TotalCount      int    `json:"total"`
 }

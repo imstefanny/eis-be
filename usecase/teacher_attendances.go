@@ -238,12 +238,14 @@ func (s *teacherAttsUsecase) GetReport(page, limit int, search, start_date, end_
 	attMap := map[string]*dto.GetTeacherAttsReport{}
 	for _, att := range teacherAtts {
 		if _, exists := attMap[att.Teacher.Name]; !exists {
+			overall := helpers.CountWorkdays(start_date, end_date, att.WorkingSchedule)
 			attMap[att.Teacher.Name] = &dto.GetTeacherAttsReport{
 				Teacher:         att.Teacher.Name,
 				LateCount:       0,
 				EarlyLeaveCount: 0,
 				AbsenceCount:    0,
 				PresentCount:    0,
+				TotalCount:      overall,
 			}
 		}
 		if strings.Contains(att.Remark, "Terlambat") {
@@ -257,6 +259,9 @@ func (s *teacherAttsUsecase) GetReport(page, limit int, search, start_date, end_
 
 	responses := []dto.GetTeacherAttsReport{}
 	for _, entries := range attMap {
+		if entries.TotalCount != 0 {
+			entries.AbsenceCount = entries.TotalCount - entries.PresentCount
+		}
 		responses = append(responses, *entries)
 	}
 

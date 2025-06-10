@@ -27,3 +27,22 @@ func TeacherAttsRemark(att models.TeacherAttendances, workSched models.WorkSched
 	}
 	return strings.Join(remark, ", ")
 }
+
+func CountWorkdays(startDate, endDate string, workSched models.WorkScheds) int {
+	start, _ := time.Parse("2006-01-02", startDate)
+	end, _ := time.Parse("2006-01-02", endDate)
+	count := 0
+
+	days := map[string]bool{}
+	for _, schedule := range workSched.Details {
+		days[schedule.Day] = true
+	}
+	for d := start; d.Before(end) || d.Equal(end); d = d.AddDate(0, 0, 1) {
+		dayOfWeek := d.Weekday()
+		if days[dayOfWeek.String()] {
+			count++
+		}
+	}
+
+	return count
+}
