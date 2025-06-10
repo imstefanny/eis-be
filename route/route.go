@@ -30,12 +30,17 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	studentsService := usecase.NewStudentsUsecase(studentsRepository, usersRepository, rolesRepository, db)
 	studentsController := controllers.NewStudentsController(studentsService)
 
+	workSchedsRepository := repository.NewWorkSchedsRepository(db)
+	workSchedDetailsRepository := repository.NewWorkSchedDetailsRepository(db)
+	workSchedsService := usecase.NewWorkSchedsUsecase(workSchedsRepository, workSchedDetailsRepository)
+	workSchedsController := controllers.NewWorkSchedsController(workSchedsService)
+
 	teachersRepository := repository.NewTeachersRepository(db)
 	teachersService := usecase.NewTeachersUsecase(teachersRepository, usersRepository, db)
 	teachersController := controllers.NewTeachersController(teachersService)
 
 	teacherAttsRepository := repository.NewTeacherAttsRepository(db)
-	teacherAttsService := usecase.NewTeacherAttsUsecase(teacherAttsRepository, teachersRepository)
+	teacherAttsService := usecase.NewTeacherAttsUsecase(teacherAttsRepository, teachersRepository, workSchedsRepository)
 	teacherAttsController := controllers.NewTeacherAttsController(teacherAttsService)
 
 	guardiansRepository := repository.NewGuardiansRepository(db)
@@ -53,11 +58,6 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	documentsRepository := repository.NewDocumentsRepository(db)
 	documentsService := usecase.NewDocumentsUsecase(documentsRepository)
 	documentsController := controllers.NewDocumentsController(documentsService)
-
-	workSchedsRepository := repository.NewWorkSchedsRepository(db)
-	workSchedDetailsRepository := repository.NewWorkSchedDetailsRepository(db)
-	workSchedsService := usecase.NewWorkSchedsUsecase(workSchedsRepository, workSchedDetailsRepository)
-	workSchedsController := controllers.NewWorkSchedsController(workSchedsService)
 
 	subjectsRepository := repository.NewSubjectsRepository(db)
 	subjectsService := usecase.NewSubjectsUsecase(subjectsRepository)
@@ -233,6 +233,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eTeacherAtts.POST("/batch", teacherAttsController.CreateBatch)
 	eTeacherAtts.PUT("/:id", teacherAttsController.Update)
 	eTeacherAtts.DELETE("/:id", teacherAttsController.Delete)
+	eTeacherAtts.GET("/report", teacherAttsController.GetReport)
 
 	eAcademics := e.Group("/academics")
 	eAcademics.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

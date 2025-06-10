@@ -31,17 +31,9 @@ func (u *teacherAttsController) Browse(c echo.Context) error {
 		limit = 10
 	}
 	search := c.QueryParam("search")
-	sortColumn := c.QueryParam("sortColumn")
-	if sortColumn == "" {
-		sortColumn = "created_at"
-	}
-	sortOrder := c.QueryParam("sortOrder")
-	if sortOrder != "asc" && sortOrder != "desc" {
-		sortOrder = "desc"
-	}
 	date := c.QueryParam("date")
 
-	blogs, total, err := u.useCase.Browse(page, limit, search, date)
+	teacherAtts, total, err := u.useCase.Browse(page, limit, search, date)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -50,7 +42,7 @@ func (u *teacherAttsController) Browse(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data":  blogs,
+		"data":  teacherAtts,
 		"page":  page,
 		"limit": limit,
 		"total": total,
@@ -153,5 +145,31 @@ func (u *teacherAttsController) Delete(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "Data deleted successfully",
+	})
+}
+
+func (u *teacherAttsController) GetReport(c echo.Context) error {
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+	search := c.QueryParam("search")
+	start_date := c.QueryParam("start_date")
+	end_date := c.QueryParam("end_date")
+	teacherAtts, total, err := u.useCase.GetReport(page, limit, search, start_date, end_date)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": teacherAtts,
+		"page":  page,
+		"limit": limit,
+		"total": total,
 	})
 }

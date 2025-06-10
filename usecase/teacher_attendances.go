@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -16,17 +18,21 @@ type TeacherAttsUsecase interface {
 	Find(id int) (interface{}, error)
 	Update(id int, teacherAtt dto.CreateTeacherAttsRequest) (models.TeacherAttendances, error)
 	Delete(id int) error
+
+	GetReport(page, limit int, search, start_date, end_date string) (interface{}, int64, error)
 }
 
 type teacherAttsUsecase struct {
 	teacherAttsRepository repository.TeacherAttsRepository
-	teacherRepository     repository.TeachersRepository
+	teachersRepository    repository.TeachersRepository
+	workSchedsRepository  repository.WorkSchedsRepository
 }
 
-func NewTeacherAttsUsecase(teacherAttsRepo repository.TeacherAttsRepository, teachersRepo repository.TeachersRepository) *teacherAttsUsecase {
+func NewTeacherAttsUsecase(teacherAttsRepo repository.TeacherAttsRepository, teachersRepo repository.TeachersRepository, workSchedsRepo repository.WorkSchedsRepository) *teacherAttsUsecase {
 	return &teacherAttsUsecase{
 		teacherAttsRepository: teacherAttsRepo,
-		teacherRepository:     teachersRepo,
+		teachersRepository:    teachersRepo,
+		workSchedsRepository:  workSchedsRepo,
 	}
 }
 
@@ -74,7 +80,7 @@ func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) err
 		return err
 	}
 
-	teacher, err := s.teacherRepository.Find(int(teacherAtt.TeacherID))
+	teacher, err := s.teachersRepository.Find(int(teacherAtt.TeacherID))
 	if err != nil {
 		return err
 	}
@@ -123,10 +129,14 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 		if err != nil {
 			return err
 		}
-		teacher, err := s.teacherRepository.GetByMachineID(int(teacherAtt.TeacherID))
+		teacher, err := s.teachersRepository.GetByMachineID(int(teacherAtt.TeacherID))
 		if err != nil {
 			return err
 		}
+		if teacher.WorkSchedID == 0 {
+			return fmt.Errorf("teacher with ID %d does not have a working schedule", teacher.ID)
+		}
+		workSched, _ := s.workSchedsRepository.Find(int(teacher.WorkSchedID))
 		teacherAttData := models.TeacherAttendances{
 			DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
 			TeacherID:         teacher.ID,
@@ -137,6 +147,8 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 			Remark:            teacherAtt.Remark,
 			Note:              teacherAtt.Note,
 		}
+		remark := helpers.TeacherAttsRemark(teacherAttData, workSched)
+		teacherAttData.Remark = remark
 		teacherAttsData = append(teacherAttsData, teacherAttData)
 	}
 
@@ -178,6 +190,7 @@ func (s *teacherAttsUsecase) Update(id int, teacherAtt dto.CreateTeacherAttsRequ
 	if err != nil {
 		return models.TeacherAttendances{}, err
 	}
+	workSched, _ := s.workSchedsRepository.Find(int(teacherAttData.WorkingScheduleID))
 
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	teacherAttData.TeacherID = teacherAtt.TeacherID
@@ -185,8 +198,10 @@ func (s *teacherAttsUsecase) Update(id int, teacherAtt dto.CreateTeacherAttsRequ
 	teacherAttData.Date = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc)
 	teacherAttData.LogInTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseInTime.Hour(), parseInTime.Minute(), parseInTime.Second(), 0, loc)
 	teacherAttData.LogOutTime = time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseOutTime.Hour(), parseOutTime.Minute(), parseOutTime.Second(), 0, loc)
-	teacherAttData.Remark = teacherAtt.Remark
 	teacherAttData.Note = teacherAtt.Note
+	
+	remark := helpers.TeacherAttsRemark(teacherAttData, workSched)
+	teacherAttData.Remark = remark
 
 	e := s.teacherAttsRepository.Update(id, teacherAttData)
 
@@ -211,4 +226,8 @@ func (s *teacherAttsUsecase) Delete(id int) error {
 	}
 
 	return nil
+}
+
+func (s *teacherAttsUsecase) GetReport(page, limit int, search, start_date, end_date string) (interface{}, int64, error) {
+	return nil, 0, nil
 }

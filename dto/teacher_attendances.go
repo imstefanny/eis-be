@@ -24,3 +24,11 @@ type GetTeacherAttsRequest struct {
 	Remark     string `json:"remark"`
 	Note       string `json:"note"`
 }
+
+type GetTeacherAttsReport struct {
+	Teacher         string `json:"teacher"`
+	LateCount       int    `json:"late"`
+	EarlyLeaveCount int    `json:"early_leave"`
+	AbsenceCount    int    `json:"absence"`
+	PresentCount    int    `json:"present"`
+}

@@ -89,6 +89,7 @@ func (s *teachersUsecase) Create(teacher dto.CreateTeachersRequest, claims jwt.M
 		ProfilePic: teacher.ProfilePic,
 		Name:       teacher.Name,
 		Email:      teacher.Email,
+		RoleID:     teacher.RoleID,
 		Password:   "123456",
 	}
 	userID, eUser := s.usersRepository.Create(tx, userData)

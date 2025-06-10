@@ -22,7 +22,7 @@ type Teachers struct {
 	UserID      uint           `json:"user_id"`
 	User        Users          `json:"user" gorm:"foreignKey:UserID"`
 	ProfilePic  string         `json:"profile_pic"`
-	MachineID   uint           `json:"machine_id" gorm:"default:null"`
+	MachineID   uint           `json:"machine_id" gorm:"uniqueIndex;size:10"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`

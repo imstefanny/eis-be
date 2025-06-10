@@ -15,6 +15,7 @@ func init() {
 	InitDB()
 	InitialMigration()
 	PopulateRolesPermissions()
+	PopulateSuperAdmin()
 	PopulateLevels()
 	PopulateDocTypes()
 }
@@ -212,9 +213,27 @@ func PopulateRolesPermissions() {
 	}
 }
 
+func PopulateSuperAdmin() {
+	var count int64
+	if err := DB.Model(&models.Users{}).Count(&count).Error; err != nil || count > 0 {
+		return
+	}
+	role := models.Roles{}
+	_ = DB.Model(&role).Where("name LIKE ?", "Admin").First(&role).Error
+	user := models.Users{
+		Name: "Administrator",
+		Email: "admin-eis@gmail.com",
+		Password: "superadmin2025!!!",
+		RoleID: role.ID,
+	}
+	if err := DB.Create(&user).Error; err != nil {
+		fmt.Printf("Error creating superadmin: %v", err)
+	}
+}
+
 func PopulateLevels() {
 	var count int64
-	if err := DB.Model(&models.Roles{}).Count(&count).Error; err != nil || count > 0 {
+	if err := DB.Model(&models.Levels{}).Count(&count).Error; err != nil || count > 0 {
 		return
 	}
 	levels := []models.Levels{

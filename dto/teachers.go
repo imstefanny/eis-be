@@ -13,8 +13,9 @@ type CreateTeachersRequest struct {
 	Address     string         `json:"address" validate:"required"`
 	JobTitle    string         `json:"job_title" validate:"required"`
 	LevelID     uint           `json:"level_id"`
-	WorkSchedID uint           `json:"work_sched_id"`
+	RoleID      uint           `json:"role_id" validate:"required"`
+	WorkSchedID uint           `json:"work_sched_id" validate:"required"`
 	ProfilePic  string         `json:"profile_pic"`
-	MachineID   uint           `json:"machine_id"`
+	MachineID   uint           `json:"machine_id" validate:"required"`
 	DeletedAt   gorm.DeletedAt `json:"deleted_at,omitempty"`
 }
