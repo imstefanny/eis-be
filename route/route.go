@@ -252,6 +252,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eStudentAtts := eStudents.Group("/attendances")
 	eStudentAtts.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eStudentAtts.POST("/batch", studentAttsController.CreateBatch)
+	eStudentAtts.GET("/report", studentAttsController.GetReport)
 
 	eSubjScheds := e.Group("/subjectschedules")
 	eSubjScheds.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

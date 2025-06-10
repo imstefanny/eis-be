@@ -102,6 +102,33 @@ func (u *studentAttsController) UpdateByAcademicID(c echo.Context) error {
 	})
 }
 
+func (u *studentAttsController) GetReport(c echo.Context) error {
+	academicID, err := strconv.Atoi(c.QueryParam("academic_id"))
+	if err != nil || academicID < 1 {
+		academicID = 0
+	}
+	levelID, err := strconv.Atoi(c.QueryParam("level_id"))
+	if err != nil || levelID < 1 {
+		levelID = 0
+	}
+	classID, err := strconv.Atoi(c.QueryParam("class_id"))
+	if err != nil || classID < 1 {
+		classID = 0
+	}
+	search := c.QueryParam("search")
+	start_date := c.QueryParam("start_date")
+	end_date := c.QueryParam("end_date")
+	studentAtts, err := u.useCase.GetReport(academicID, levelID, classID, search, start_date, end_date)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data":  studentAtts,
+	})
+}
+
 // Students specific methods
 func (u *studentAttsController) GetAttendanceByStudent(c echo.Context) error {
 	claims, errToken := helpers.GetTokenClaims(c)

@@ -12,6 +12,7 @@ type StudentAttsRepository interface {
 	CreateBatch(studentAtts []models.StudentAttendances) error
 	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
 	UpdateByAcademicID(academicID int, studentAtt []models.StudentAttendances) error
+	Browse(academicID, levelID, classID int, search, start_date, end_date string) ([]models.StudentAttendances, error)
 
 	// Students specific methods
 	GetAttendanceByStudent(studentID int, start, end string) ([]models.StudentAttendances, error)
@@ -80,6 +81,38 @@ func (r *studentAttsRepository) UpdateByAcademicID(academicID int, studentAtts [
 		return err
 	}
 	return nil
+}
+
+func (r *studentAttsRepository) Browse(academicID, levelID, classID int, search, start_date, end_date string) ([]models.StudentAttendances, error) {
+	var studentAtts []models.StudentAttendances
+	search = "%" + strings.ToLower(search) + "%"
+
+	query := r.db.
+		Preload("Academic").
+		Preload("Academic.Classroom.Level").
+		Preload("Student")
+
+	if academicID > 0 {
+		query = query.Where("academic_id = ?", academicID)
+	}
+	if levelID > 0 {
+		query = query.Where("level_id = ?", levelID)
+	}
+	if classID > 0 {
+		query = query.Where("class_id = ?", classID)
+	}
+	if search != "" {
+		query = query.Where("LOWER(display_name) LIKE ?", search)
+	}
+	if start_date != "" && end_date != "" {
+		query = query.Where("DATE(date) BETWEEN ? AND ?", start_date, end_date)
+	}
+
+	if err := query.Find(&studentAtts).Error; err != nil {
+		return nil, err
+	}
+
+	return studentAtts, nil
 }
 
 // Students specific methods

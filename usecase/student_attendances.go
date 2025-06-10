@@ -15,6 +15,7 @@ type StudentAttsUsecase interface {
 	BrowseByAcademicID(academicID, page, limit int, search string, date string) (dto.GetAllStudentAttsRequest, int64, error)
 	CreateBatch(studentAtts dto.CreateBatchStudentAttsRequest) error
 	UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error)
+	GetReport(academicID, levelID, classID int, search, start_date, end_date string) (dto.GetStudentAttsReport, error)
 
 	// Students specific methods
 	GetAttendanceByStudent(id, month int) (dto.StudentGetAttendancesResponse, error)
@@ -208,6 +209,66 @@ func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.U
 		Students:   students,
 	}
 
+	return response, nil
+}
+
+func (s *studentAttsUsecase) GetReport(academicID, levelID, classID int, search, start_date, end_date string) (dto.GetStudentAttsReport, error) {
+	studentAtts, err := s.studentAttsRepository.Browse(academicID, levelID, classID, search, start_date, end_date)
+	if err != nil {
+		return dto.GetStudentAttsReport{}, err
+	}
+	attMap := map[string]*dto.GetStudentAttsDataReport{}
+	for _, studentAtt := range studentAtts {
+		if _, exists := attMap[studentAtt.Student.FullName]; !exists {
+			attMap[studentAtt.Student.FullName] = &dto.GetStudentAttsDataReport{
+				Student:         studentAtt.Student.FullName,
+				PresentCount:    0,
+				PermissionCount: 0,
+				SickCount:       0,
+				AlphaCount:      0,
+			}
+		}
+		switch studentAtt.Status {
+		case "Present":
+			attMap[studentAtt.Student.FullName].PresentCount++
+		case "Permission":
+			attMap[studentAtt.Student.FullName].PermissionCount++
+		case "Sick":
+			attMap[studentAtt.Student.FullName].SickCount++
+		case "Alpha":
+			attMap[studentAtt.Student.FullName].AlphaCount++
+		}
+	}
+	levelsMap := map[string]*dto.GetStudentAttsLevelReport{}
+	for _, studentAtt := range studentAtts {
+		level := studentAtt.Academic.Classroom.Level.Name
+		if _, exists := levelsMap[level]; !exists {
+			levelsMap[level] = &dto.GetStudentAttsLevelReport{
+				Level:           level,
+				PresentCount:    0,
+				PermissionCount: 0,
+				SickCount:       0,
+				AlphaCount:      0,
+			}
+		}
+		switch studentAtt.Status {
+		case "Present":
+			levelsMap[level].PresentCount++
+		case "Permission":
+			levelsMap[level].PermissionCount++
+		case "Sick":
+			levelsMap[level].SickCount++
+		case "Alpha":
+			levelsMap[level].AlphaCount++
+		}
+	}
+	response := dto.GetStudentAttsReport{}
+	for _, attData := range attMap {
+		response.Entries = append(response.Entries, *attData)
+	}
+	for _, levelData := range levelsMap {
+		response.Levels = append(response.Levels, *levelData)
+	}
 	return response, nil
 }
 

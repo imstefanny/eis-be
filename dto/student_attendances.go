@@ -55,3 +55,24 @@ type StudentAttendanceDetail struct {
 	Status  string `json:"status"`
 	Remarks string `json:"remarks"`
 }
+
+type GetStudentAttsReport struct {
+	Entries []GetStudentAttsDataReport  `json:"entries"`
+	Levels  []GetStudentAttsLevelReport `json:"levels"`
+}
+
+type GetStudentAttsDataReport struct {
+	Student         string `json:"student"`
+	PresentCount    int    `json:"present_count"`
+	PermissionCount int    `json:"permission_count"`
+	SickCount       int    `json:"sick_count"`
+	AlphaCount      int    `json:"alpha_count"`
+}
+
+type GetStudentAttsLevelReport struct {
+	Level           string `json:"level"`
+	PresentCount    int    `json:"present_count"`
+	PermissionCount int    `json:"permission_count"`
+	SickCount       int    `json:"sick_count"`
+	AlphaCount      int    `json:"alpha_count"`
+}
