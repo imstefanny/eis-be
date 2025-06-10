@@ -20,7 +20,7 @@ type TeacherAttsUsecase interface {
 	Update(id int, teacherAtt dto.CreateTeacherAttsRequest) (models.TeacherAttendances, error)
 	Delete(id int) error
 
-	GetReport(page, limit int, search, start_date, end_date string) ([]dto.GetTeacherAttsReport, int64, error)
+	GetReport(search, start_date, end_date string) ([]dto.GetTeacherAttsReport, error)
 }
 
 type teacherAttsUsecase struct {
@@ -48,7 +48,7 @@ func validateCreateBatchTeacherAttsRequest(req dto.CreateBatchTeacherAttsRequest
 }
 
 func (s *teacherAttsUsecase) Browse(page, limit int, search string, date string) (interface{}, int64, error) {
-	teacherAtts, total, err := s.teacherAttsRepository.Browse(page, limit, search, date, date)
+	teacherAtts, total, err := s.teacherAttsRepository.Browse(page, limit, search, date)
 
 	if err != nil {
 		return nil, total, err
@@ -229,10 +229,10 @@ func (s *teacherAttsUsecase) Delete(id int) error {
 	return nil
 }
 
-func (s *teacherAttsUsecase) GetReport(page, limit int, search, start_date, end_date string) ([]dto.GetTeacherAttsReport, int64, error) {
-	teacherAtts, total, err := s.teacherAttsRepository.Browse(page, limit, search, start_date, end_date)
+func (s *teacherAttsUsecase) GetReport(search, start_date, end_date string) ([]dto.GetTeacherAttsReport, error) {
+	teacherAtts, err := s.teacherAttsRepository.BrowseReport(search, start_date, end_date)
 	if err != nil {
-		return []dto.GetTeacherAttsReport{}, 0, err
+		return []dto.GetTeacherAttsReport{}, err
 	}
 
 	attMap := map[string]*dto.GetTeacherAttsReport{}
@@ -265,5 +265,5 @@ func (s *teacherAttsUsecase) GetReport(page, limit int, search, start_date, end_
 		responses = append(responses, *entries)
 	}
 
-	return responses, total, nil
+	return responses, nil
 }

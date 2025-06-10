@@ -149,18 +149,10 @@ func (u *teacherAttsController) Delete(c echo.Context) error {
 }
 
 func (u *teacherAttsController) GetReport(c echo.Context) error {
-	page, err := strconv.Atoi(c.QueryParam("page"))
-	if err != nil || page < 1 {
-		page = 1
-	}
-	limit, err := strconv.Atoi(c.QueryParam("limit"))
-	if err != nil || limit < 1 {
-		limit = 10
-	}
 	search := c.QueryParam("search")
 	start_date := c.QueryParam("start_date")
 	end_date := c.QueryParam("end_date")
-	teacherAtts, total, err := u.useCase.GetReport(page, limit, search, start_date, end_date)
+	teacherAtts, err := u.useCase.GetReport(search, start_date, end_date)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),
@@ -168,8 +160,5 @@ func (u *teacherAttsController) GetReport(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data": teacherAtts,
-		"page":  page,
-		"limit": limit,
-		"total": total,
 	})
 }

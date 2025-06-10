@@ -8,12 +8,13 @@ import (
 )
 
 type TeacherAttsRepository interface {
-	Browse(page, limit int, search, start_date, end_date string) ([]models.TeacherAttendances, int64, error)
+	Browse(page, limit int, search, date string) ([]models.TeacherAttendances, int64, error)
 	Create(teacherAtts models.TeacherAttendances) error
 	CreateBatch(teacherAtts []models.TeacherAttendances) error
 	Find(id int) (models.TeacherAttendances, error)
 	Update(id int, teacherAtt models.TeacherAttendances) error
 	Delete(id int) error
+	BrowseReport(search, startDate, endDate string) ([]models.TeacherAttendances, error)
 }
 
 type teacherAttsRepository struct {
@@ -24,7 +25,7 @@ func NewTeacherAttsRepository(db *gorm.DB) *teacherAttsRepository {
 	return &teacherAttsRepository{db}
 }
 
-func (r *teacherAttsRepository) Browse(page, limit int, search, start_date, end_date string) ([]models.TeacherAttendances, int64, error) {
+func (r *teacherAttsRepository) Browse(page, limit int, search, date string) ([]models.TeacherAttendances, int64, error) {
 	var teacherAtts []models.TeacherAttendances
 	var total int64
 	offset := (page - 1) * limit
@@ -37,8 +38,8 @@ func (r *teacherAttsRepository) Browse(page, limit int, search, start_date, end_
 		Preload("WorkingSchedule").
 		Preload("WorkingSchedule.Details")
 
-	if start_date != "" && end_date != "" {
-		query = query.Where("DATE(date) BETWEEN ? AND ?", start_date, end_date)
+	if date != "" {
+		query = query.Where("DATE(date) = ", date)
 	}
 
 	if err := query.Find(&teacherAtts).Error; err != nil {
@@ -49,6 +50,25 @@ func (r *teacherAttsRepository) Browse(page, limit int, search, start_date, end_
 		return nil, 0, err
 	}
 	return teacherAtts, total, nil
+}
+
+func (r *teacherAttsRepository) BrowseReport(search, startDate, endDate string) ([]models.TeacherAttendances, error) {
+	var teacherAtts []models.TeacherAttendances
+	search = "%" + strings.ToLower(search) + "%"
+	query := r.db.
+		Where("LOWER(display_name) LIKE ?", search).
+		Preload("Teacher").
+		Preload("WorkingSchedule").
+		Preload("WorkingSchedule.Details")
+
+	if startDate != "" && endDate != "" {
+		query = query.Where("DATE(date) BETWEEN ? AND ?", startDate, endDate)
+	}
+	if err := query.Find(&teacherAtts).Error; err != nil {
+		return nil, err
+	}
+
+	return teacherAtts, nil
 }
 
 func (r *teacherAttsRepository) Create(teacherAtts models.TeacherAttendances) error {
