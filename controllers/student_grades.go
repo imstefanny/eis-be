@@ -99,3 +99,25 @@ func (u *studentGradesController) UpdateByAcademicID(c echo.Context) error {
 		"message": "Data updated successfully",
 	})
 }
+
+func (u *studentGradesController) GetReport(c echo.Context) error {
+	academicYear := c.QueryParam("academic_year")
+	if academicYear == "" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Academic year is required",
+		})
+	}
+	levelID, err := strconv.Atoi(c.QueryParam("level_id"))
+	if err != nil || levelID < 1 {
+		levelID = 0
+	}
+	studentGrades, err := u.useCase.GetReport(academicYear, levelID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": studentGrades,
+	})
+}

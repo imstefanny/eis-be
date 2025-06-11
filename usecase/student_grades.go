@@ -13,6 +13,7 @@ type StudentGradesUsecase interface {
 	GetAll(academicID int) (dto.GetStudentGradesResponse, error)
 	Create(studentGrade dto.CreateStudentGradesRequest) error
 	UpdateByAcademicID(academicID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error)
+	GetReport(academicYear string, levelID int) (dto.StudentGradesReport, error)
 }
 
 type studentGradesUsecase struct {
@@ -210,4 +211,16 @@ func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade d
 	}
 
 	return response, nil
+}
+
+func (s *studentGradesUsecase) GetReport(academicYear string, levelID int) (dto.StudentGradesReport, error) {
+	startYear, endYear := academicYear[:4], academicYear[5:9]
+
+	studentGrades, err := s.studentGradesRepository.GetReport(startYear, endYear, levelID)
+	if err != nil {
+		return dto.StudentGradesReport{}, fmt.Errorf("error retrieving student grades report: %w", err)
+	}
+	response := dto.StudentGradesReport{}
+	fmt.Println("Student Grades:", studentGrades)
+	return response, fmt.Errorf("GetReport method not implemented yet")
 }

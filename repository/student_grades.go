@@ -10,6 +10,7 @@ type StudentGradesRepository interface {
 	GetAll(academicID int) ([]models.StudentGrades, error)
 	Create(studentGrades []models.StudentGrades) error
 	UpdateByAcademicID(studentGrades []models.StudentGrades) error
+	GetReport(startYear, endYear string, levelID int) ([]models.StudentGrades, error)
 }
 
 type studentGradesRepository struct {
@@ -46,4 +47,26 @@ func (r *studentGradesRepository) UpdateByAcademicID(studentGrades []models.Stud
 		return err
 	}
 	return nil
+}
+
+func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID int) ([]models.StudentGrades, error) {
+	var studentGrades []models.StudentGrades
+
+	query := r.db.
+		Joins("JOIN academics ON academics.id = student_grades.academic_id").
+		Where("academics.start_year = ? AND academics.end_year = ?", startYear, endYear).
+		Preload("Academic").
+		Preload("Academic.Classroom").
+		Preload("Academic.Classroom.Level").
+		Preload("Student").
+		Preload("Subject")
+
+	if levelID > 0 {
+		query = query.Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").Where("classrooms.level_id = ?", levelID)
+	}
+	if err := query.Find(&studentGrades).Error; err != nil {
+		return nil, err
+	}
+
+	return studentGrades, nil
 }

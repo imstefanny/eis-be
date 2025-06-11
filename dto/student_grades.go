@@ -66,3 +66,16 @@ type StudentScoreResponse struct {
 	Quiz        float64 `json:"quiz"`
 	Finals      float64 `json:"finals"`
 }
+
+type StudentGradesReport struct {
+	Grade    string                          `json:"grade"`
+	Average  float64                         `json:"average"`
+	Students []StudentGradesReportTopStudent `json:"students"`
+}
+type StudentGradesReportTopStudent struct {
+	Rank    int     `json:"rank"`
+	Student string  `json:"student"`
+	NIS     string  `json:"nis"`
+	Class   string  `json:"class"`
+	Finals  float64 `json:"finals"`
+}
