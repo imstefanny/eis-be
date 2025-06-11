@@ -96,13 +96,13 @@ func (r *studentAttsRepository) Browse(academicID, levelID, classID int, search,
 		query = query.Where("academic_id = ?", academicID)
 	}
 	if levelID > 0 {
-		query = query.Where("level_id = ?", levelID)
+		query = query.Joins("JOIN academics ON academics.id = student_attendances.academic_id").Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").Where("classrooms.level_id = ?", levelID)
 	}
 	if classID > 0 {
 		query = query.Where("class_id = ?", classID)
 	}
 	if search != "" {
-		query = query.Where("LOWER(display_name) LIKE ?", search)
+		query = query.Where("LOWER(student_attendances.display_name) LIKE ?", search)
 	}
 	if start_date != "" && end_date != "" {
 		query = query.Where("DATE(date) BETWEEN ? AND ?", start_date, end_date)
