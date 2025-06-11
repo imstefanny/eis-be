@@ -71,24 +71,24 @@ func (r *classNotesDetailsRepository) GetAllByTeacher(teacherID int, date string
 	// 		CASE WHEN DATE(class_notes.date) = ? THEN class_notes_details.materials ELSE NULL END AS materials,
 	// 		class_notes_details.notes
 	// 	`, date, date).
-	// 	Joins(`LEFT JOIN class_notes_details 
-	// 		ON subject_schedules.id = class_notes_details.subj_sched_id 
+	// 	Joins(`LEFT JOIN class_notes_details
+	// 		ON subject_schedules.id = class_notes_details.subj_sched_id
 	// 		AND class_notes_details.note_id IN ?`, gorm.Expr("(?)", subQuery)).
-	// 	Joins(`LEFT JOIN class_notes 
-	// 		ON class_notes_details.note_id = class_notes.id 
+	// 	Joins(`LEFT JOIN class_notes
+	// 		ON class_notes_details.note_id = class_notes.id
 	// 		AND DATE(class_notes.date) = ?`, date).
 	// 	Joins("JOIN subjects ON subject_schedules.subject_id = subjects.id").
 	// 	Joins("JOIN academics ON subject_schedules.academic_id = academics.id").
 	// 	Joins("JOIN classrooms ON academics.classroom_id = classrooms.id").
-	// 	Joins(`LEFT JOIN teachers 
-	// 		ON teachers.id = class_notes_details.teacher_id 
+	// 	Joins(`LEFT JOIN teachers
+	// 		ON teachers.id = class_notes_details.teacher_id
 	// 		OR teachers.id = subject_schedules.teacher_id`).
 	// 	Where("subject_schedules.day = ?", weekday).
 	// 	Where("(teachers.id = ? OR class_notes_details.teacher_id = ?)", teacherID, teacherID).
 	// 	Scan(&details).Error; err != nil {
 	// 	return nil, err
 	// }
-	
+
 	rawSQL := `
 	SELECT
 		class_notes_details.id,
@@ -102,7 +102,7 @@ func (r *classNotesDetailsRepository) GetAllByTeacher(teacherID int, date string
 		teachers.name AS teacher,
 		(SELECT subject_schedules.teacher_id FROM subject_schedules 
 		LEFT JOIN class_notes_details AS cnd ON subject_schedules.id = cnd.subj_sched_id
-        WHERE class_notes_details.note_id = 10 AND class_notes_details.id = cnd.id
+        WHERE class_notes_details.note_id = note_id AND class_notes_details.id = cnd.id
     ) AS teacher_act_id,
 		teachers.id AS teacher_id,
 		subject_schedules.start_hour,
