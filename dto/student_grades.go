@@ -38,6 +38,7 @@ type GetStudentGradesEntryResponse struct {
 	FirstMonth  float64 `json:"first_month"`
 	SecondMonth float64 `json:"second_month"`
 	Finals      float64 `json:"finals"`
+	FinalGrade  float64 `json:"final_grade"`
 	Remarks     string  `json:"remarks"`
 }
 

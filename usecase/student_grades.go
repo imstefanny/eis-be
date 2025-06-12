@@ -5,6 +5,7 @@ import (
 	"eis-be/models"
 	"eis-be/repository"
 	"fmt"
+	"math"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -71,6 +72,7 @@ func (s *studentGradesUsecase) GetAll(academicID int) (dto.GetStudentGradesRespo
 			FirstMonth:  grade.FirstMonth,
 			SecondMonth: grade.SecondMonth,
 			Finals:      grade.Finals,
+			FinalGrade:  grade.FinalGrade,
 			Remarks:     grade.Remarks,
 		})
 	}
@@ -109,6 +111,7 @@ func (s *studentGradesUsecase) Create(studentGrade dto.CreateStudentGradesReques
 			if err != nil {
 				return fmt.Errorf("student with ID %d not found: %w", entry.StudentID, err)
 			}
+			finals := math.Round(((entry.FirstMonth+entry.SecondMonth+entry.Quiz)/2 + entry.Finals) / 2)
 			studentGradesData = append(studentGradesData, models.StudentGrades{
 				DisplayName: academic.DisplayName + " - " + subject.Name + " - " + student.FullName,
 				AcademicID:  studentGrade.AcademicID,
@@ -118,6 +121,7 @@ func (s *studentGradesUsecase) Create(studentGrade dto.CreateStudentGradesReques
 				FirstMonth:  entry.FirstMonth,
 				SecondMonth: entry.SecondMonth,
 				Finals:      entry.Finals,
+				FinalGrade:  finals,
 				Remarks:     entry.Remarks,
 			})
 		}
@@ -154,6 +158,7 @@ func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade d
 	studentGradesData := []models.StudentGrades{}
 	for _, detail := range studentGrade.Details {
 		for _, grade := range detail.Students {
+			finals := math.Round(((grade.FirstMonth+grade.SecondMonth+grade.Quiz)/2 + grade.Finals) / 2)
 			studentGradesData = append(studentGradesData, models.StudentGrades{
 				ID:          grade.ID,
 				DisplayName: existingGrades[grade.ID].DisplayName,
@@ -164,6 +169,7 @@ func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade d
 				FirstMonth:  grade.FirstMonth,
 				SecondMonth: grade.SecondMonth,
 				Finals:      grade.Finals,
+				FinalGrade:  finals,
 				Remarks:     grade.Remarks,
 			})
 		}
@@ -197,6 +203,7 @@ func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade d
 			FirstMonth:  grade.FirstMonth,
 			SecondMonth: grade.SecondMonth,
 			Finals:      grade.Finals,
+			FinalGrade:  grade.FinalGrade,
 			Remarks:     grade.Remarks,
 		})
 	}
