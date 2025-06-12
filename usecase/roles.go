@@ -135,7 +135,6 @@ func (s *rolesUsecase) Update(id int, role dto.CreateRolesRequest) (models.Roles
 
 	permissions := []models.Permissions{}
 	if len(role.Permissions) > 0 {
-		fmt.Println("more than 1 permissions")
 		permissionsData, e := s.permissionsRepository.GetByIds(role.Permissions)
 		if e != nil {
 			return models.Roles{}, e

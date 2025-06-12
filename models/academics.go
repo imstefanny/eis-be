@@ -19,7 +19,18 @@ type Academics struct {
 	Students          []Students         `json:"students" gorm:"many2many:academic_students;"`
 	SubjScheds        []SubjectSchedules `json:"subj_schedules" gorm:"foreignKey:AcademicID"`
 	ClassNotes        []ClassNotes       `json:"class_notes" gorm:"foreignKey:AcademicID"`
+	Terms             []Terms            `json:"terms" gorm:"foreignKey:AcademicID"`
 	CreatedAt         time.Time          `json:"created_at"`
 	UpdatedAt         time.Time          `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt     `json:"deleted_at" gorm:"index"`
+}
+
+type Terms struct {
+	ID         uint           `json:"id" gorm:"primaryKey"`
+	Name       string         `json:"name"`
+	AcademicID uint           `json:"academic_id"`
+	Academic   Academics      `json:"academic" gorm:"foreignKey:AcademicID"`
+	CreatedAt  time.Time      `json:"created_at"`
+	UpdatedAt  time.Time      `json:"updated_at"`
+	DeletedAt  gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }

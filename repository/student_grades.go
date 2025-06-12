@@ -78,8 +78,8 @@ func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, 
 		Joins("JOIN students ON students.id = student_grades.student_id").
 		Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").
 		Where("academics.start_year = ? AND academics.end_year = ?", startYear, endYear).
-		Group("students.id, classrooms.id").
-		Order("classrooms.id, finals DESC")
+		Group("students.id, academics.id").
+		Order("academics.id, finals DESC")
 
 	if levelID > 0 {
 		query = query.Where("classrooms.level_id = ?", levelID)

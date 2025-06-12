@@ -55,7 +55,7 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.Classrooms{})
 	DB.AutoMigrate(&models.Teachers{})
 	DB.AutoMigrate(&models.TeacherAttendances{})
-	DB.AutoMigrate(&models.Academics{})
+	DB.AutoMigrate(&models.Academics{}, &models.Terms{})
 	DB.AutoMigrate(&models.SubjectSchedules{})
 	DB.AutoMigrate(&models.ClassNotes{})
 	DB.AutoMigrate(&models.ClassNotesDetails{})
@@ -70,33 +70,33 @@ func PopulateRolesPermissions() {
 	}
 
 	permNames := []string{
-		"registration:read","registration:write",
-		"student:read","student:write",
-		"academic:read","academic:write",
-		"studentatt:read","studentatt:write",
-		"subject:read","subject:write",
-		"classnote:read","classnote:write",
-		"studentattrep:read","studentattrep:write",
-		"examrecap:read","examrecap:write",
-		"grade:read","grade:write",
-		"class:read","class:write",
-		"subjsched:read","subjsched:write",
-		"document:read","document:write",
-		"doctype:read","doctype:write",
-		"teacher:read","teacher:write",
-		"teacheratt:read","teacheratt:write",
-		"teacherattrep:read","teacherattrep:write",
-		"worksched:read","worksched:write",
-		"news:read","news:write",
-		"users:read","users:write",
-		"accessrights:read","accessrights:write",
+		"registration:read", "registration:write",
+		"student:read", "student:write",
+		"academic:read", "academic:write",
+		"studentatt:read", "studentatt:write",
+		"subject:read", "subject:write",
+		"classnote:read", "classnote:write",
+		"studentattrep:read", "studentattrep:write",
+		"examrecap:read", "examrecap:write",
+		"grade:read", "grade:write",
+		"class:read", "class:write",
+		"subjsched:read", "subjsched:write",
+		"document:read", "document:write",
+		"doctype:read", "doctype:write",
+		"teacher:read", "teacher:write",
+		"teacheratt:read", "teacheratt:write",
+		"teacherattrep:read", "teacherattrep:write",
+		"worksched:read", "worksched:write",
+		"news:read", "news:write",
+		"users:read", "users:write",
+		"accessrights:read", "accessrights:write",
 	}
 
 	permissions := []models.Permissions{}
-    for _, name := range permNames {
-        permissions = append(permissions, models.Permissions{Name: name})
-    }
-    if err := DB.Create(&permissions).Error; err != nil {
+	for _, name := range permNames {
+		permissions = append(permissions, models.Permissions{Name: name})
+	}
+	if err := DB.Create(&permissions).Error; err != nil {
 		fmt.Printf("Error creating permissions: %v\n", err)
 		return
 	}
@@ -221,10 +221,10 @@ func PopulateSuperAdmin() {
 	role := models.Roles{}
 	_ = DB.Model(&role).Where("name LIKE ?", "Admin").First(&role).Error
 	user := models.Users{
-		Name: "Administrator",
-		Email: "admin-eis@gmail.com",
+		Name:     "Administrator",
+		Email:    "admin-eis@gmail.com",
 		Password: "superadmin2025!!!",
-		RoleID: role.ID,
+		RoleID:   role.ID,
 	}
 	if err := DB.Create(&user).Error; err != nil {
 		fmt.Printf("Error creating superadmin: %v", err)

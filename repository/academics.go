@@ -10,7 +10,7 @@ import (
 type AcademicsRepository interface {
 	Browse(page, limit int, search, startYear, endYear string) ([]models.Academics, int64, error)
 	GetAll() ([]models.Academics, error)
-	Create(academics models.Academics) error
+	Create(academic models.Academics) error
 	CreateBatch(academics []models.Academics) error
 	Find(id int) (models.Academics, error)
 	Update(id int, academic models.Academics) error
@@ -59,8 +59,8 @@ func (r *academicsRepository) GetAll() ([]models.Academics, error) {
 	return academics, nil
 }
 
-func (r *academicsRepository) Create(academics models.Academics) error {
-	err := r.db.Create(&academics)
+func (r *academicsRepository) Create(academic models.Academics) error {
+	err := r.db.Create(&academic)
 	if err.Error != nil {
 		return err.Error
 	}

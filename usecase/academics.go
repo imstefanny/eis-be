@@ -92,6 +92,15 @@ func (s *academicsUsecase) Create(academic dto.CreateAcademicsRequest) error {
 		students = studentsData
 	}
 
+	terms := []models.Terms{
+		{
+			Name: "Semester 1",
+		},
+		{
+			Name: "Semester 2",
+		},
+	}
+
 	academicData := models.Academics{
 		DisplayName:       academic.DisplayName,
 		StartYear:         academic.StartYear,
@@ -100,10 +109,10 @@ func (s *academicsUsecase) Create(academic dto.CreateAcademicsRequest) error {
 		Major:             academic.Major,
 		HomeroomTeacherID: academic.HomeroomTeacherID,
 		Students:          students,
+		Terms:             terms,
 	}
 
 	err := s.academicsRepository.Create(academicData)
-
 	if err != nil {
 		return err
 	}
@@ -124,6 +133,15 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 
 	academicsData := []models.Academics{}
 
+	terms := []models.Terms{
+		{
+			Name: "Semester 1",
+		},
+		{
+			Name: "Semester 2",
+		},
+	}
+
 	for _, classroom := range classrooms {
 		academic := models.Academics{
 			DisplayName: "T.A." + batch.StartYear + "/" + batch.EndYear + " - " + classroom.DisplayName,
@@ -131,6 +149,7 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 			EndYear:     batch.EndYear,
 			ClassroomID: classroom.ID,
 			Major:       "General",
+			Terms:       terms,
 		}
 		academicsData = append(academicsData, academic)
 	}
