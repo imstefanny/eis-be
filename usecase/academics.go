@@ -10,7 +10,7 @@ import (
 )
 
 type AcademicsUsecase interface {
-	Browse(page, limit int, search string) (interface{}, int64, error)
+	Browse(page, limit int, search, academicYear string) (interface{}, int64, error)
 	Create(academic dto.CreateAcademicsRequest) error
 	CreateBatch(batch dto.CreateBatchAcademicsRequest) error
 	Find(id int) (interface{}, error)
@@ -42,8 +42,18 @@ func validateBatchCreateAcademicsRequest(req dto.CreateBatchAcademicsRequest) er
 	return validate.Struct(req)
 }
 
-func (s *academicsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
-	academics, total, err := s.academicsRepository.Browse(page, limit, search)
+func (s *academicsUsecase) Browse(page, limit int, search, academicYear string) (interface{}, int64, error) {
+	fmt.Println("Academic Year:", academicYear)
+	startYear, endYear := "", ""
+	if academicYear != "" {
+		startYear, endYear = academicYear[:4], academicYear[5:9]
+	}
+	fmt.Println("Academic Year:", startYear, endYear)
+	academics, total, err := s.academicsRepository.Browse(page, limit, search, startYear, endYear)
+
+	if err != nil {
+		return nil, total, err
+	}
 
 	responses := []dto.GetAcademicsResponse{}
 	for _, academic := range academics {
@@ -60,10 +70,6 @@ func (s *academicsUsecase) Browse(page, limit int, search string) (interface{}, 
 			DeletedAt:       academic.DeletedAt,
 		}
 		responses = append(responses, response)
-	}
-
-	if err != nil {
-		return nil, total, err
 	}
 
 	return responses, total, nil

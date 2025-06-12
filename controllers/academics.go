@@ -33,8 +33,9 @@ func (u *academicsController) Browse(c echo.Context) error {
 	}
 
 	search := c.QueryParam("search")
+	academicYear := c.QueryParam("academic_year")
 
-	academics, total, err := u.useCase.Browse(page, limit, search)
+	academics, total, err := u.useCase.Browse(page, limit, search, academicYear)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
