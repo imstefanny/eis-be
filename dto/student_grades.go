@@ -12,7 +12,8 @@ type CreateStudentGradesDetailRequest struct {
 
 type CreateStudentGradesEntryRequest struct {
 	StudentID   uint    `json:"student_id" validate:"required"`
-	Quiz        float64 `json:"quiz"`
+	FirstQuiz   float64 `json:"first_quiz"`
+	SecondQuiz  float64 `json:"second_quiz"`
 	FirstMonth  float64 `json:"first_month"`
 	SecondMonth float64 `json:"second_month"`
 	Finals      float64 `json:"finals"`
@@ -34,7 +35,8 @@ type GetStudentGradesEntryResponse struct {
 	StudentID   uint    `json:"student_id"`
 	StudentName string  `json:"student_name"`
 	DisplayName string  `json:"display_name"`
-	Quiz        float64 `json:"quiz"`
+	FirstQuiz   float64 `json:"first_quiz"`
+	SecondQuiz  float64 `json:"second_quiz"`
 	FirstMonth  float64 `json:"first_month"`
 	SecondMonth float64 `json:"second_month"`
 	Finals      float64 `json:"finals"`
@@ -48,12 +50,14 @@ type UpdateStudentGradesRequest struct {
 }
 type UpdateStudentGradesDetailRequest struct {
 	SubjectID uint                              `json:"subject_id" validate:"required"`
+	Subject   string                            `json:"subject"`
 	Students  []UpdateStudentGradesEntryRequest `json:"students" validate:"required,dive"`
 }
 type UpdateStudentGradesEntryRequest struct {
 	ID          uint    `json:"id"`
 	StudentID   uint    `json:"student_id" validate:"required"`
-	Quiz        float64 `json:"quiz"`
+	FirstQuiz   float64 `json:"first_quiz"`
+	SecondQuiz  float64 `json:"second_quiz"`
 	FirstMonth  float64 `json:"first_month"`
 	SecondMonth float64 `json:"second_month"`
 	Finals      float64 `json:"finals"`
@@ -64,7 +68,8 @@ type StudentScoreResponse struct {
 	SubjectName string  `json:"subject_name"`
 	FirstMonth  float64 `json:"first_month"`
 	SecondMonth float64 `json:"second_month"`
-	Quiz        float64 `json:"quiz"`
+	FirstQuiz   float64 `json:"first_quiz"`
+	SecondQuiz  float64 `json:"second_quiz"`
 	Finals      float64 `json:"finals"`
 }
 

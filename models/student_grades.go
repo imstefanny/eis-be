@@ -15,7 +15,8 @@ type StudentGrades struct {
 	Student     Students       `json:"student" gorm:"foreignKey:StudentID"`
 	SubjectID   uint           `json:"subject_id" gorm:"default:null"`
 	Subject     Subjects       `json:"subject" gorm:"foreignKey:SubjectID"`
-	Quiz        float64        `json:"quiz" gorm:"default:0"`
+	FirstQuiz   float64        `json:"first_quiz" gorm:"default:0"`
+	SecondQuiz  float64        `json:"second_quiz" gorm:"default:0"`
 	FirstMonth  float64        `json:"first_month" gorm:"default:0"`
 	SecondMonth float64        `json:"second_month" gorm:"default:0"`
 	Finals      float64        `json:"finals" gorm:"default:0"`

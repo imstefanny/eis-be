@@ -10,7 +10,7 @@ import (
 type StudentGradesRepository interface {
 	GetAll(academicID int) ([]models.StudentGrades, error)
 	Create(studentGrades []models.StudentGrades) error
-	UpdateByAcademicID(studentGrades []models.StudentGrades) error
+	UpdateByAcademicID(studentGrades, newStudents []models.StudentGrades) error
 	GetReport(startYear, endYear string, levelID, academicID int) ([]dto.StudentGradesReportQuery, error)
 }
 
@@ -42,9 +42,21 @@ func (r *studentGradesRepository) Create(studentGrades []models.StudentGrades) e
 	return nil
 }
 
-func (r *studentGradesRepository) UpdateByAcademicID(studentGrades []models.StudentGrades) error {
-	query := r.db.Save(studentGrades)
-	if err := query.Error; err != nil {
+func (r *studentGradesRepository) UpdateByAcademicID(studentGrades, newStudents []models.StudentGrades) error {
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		if len(newStudents) > 0 {
+			if err := tx.Create(&newStudents).Error; err != nil {
+				return err
+			}
+		}
+		if len(studentGrades) > 0 {
+			if err := tx.Save(&studentGrades).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
 		return err
 	}
 	return nil

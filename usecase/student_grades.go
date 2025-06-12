@@ -14,7 +14,6 @@ type StudentGradesUsecase interface {
 	GetAll(academicID int) (dto.GetStudentGradesResponse, error)
 	Create(studentGrade dto.CreateStudentGradesRequest) error
 	UpdateByAcademicID(academicID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error)
-	// GetReport(academicYear string, levelID, academicID int) (dto.StudentGradesReport, error)
 	GetReport(academicYear string, levelID, academicID int) ([]dto.StudentGradesReport, error)
 }
 
@@ -69,7 +68,8 @@ func (s *studentGradesUsecase) GetAll(academicID int) (dto.GetStudentGradesRespo
 			StudentID:   grade.StudentID,
 			StudentName: grade.Student.FullName,
 			DisplayName: grade.DisplayName,
-			Quiz:        grade.Quiz,
+			FirstQuiz:   grade.FirstQuiz,
+			SecondQuiz:  grade.SecondQuiz,
 			FirstMonth:  grade.FirstMonth,
 			SecondMonth: grade.SecondMonth,
 			Finals:      grade.Finals,
@@ -112,13 +112,14 @@ func (s *studentGradesUsecase) Create(studentGrade dto.CreateStudentGradesReques
 			if err != nil {
 				return fmt.Errorf("student with ID %d not found: %w", entry.StudentID, err)
 			}
-			finals := math.Round(((entry.FirstMonth+entry.SecondMonth+entry.Quiz)/2 + entry.Finals) / 2)
+			finals := math.Round((((entry.FirstMonth+entry.SecondMonth)/2+(entry.FirstQuiz+entry.SecondQuiz)/2)/2 + entry.Finals) / 2)
 			studentGradesData = append(studentGradesData, models.StudentGrades{
 				DisplayName: academic.DisplayName + " - " + subject.Name + " - " + student.FullName,
 				AcademicID:  studentGrade.AcademicID,
 				StudentID:   entry.StudentID,
 				SubjectID:   detail.SubjectID,
-				Quiz:        entry.Quiz,
+				FirstQuiz:   entry.FirstQuiz,
+				SecondQuiz:  entry.SecondQuiz,
 				FirstMonth:  entry.FirstMonth,
 				SecondMonth: entry.SecondMonth,
 				Finals:      entry.Finals,
@@ -157,26 +158,45 @@ func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade d
 		existingGrades[grade.ID] = grade
 	}
 	studentGradesData := []models.StudentGrades{}
+	newStudents := []models.StudentGrades{}
 	for _, detail := range studentGrade.Details {
 		for _, grade := range detail.Students {
-			finals := math.Round(((grade.FirstMonth+grade.SecondMonth+grade.Quiz)/2 + grade.Finals) / 2)
-			studentGradesData = append(studentGradesData, models.StudentGrades{
-				ID:          grade.ID,
-				DisplayName: existingGrades[grade.ID].DisplayName,
-				AcademicID:  existingGrades[grade.ID].AcademicID,
-				StudentID:   existingGrades[grade.ID].StudentID,
-				SubjectID:   detail.SubjectID,
-				Quiz:        grade.Quiz,
-				FirstMonth:  grade.FirstMonth,
-				SecondMonth: grade.SecondMonth,
-				Finals:      grade.Finals,
-				FinalGrade:  finals,
-				Remarks:     grade.Remarks,
-			})
+			finals := math.Round((((grade.FirstMonth+grade.SecondMonth)/2+(grade.FirstQuiz+grade.SecondQuiz)/2)/2 + grade.Finals) / 2)
+			if grade.ID != 0 {
+				studentGradesData = append(studentGradesData, models.StudentGrades{
+					ID:          grade.ID,
+					DisplayName: existingGrades[grade.ID].DisplayName,
+					AcademicID:  existingGrades[grade.ID].AcademicID,
+					StudentID:   existingGrades[grade.ID].StudentID,
+					SubjectID:   detail.SubjectID,
+					FirstQuiz:   grade.FirstQuiz,
+					SecondQuiz:  grade.SecondQuiz,
+					FirstMonth:  grade.FirstMonth,
+					SecondMonth: grade.SecondMonth,
+					Finals:      grade.Finals,
+					FinalGrade:  finals,
+					Remarks:     grade.Remarks,
+				})
+			} else {
+				student, _ := s.studentsRepository.Find(int(grade.StudentID))
+				newStudents = append(newStudents, models.StudentGrades{
+					DisplayName: academic.DisplayName + " - " + detail.Subject + " - " + student.FullName,
+					AcademicID:  studentGrade.AcademicID,
+					StudentID:   grade.StudentID,
+					SubjectID:   detail.SubjectID,
+					FirstQuiz:   grade.FirstQuiz,
+					SecondQuiz:  grade.SecondQuiz,
+					FirstMonth:  grade.FirstMonth,
+					SecondMonth: grade.SecondMonth,
+					Finals:      grade.Finals,
+					FinalGrade:  finals,
+					Remarks:     grade.Remarks,
+				})
+			}
 		}
 	}
 
-	err = s.studentGradesRepository.UpdateByAcademicID(studentGradesData)
+	err = s.studentGradesRepository.UpdateByAcademicID(studentGradesData, newStudents)
 	if err != nil {
 		return dto.GetStudentGradesResponse{}, fmt.Errorf("error updating student grades for academic ID %d: %w", academicID, err)
 	}
@@ -200,7 +220,8 @@ func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade d
 			StudentID:   grade.StudentID,
 			StudentName: grade.Student.FullName,
 			DisplayName: grade.DisplayName,
-			Quiz:        grade.Quiz,
+			FirstQuiz:   grade.FirstQuiz,
+			SecondQuiz:  grade.SecondQuiz,
 			FirstMonth:  grade.FirstMonth,
 			SecondMonth: grade.SecondMonth,
 			Finals:      grade.Finals,
