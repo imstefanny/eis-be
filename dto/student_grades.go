@@ -68,7 +68,7 @@ type StudentScoreResponse struct {
 }
 
 type StudentGradesReport struct {
-	Grade    string                          `json:"grade"`
+	Class    string                          `json:"class"`
 	Average  float64                         `json:"average"`
 	Students []StudentGradesReportTopStudent `json:"students"`
 }

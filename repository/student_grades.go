@@ -10,7 +10,7 @@ type StudentGradesRepository interface {
 	GetAll(academicID int) ([]models.StudentGrades, error)
 	Create(studentGrades []models.StudentGrades) error
 	UpdateByAcademicID(studentGrades []models.StudentGrades) error
-	GetReport(startYear, endYear string, levelID int) ([]models.StudentGrades, error)
+	GetReport(startYear, endYear string, levelID, academicID int) ([]models.StudentGrades, error)
 }
 
 type studentGradesRepository struct {
@@ -49,7 +49,7 @@ func (r *studentGradesRepository) UpdateByAcademicID(studentGrades []models.Stud
 	return nil
 }
 
-func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID int) ([]models.StudentGrades, error) {
+func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, academicID int) ([]models.StudentGrades, error) {
 	var studentGrades []models.StudentGrades
 
 	query := r.db.
@@ -63,6 +63,9 @@ func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID i
 
 	if levelID > 0 {
 		query = query.Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").Where("classrooms.level_id = ?", levelID)
+	}
+	if academicID > 0 {
+		query = query.Where("student_grades.academic_id = ?", academicID)
 	}
 	if err := query.Find(&studentGrades).Error; err != nil {
 		return nil, err
