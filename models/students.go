@@ -10,8 +10,8 @@ type Students struct {
 	ID                uint           `json:"id" gorm:"primaryKey"`
 	ApplicantID       uint           `json:"applicant_id" gorm:"index; default:null"`
 	Applicant         Applicants     `json:"applicant" gorm:"foreignKey:ApplicantID;references:ID"`
-	CurrentAcademicID uint           `json:"current_academic_id" gorm:"index"`
-	Academics				 	Academics      `json:"academics" gorm:"foreignKey:CurrentAcademicID;references:ID"`
+	CurrentAcademicID uint           `json:"current_academic_id" gorm:"index; default:null"`
+	Academics         Academics      `json:"academics" gorm:"foreignKey:CurrentAcademicID;references:ID"`
 	UserID            uint           `json:"user_id" gorm:"index;default:null"`
 	User              Users          `json:"user" gorm:"foreignKey:UserID;references:ID"`
 	Guardians         []Guardians    `json:"guardians" gorm:"foreignKey:StudentID"`
