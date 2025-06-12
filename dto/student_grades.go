@@ -80,3 +80,11 @@ type StudentGradesReportTopStudent struct {
 	Class   string  `json:"class"`
 	Finals  float64 `json:"finals"`
 }
+type StudentGradesReportQuery struct {
+	StudentID uint    `json:"student_id"`
+	Student   string  `json:"student"`
+	NIS       string  `json:"nis"`
+	ClassID   uint    `json:"class_id"`
+	Class     string  `json:"class"`
+	Finals    float64 `json:"finals"`
+}

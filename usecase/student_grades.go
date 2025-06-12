@@ -14,7 +14,8 @@ type StudentGradesUsecase interface {
 	GetAll(academicID int) (dto.GetStudentGradesResponse, error)
 	Create(studentGrade dto.CreateStudentGradesRequest) error
 	UpdateByAcademicID(academicID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error)
-	GetReport(academicYear string, levelID, academicID int) (dto.StudentGradesReport, error)
+	// GetReport(academicYear string, levelID, academicID int) (dto.StudentGradesReport, error)
+	GetReport(academicYear string, levelID, academicID int) ([]dto.StudentGradesReport, error)
 }
 
 type studentGradesUsecase struct {
@@ -220,7 +221,7 @@ func (s *studentGradesUsecase) UpdateByAcademicID(academicID int, studentGrade d
 	return response, nil
 }
 
-func (s *studentGradesUsecase) GetReport(academicYear string, levelID, academicID int) (dto.StudentGradesReport, error) {
+func (s *studentGradesUsecase) GetReport(academicYear string, levelID, academicID int) ([]dto.StudentGradesReport, error) {
 	startYear, endYear := "", ""
 	if academicYear != "" {
 		startYear, endYear = academicYear[:4], academicYear[5:9]
@@ -228,9 +229,37 @@ func (s *studentGradesUsecase) GetReport(academicYear string, levelID, academicI
 
 	studentGrades, err := s.studentGradesRepository.GetReport(startYear, endYear, levelID, academicID)
 	if err != nil {
-		return dto.StudentGradesReport{}, fmt.Errorf("error retrieving student grades report: %w", err)
+		return []dto.StudentGradesReport{}, err
 	}
-	response := dto.StudentGradesReport{}
-	fmt.Println("Student Grades:", studentGrades)
-	return response, fmt.Errorf("GetReport method not implemented yet")
+	responses := []dto.StudentGradesReport{}
+	classMap := make(map[string][]dto.StudentGradesReportTopStudent)
+	for _, grade := range studentGrades {
+		if _, exists := classMap[grade.Class]; !exists {
+			classMap[grade.Class] = []dto.StudentGradesReportTopStudent{}
+		}
+		top := dto.StudentGradesReportTopStudent{
+			Rank:    0,
+			Student: grade.Student,
+			NIS:     grade.NIS,
+			Class:   grade.Class,
+			Finals:  grade.Finals,
+		}
+		classMap[grade.Class] = append(classMap[grade.Class], top)
+	}
+	for class, students := range classMap {
+		average := 0.0
+		for idx, student := range students {
+			average += student.Finals
+			students[idx].Rank = idx + 1
+		}
+		if len(students) > 0 {
+			average /= float64(len(students))
+		}
+		responses = append(responses, dto.StudentGradesReport{
+			Class:    class,
+			Average:  math.Round(average*100) / 100,
+			Students: students,
+		})
+	}
+	return responses, nil
 }
