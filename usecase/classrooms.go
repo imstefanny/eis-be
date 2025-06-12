@@ -62,7 +62,7 @@ func (s *classroomsUsecase) Create(classroom dto.CreateClassroomsRequest) error 
 	}
 
 	classroomData := models.Classrooms{
-		DisplayName: level.Name + " - " + classroom.Grade + classroom.Name,
+		DisplayName: level.Name + " - " + classroom.Grade + "." + classroom.Name,
 		LevelID:     classroom.LevelID,
 		Grade:       classroom.Grade,
 		Name:        classroom.Name,
@@ -99,7 +99,7 @@ func (s *classroomsUsecase) Update(id int, classroom dto.CreateClassroomsRequest
 		return models.Classrooms{}, err
 	}
 
-	classroomData.DisplayName = level.Name + " - " + classroom.Grade + classroom.Name
+	classroomData.DisplayName = level.Name + " - " + classroom.Grade + "." + classroom.Name
 	classroomData.LevelID = classroom.LevelID
 	classroomData.Grade = classroom.Grade
 	classroomData.Name = classroom.Name
