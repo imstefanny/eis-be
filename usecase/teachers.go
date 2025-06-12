@@ -136,6 +136,14 @@ func (s *teachersUsecase) Update(id int, teacher dto.CreateTeachersRequest) (mod
 		return models.Teachers{}, err
 	}
 
+	userData, _ := s.usersRepository.Find(int(teacherData.UserID))
+	userData.RoleID = teacher.RoleID
+
+	eUser := s.usersRepository.Update(userData)
+	if eUser != nil {
+		return models.Teachers{}, eUser
+	}
+
 	teacherData.Name = teacher.Name
 	teacherData.NUPTK = teacher.NUPTK
 	teacherData.Phone = teacher.Phone
