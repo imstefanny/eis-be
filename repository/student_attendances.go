@@ -8,7 +8,7 @@ import (
 )
 
 type StudentAttsRepository interface {
-	BrowseByAcademicID(academicID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error)
+	BrowseByTermID(termID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error)
 	CreateBatch(studentAtts []models.StudentAttendances) error
 	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
 	UpdateByTermID(termID int, studentAtt []models.StudentAttendances) error
@@ -26,13 +26,13 @@ func NewStudentAttsRepository(db *gorm.DB) *studentAttsRepository {
 	return &studentAttsRepository{db}
 }
 
-func (r *studentAttsRepository) BrowseByAcademicID(academicID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error) {
+func (r *studentAttsRepository) BrowseByTermID(termID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error) {
 	var studentAtts []models.StudentAttendances
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
 	query := r.db.
-		Where("academic_id = ?", academicID).
+		Where("term_id = ?", termID).
 		Limit(limit).
 		Offset(offset).
 		Preload("Academic").
@@ -47,7 +47,7 @@ func (r *studentAttsRepository) BrowseByAcademicID(academicID, page, limit int, 
 	if err := query.Find(&studentAtts).Error; err != nil {
 		return nil, 0, err
 	}
-	if err := r.db.Model(&models.StudentAttendances{}).Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).Count(&total).Error; err != nil {
+	if err := r.db.Model(&models.StudentAttendances{}).Where("term_id = ? AND LOWER(display_name) LIKE ?", termID, search).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	return studentAtts, total, nil

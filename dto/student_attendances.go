@@ -24,6 +24,8 @@ type UpdateStudentAttsEntryRequest struct {
 type GetAllStudentAttsRequest struct {
 	AcademicID uint                            `json:"academic_id"`
 	Academic   string                          `json:"academic"`
+	TermID     uint                            `json:"term_id"`
+	Term       string                          `json:"term"`
 	Date       string                          `json:"date"`
 	Students   []GetAllStudentAttsEntryRequest `json:"students"`
 }
