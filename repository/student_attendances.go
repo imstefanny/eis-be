@@ -11,7 +11,7 @@ type StudentAttsRepository interface {
 	BrowseByAcademicID(academicID, page, limit int, search string, date string) ([]models.StudentAttendances, int64, error)
 	CreateBatch(studentAtts []models.StudentAttendances) error
 	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
-	UpdateByAcademicID(academicID int, studentAtt []models.StudentAttendances) error
+	UpdateByTermID(termID int, studentAtt []models.StudentAttendances) error
 	Browse(academicID, levelID, classID int, search, start_date, end_date string) ([]models.StudentAttendances, error)
 
 	// Students specific methods
@@ -75,7 +75,7 @@ func (r *studentAttsRepository) CreateBatch(studentAtts []models.StudentAttendan
 	return nil
 }
 
-func (r *studentAttsRepository) UpdateByAcademicID(academicID int, studentAtts []models.StudentAttendances) error {
+func (r *studentAttsRepository) UpdateByTermID(termID int, studentAtts []models.StudentAttendances) error {
 	query := r.db.Save(studentAtts)
 	if err := query.Error; err != nil {
 		return err

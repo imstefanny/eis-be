@@ -11,6 +11,8 @@ type StudentAttendances struct {
 	DisplayName string         `json:"display_name" gorm:"index"`
 	AcademicID  uint           `json:"academic_id" gorm:"default:null"`
 	Academic    Academics      `json:"academic" gorm:"foreignKey:AcademicID"`
+	TermID      uint           `json:"term_id" gorm:"default:null"`
+	Term        Terms          `json:"term" gorm:"foreignKey:TermID"`
 	StudentID   uint           `json:"student_id" gorm:"default:null"`
 	Student     Students       `json:"student" gorm:"foreignKey:StudentID"`
 	Date        time.Time      `json:"date" gorm:"index"`

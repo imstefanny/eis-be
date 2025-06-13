@@ -78,8 +78,8 @@ func (u *studentAttsController) CreateBatch(c echo.Context) error {
 	})
 }
 
-func (u *studentAttsController) UpdateByAcademicID(c echo.Context) error {
-	academicID, _ := strconv.Atoi(c.Param("academic_id"))
+func (u *studentAttsController) UpdateByTermID(c echo.Context) error {
+	termID, _ := strconv.Atoi(c.Param("term_id"))
 	studentAtt := dto.UpdateStudentAttsRequest{}
 
 	if err := c.Bind(&studentAtt); err != nil {
@@ -88,7 +88,7 @@ func (u *studentAttsController) UpdateByAcademicID(c echo.Context) error {
 		})
 	}
 
-	studentAttUpdated, err := u.useCase.UpdateByAcademicID(academicID, studentAtt)
+	studentAttUpdated, err := u.useCase.UpdateByTermID(termID, studentAtt)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

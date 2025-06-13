@@ -14,7 +14,7 @@ import (
 type StudentAttsUsecase interface {
 	BrowseByAcademicID(academicID, page, limit int, search string, date string) (dto.GetAllStudentAttsRequest, int64, error)
 	CreateBatch(studentAtts dto.CreateBatchStudentAttsRequest) error
-	UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error)
+	UpdateByTermID(termID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error)
 	GetReport(academicID, levelID, classID int, search, start_date, end_date string) (dto.GetStudentAttsReport, error)
 
 	// Students specific methods
@@ -25,13 +25,15 @@ type studentAttsUsecase struct {
 	studentAttsRepository repository.StudentAttsRepository
 	studentsRepository    repository.StudentsRepository
 	academicsRepository   repository.AcademicsRepository
+	termsRepository       repository.TermsRepository
 }
 
-func NewStudentAttsUsecase(studentAttsRepo repository.StudentAttsRepository, studentsRepo repository.StudentsRepository, academicsRepo repository.AcademicsRepository) *studentAttsUsecase {
+func NewStudentAttsUsecase(studentAttsRepo repository.StudentAttsRepository, studentsRepo repository.StudentsRepository, academicsRepo repository.AcademicsRepository, termsRepo repository.TermsRepository) *studentAttsUsecase {
 	return &studentAttsUsecase{
 		studentAttsRepository: studentAttsRepo,
 		studentsRepository:    studentsRepo,
 		academicsRepository:   academicsRepo,
+		termsRepository:       termsRepo,
 	}
 }
 
@@ -122,24 +124,25 @@ func (s *studentAttsUsecase) CreateBatch(studentAtt dto.CreateBatchStudentAttsRe
 	return nil
 }
 
-func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error) {
-	academic, err := s.academicsRepository.Find(academicID)
+func (s *studentAttsUsecase) UpdateByTermID(termID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error) {
+	term, err := s.termsRepository.Find(termID)
 	if err != nil {
-		return dto.GetAllStudentAttsRequest{}, fmt.Errorf("academic with ID %d not found", academicID)
+		return dto.GetAllStudentAttsRequest{}, fmt.Errorf("term with ID %d not found", termID)
 	}
 	parseDate, err := time.Parse("2006-01-02", studentAtt.Date)
 	if err != nil {
 		return dto.GetAllStudentAttsRequest{}, err
 	}
 
-	studentAttsData, err := s.studentAttsRepository.FindByAcademicDate(academicID, parseDate.Format("2006-01-02"))
+	studentAttsData, err := s.studentAttsRepository.FindByAcademicDate(int(term.AcademicID), parseDate.Format("2006-01-02"))
 	if len(studentAttsData) == 0 {
 		toBeCreated := []models.StudentAttendances{}
 		for _, student := range studentAtt.Students {
 			studentDetail, _ := s.studentsRepository.Find(int(student.StudentID))
 			toBeCreated = append(toBeCreated, models.StudentAttendances{
 				DisplayName: studentDetail.FullName,
-				AcademicID:  uint(academicID),
+				TermID:      uint(termID),
+				AcademicID:  term.AcademicID,
 				StudentID:   student.StudentID,
 				Date:        parseDate,
 				Status:      student.Status,
@@ -150,8 +153,8 @@ func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.U
 		}
 		s.studentAttsRepository.CreateBatch(toBeCreated)
 		return dto.GetAllStudentAttsRequest{
-			AcademicID: uint(academicID),
-			Academic:   academic.DisplayName,
+			AcademicID: term.AcademicID,
+			Academic:   term.Academic.DisplayName,
 			Date:       studentAtt.Date,
 			Students:   []dto.GetAllStudentAttsEntryRequest{},
 		}, nil
@@ -172,12 +175,12 @@ func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.U
 		toBeUpdated = append(toBeUpdated, studentAttData)
 	}
 
-	e := s.studentAttsRepository.UpdateByAcademicID(academicID, toBeUpdated)
+	e := s.studentAttsRepository.UpdateByTermID(termID, toBeUpdated)
 	if e != nil {
 		return dto.GetAllStudentAttsRequest{}, e
 	}
 
-	studentAttUpdated, err := s.studentAttsRepository.FindByAcademicDate(academicID, parseDate.Format("2006-01-02"))
+	studentAttUpdated, err := s.studentAttsRepository.FindByAcademicDate(int(term.AcademicID), parseDate.Format("2006-01-02"))
 	if err != nil {
 		return dto.GetAllStudentAttsRequest{}, err
 	}
@@ -203,8 +206,8 @@ func (s *studentAttsUsecase) UpdateByAcademicID(academicID int, studentAtt dto.U
 	}
 
 	response := dto.GetAllStudentAttsRequest{
-		AcademicID: uint(academicID),
-		Academic:   academic.DisplayName,
+		AcademicID: term.AcademicID,
+		Academic:   term.Academic.DisplayName,
 		Date:       studentAtt.Date,
 		Students:   students,
 	}
