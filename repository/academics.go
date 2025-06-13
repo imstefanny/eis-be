@@ -83,6 +83,7 @@ func (r *academicsRepository) Find(id int) (models.Academics, error) {
 	if err := r.db.Preload("Classroom").
 		Preload("Classroom.Level").
 		Preload("HomeroomTeacher").
+		Preload("Terms").
 		Preload("Students").
 		Preload("SubjScheds").
 		Preload("SubjScheds.Teacher").

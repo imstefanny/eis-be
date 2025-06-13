@@ -169,6 +169,14 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		return nil, err
 	}
 
+	terms := []dto.GetTermResponse{}
+	for _, term := range academic.Terms {
+		termResponse := dto.GetTermResponse{
+			ID:   term.ID,
+			Name: term.Name,
+		}
+		terms = append(terms, termResponse)
+	}
 	students := []dto.GetStudentResponse{}
 	for _, student := range academic.Students {
 		response := dto.GetStudentResponse{
@@ -238,6 +246,7 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		Major:             academic.Major,
 		HomeroomTeacherId: academic.HomeroomTeacherID,
 		HomeroomTeacher:   academic.HomeroomTeacher.Name,
+		Terms:             terms,
 		Students:          students,
 		SubjScheds:        schedules,
 		ClassNotes:        classnotes,

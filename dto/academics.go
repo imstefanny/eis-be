@@ -44,12 +44,18 @@ type GetAcademicDetailResponse struct {
 	Major             string                       `json:"major"`
 	HomeroomTeacherId uint                         `json:"homeroom_teacher_id"`
 	HomeroomTeacher   string                       `json:"homeroom_teacher"`
+	Terms             []GetTermResponse            `json:"terms"`
 	Students          []GetStudentResponse         `json:"students"`
 	SubjScheds        []GetSubjectScheduleResponse `json:"subject_schedules"`
 	ClassNotes        []GetClassNoteResponse       `json:"class_notes"`
 	CreatedAt         time.Time                    `json:"created_at"`
 	UpdatedAt         time.Time                    `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt               `json:"deleted_at"`
+}
+
+type GetTermResponse struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
 }
 
 type GetStudentResponse struct {
