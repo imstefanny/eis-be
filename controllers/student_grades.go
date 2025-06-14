@@ -116,7 +116,11 @@ func (u *studentGradesController) GetReport(c echo.Context) error {
 	if err != nil || academicID < 1 {
 		academicID = 0
 	}
-	studentGrades, err := u.useCase.GetReport(academicYear, levelID, academicID)
+	termID, err := strconv.Atoi(c.QueryParam("academic_id"))
+	if err != nil || termID < 1 {
+		termID = 0
+	}
+	studentGrades, err := u.useCase.GetReport(academicYear, levelID, academicID, termID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),

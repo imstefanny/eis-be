@@ -11,7 +11,7 @@ type StudentGradesRepository interface {
 	GetAll(termID int) ([]models.StudentGrades, error)
 	Create(studentGrades []models.StudentGrades) error
 	UpdateByTermID(studentGrades, newStudents []models.StudentGrades) error
-	GetReport(startYear, endYear string, levelID, academicID int) ([]dto.StudentGradesReportQuery, error)
+	GetReport(startYear, endYear string, levelID, academicID, termID int) ([]dto.StudentGradesReportQuery, error)
 
 	// Students specific methods
 	GetStudentScoreByStudent(studentID, termID int) ([]models.StudentGrades, error)
@@ -66,7 +66,7 @@ func (r *studentGradesRepository) UpdateByTermID(studentGrades, newStudents []mo
 	return nil
 }
 
-func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, academicID int) ([]dto.StudentGradesReportQuery, error) {
+func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, academicID, termID int) ([]dto.StudentGradesReportQuery, error) {
 	var studentGrades []dto.StudentGradesReportQuery
 
 	query := r.db.Table("student_grades").
@@ -75,21 +75,25 @@ func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, 
 			students.full_name AS student,
 			students.nis,
 			classrooms.id AS class_id,
-			classrooms.display_name AS class,
+    		CONCAT(classrooms.display_name, " : ", terms.name) AS class,
 			ROUND(AVG(student_grades.final_grade), 2) AS finals
 		`).
-		Joins("JOIN academics ON academics.id = student_grades.academic_id").
+		Joins("JOIN terms ON terms.id = student_grades.term_id").
+		Joins("JOIN academics ON terms.academic_id = academics.id").
 		Joins("JOIN students ON students.id = student_grades.student_id").
 		Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").
 		Where("academics.start_year = ? AND academics.end_year = ?", startYear, endYear).
-		Group("students.id, academics.id").
-		Order("academics.id, finals DESC")
+		Group("students.id, terms.id").
+		Order("terms.id, finals DESC, students.id")
 
 	if levelID > 0 {
 		query = query.Where("classrooms.level_id = ?", levelID)
 	}
 	if academicID > 0 {
 		query = query.Where("student_grades.academic_id = ?", academicID)
+	}
+	if termID > 0 {
+		query = query.Where("student_grades.term_id = ?", termID)
 	}
 	if err := query.Find(&studentGrades).Error; err != nil {
 		return []dto.StudentGradesReportQuery{}, err
@@ -100,28 +104,12 @@ func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, 
 
 // Students specific methods
 func (r *studentGradesRepository) GetStudentScoreByStudent(studentID, termID int) ([]models.StudentGrades, error) {
-	// result := []dto.StudentScoreResponse{}
-	// rawSql := `
-	// 	SELECT
-	// 		subjects.name as subject_name,
-	// 		student_grades.first_month,
-	// 		student_grades.second_month,
-	// 		student_grades.first_quiz,
-	// 		student_grades.second_quiz,
-	// 		student_grades.finals
-	// 	FROM student_grades
-	// 	JOIN students ON students.id = student_grades.student_id
-	// 	JOIN academics ON academics.id = students.current_academic_id AND student_grades.academic_id = academics.id
-	// 	JOIN subject_schedules ON subject_schedules.academic_id = students.current_academic_id AND subject_schedules.subject_id = student_grades.subject_id
-	// 	JOIN subjects ON subjects.id = subject_schedules.subject_id
-	// 	WHERE students.user_id = ?
-	// 	GROUP BY subject_schedules.subject_id, student_grades.first_month, student_grades.second_month, student_grades.first_quiz, student_grades.second_quiz, student_grades.finals
-	// `
-	// if err := r.db.Raw(rawSql, userID).Scan(&result).Error; err != nil {
-	// 	return nil, err
-	// }
 	studentGrades := []models.StudentGrades{}
-	if err := r.db.Preload("Subject").Where("student_id = ? AND term_id = ?", studentID, termID).Order("subject_id").Find(&studentGrades).Error; err != nil {
+	if err := r.db.
+		Preload("Subject").
+		Where("student_id = ? AND term_id = ?", studentID, termID).
+		Order("subject_id").
+		Find(&studentGrades).Error; err != nil {
 		return nil, err
 	}
 	return studentGrades, nil

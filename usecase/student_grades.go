@@ -14,7 +14,7 @@ type StudentGradesUsecase interface {
 	GetAll(termID int) (dto.GetStudentGradesResponse, error)
 	Create(studentGrade dto.CreateStudentGradesRequest) error
 	UpdateByTermID(termID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error)
-	GetReport(academicYear string, levelID, academicID int) ([]dto.StudentGradesReport, error)
+	GetReport(academicYear string, levelID, academicID, termID int) ([]dto.StudentGradesReport, error)
 
 	// Students specific methods
 	GetStudentScoreByStudent(userID, termID int) ([]dto.StudentScoreResponse, error)
@@ -254,13 +254,13 @@ func (s *studentGradesUsecase) UpdateByTermID(termID int, studentGrade dto.Updat
 	return response, nil
 }
 
-func (s *studentGradesUsecase) GetReport(academicYear string, levelID, academicID int) ([]dto.StudentGradesReport, error) {
+func (s *studentGradesUsecase) GetReport(academicYear string, levelID, academicID, termID int) ([]dto.StudentGradesReport, error) {
 	startYear, endYear := "", ""
 	if academicYear != "" {
 		startYear, endYear = academicYear[:4], academicYear[5:9]
 	}
 
-	studentGrades, err := s.studentGradesRepository.GetReport(startYear, endYear, levelID, academicID)
+	studentGrades, err := s.studentGradesRepository.GetReport(startYear, endYear, levelID, academicID, termID)
 	if err != nil {
 		return []dto.StudentGradesReport{}, err
 	}
