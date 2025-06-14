@@ -29,6 +29,7 @@ type CreateBatchClassNotesRequest struct {
 type GetClassNoteResponse struct {
 	ID      uint                        `json:"id"`
 	Date    time.Time                   `json:"date"`
+	TermID  uint                        `json:"term_id"`
 	Entries []GetClassNoteEntryResponse `json:"entries"`
 }
 type GetClassNoteEntryResponse struct {

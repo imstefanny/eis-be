@@ -231,6 +231,7 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		classNote := dto.GetClassNoteResponse{
 			ID:      note.ID,
 			Date:    note.Date,
+			TermID:  note.TermID,
 			Entries: entries,
 		}
 		classnotes = append(classnotes, classNote)
