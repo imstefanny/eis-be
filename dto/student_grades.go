@@ -2,6 +2,7 @@ package dto
 
 type CreateStudentGradesRequest struct {
 	AcademicID uint                               `json:"academic_id" validate:"required"`
+	TermID     uint                               `json:"term_id" validate:"required"`
 	Details    []CreateStudentGradesDetailRequest `json:"details" validate:"required,dive"`
 }
 
@@ -23,6 +24,8 @@ type CreateStudentGradesEntryRequest struct {
 type GetStudentGradesResponse struct {
 	AcademicID uint                             `json:"academic_id"`
 	Academic   string                           `json:"academic"`
+	TermID     uint                             `json:"term_id"`
+	Term       string                           `json:"term"`
 	Details    []GetStudentGradesDetailResponse `json:"details"`
 }
 type GetStudentGradesDetailResponse struct {
@@ -46,6 +49,7 @@ type GetStudentGradesEntryResponse struct {
 
 type UpdateStudentGradesRequest struct {
 	AcademicID uint                               `json:"academic_id" validate:"required"`
+	TermID     uint                               `json:"term_id" validate:"required"`
 	Details    []UpdateStudentGradesDetailRequest `json:"details" validate:"required,dive"`
 }
 type UpdateStudentGradesDetailRequest struct {

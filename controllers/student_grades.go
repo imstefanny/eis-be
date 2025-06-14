@@ -22,14 +22,14 @@ func NewStudentGradesController(studentGradesUsecase usecase.StudentGradesUsecas
 }
 
 func (u *studentGradesController) GetAll(c echo.Context) error {
-	academicID, err := strconv.Atoi(c.Param("academic_id"))
-	if err != nil || academicID < 1 {
+	termID, err := strconv.Atoi(c.Param("term_id"))
+	if err != nil || termID < 1 {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "Invalid academic ID",
+			"error": "Invalid term ID",
 		})
 	}
 
-	studentGrades, err := u.useCase.GetAll(academicID)
+	studentGrades, err := u.useCase.GetAll(termID)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -64,11 +64,11 @@ func (u *studentGradesController) Create(c echo.Context) error {
 	})
 }
 
-func (u *studentGradesController) UpdateByAcademicID(c echo.Context) error {
-	academicID, err := strconv.Atoi(c.Param("academic_id"))
-	if err != nil || academicID < 1 {
+func (u *studentGradesController) UpdateByTermID(c echo.Context) error {
+	termID, err := strconv.Atoi(c.Param("term_id"))
+	if err != nil || termID < 1 {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "Invalid academic ID",
+			"error": "Invalid term ID",
 		})
 	}
 
@@ -80,13 +80,13 @@ func (u *studentGradesController) UpdateByAcademicID(c echo.Context) error {
 		})
 	}
 
-	if studentGrade.AcademicID != uint(academicID) {
+	if studentGrade.TermID != uint(termID) {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "Academic ID mismatch",
+			"error": "Term ID mismatch",
 		})
 	}
 
-	studentGradeUpdated, err := u.useCase.UpdateByAcademicID(academicID, studentGrade)
+	studentGradeUpdated, err := u.useCase.UpdateByTermID(termID, studentGrade)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

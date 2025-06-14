@@ -8,9 +8,9 @@ import (
 )
 
 type StudentGradesRepository interface {
-	GetAll(academicID int) ([]models.StudentGrades, error)
+	GetAll(termID int) ([]models.StudentGrades, error)
 	Create(studentGrades []models.StudentGrades) error
-	UpdateByAcademicID(studentGrades, newStudents []models.StudentGrades) error
+	UpdateByTermID(studentGrades, newStudents []models.StudentGrades) error
 	GetReport(startYear, endYear string, levelID, academicID int) ([]dto.StudentGradesReportQuery, error)
 }
 
@@ -22,10 +22,11 @@ func NewStudentGradesRepository(db *gorm.DB) *studentGradesRepository {
 	return &studentGradesRepository{db}
 }
 
-func (r *studentGradesRepository) GetAll(academicID int) ([]models.StudentGrades, error) {
+func (r *studentGradesRepository) GetAll(termID int) ([]models.StudentGrades, error) {
 	var studentGrades []models.StudentGrades
-	if err := r.db.Where("academic_id = ?", academicID).
+	if err := r.db.Where("term_id = ?", termID).
 		Preload("Academic").
+		Preload("Term").
 		Preload("Student").
 		Preload("Subject").
 		Find(&studentGrades).Error; err != nil {
@@ -42,7 +43,7 @@ func (r *studentGradesRepository) Create(studentGrades []models.StudentGrades) e
 	return nil
 }
 
-func (r *studentGradesRepository) UpdateByAcademicID(studentGrades, newStudents []models.StudentGrades) error {
+func (r *studentGradesRepository) UpdateByTermID(studentGrades, newStudents []models.StudentGrades) error {
 	err := r.db.Transaction(func(tx *gorm.DB) error {
 		if len(newStudents) > 0 {
 			if err := tx.Create(&newStudents).Error; err != nil {
