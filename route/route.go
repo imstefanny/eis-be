@@ -209,8 +209,6 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eStudents := e.Group("/students")
 	eStudents.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eStudents.GET("", studentsController.Browse)
-	eStudents.GET("/my", studentsController.GetByToken)
-	eStudents.GET("/score", studentsController.GetStudentScoreByToken)
 	eStudents.GET("/:id", studentsController.Find)
 	eStudents.POST("", studentsController.Create)
 	eStudents.PUT("/:id", studentsController.Update)
@@ -295,6 +293,9 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	sStudents := eStudents.Group("/my")
 	sStudents.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	sStudents.GET("", studentsController.GetByToken)
+	sStudents.GET("/academics", academicsController.GetAcademicsByStudent)
 	sStudents.GET("/attendances", studentAttsController.GetAttendanceByStudent)
 	sStudents.GET("/schedules", subjSchedsController.GetScheduleByStudent)
+	sStudents.GET("/:academic_id/:term_id/scores", studentGradesController.GetStudentScoreByStudent)
 }

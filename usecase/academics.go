@@ -16,6 +16,9 @@ type AcademicsUsecase interface {
 	Find(id int) (interface{}, error)
 	Update(id int, academic dto.CreateAcademicsRequest) (models.Academics, error)
 	Delete(id int) error
+
+	// Students specific methods
+	GetAcademicsByStudent(userID int) ([]dto.StudentGetAcademicsResponse, error)
 }
 
 type academicsUsecase struct {
@@ -312,4 +315,39 @@ func (s *academicsUsecase) Delete(id int) error {
 	}
 
 	return nil
+}
+
+// Students specific methods
+func (s *academicsUsecase) GetAcademicsByStudent(userID int) ([]dto.StudentGetAcademicsResponse, error) {
+	student, err := s.studentsRepository.GetByToken(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	academics, err := s.academicsRepository.GetAcademicsByStudent(int(student.ID))
+	if err != nil {
+		return nil, err
+	}
+
+	responses := []dto.StudentGetAcademicsResponse{}
+	for _, academic := range academics {
+		terms := []dto.StudentGetTermResponse{}
+		for _, term := range academic.Terms {
+			terms = append(terms, dto.StudentGetTermResponse{
+				ID:          term.ID,
+				DisplayName: academic.DisplayName + " - " + term.Name,
+				Name:        term.Name,
+			})
+		}
+		response := dto.StudentGetAcademicsResponse{
+			ID:          academic.ID,
+			DisplayName: academic.DisplayName,
+			StartYear:   academic.StartYear,
+			EndYear:     academic.EndYear,
+			Terms:       terms,
+		}
+		responses = append(responses, response)
+	}
+
+	return responses, nil
 }

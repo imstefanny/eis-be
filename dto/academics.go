@@ -63,3 +63,16 @@ type GetStudentResponse struct {
 	FullName string `json:"full_name"`
 	NIS      string `json:"nis"`
 }
+
+type StudentGetAcademicsResponse struct {
+	ID          uint                     `json:"id"`
+	DisplayName string                   `json:"display_name"`
+	StartYear   string                   `json:"start_year"`
+	EndYear     string                   `json:"end_year"`
+	Terms       []StudentGetTermResponse `json:"terms"`
+}
+type StudentGetTermResponse struct {
+	ID          uint   `json:"id"`
+	DisplayName string `json:"display_name"`
+	Name        string `json:"name"`
+}

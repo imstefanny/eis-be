@@ -15,6 +15,9 @@ type AcademicsRepository interface {
 	Find(id int) (models.Academics, error)
 	Update(id int, academic models.Academics) error
 	Delete(id int) error
+
+	// Students specific methods
+	GetAcademicsByStudent(studentID int) ([]models.Academics, error)
 }
 
 type academicsRepository struct {
@@ -118,4 +121,17 @@ func (r *academicsRepository) Delete(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (r *academicsRepository) GetAcademicsByStudent(studentID int) ([]models.Academics, error) {
+	academics := []models.Academics{}
+	if err := r.db.Table("academics").
+		Select("academics.*").
+		Joins("JOIN academic_students ON academic_students.academics_id = academics.id").
+		Where("students_id = ?", studentID).
+		Preload("Terms").
+		Find(&academics).Error; err != nil {
+		return nil, err
+	}
+	return academics, nil
 }
