@@ -12,7 +12,7 @@ type StudentAttsRepository interface {
 	CreateBatch(studentAtts []models.StudentAttendances) error
 	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
 	UpdateByTermID(termID int, studentAtt []models.StudentAttendances) error
-	Browse(academicID, levelID, classID int, search, start_date, end_date string) ([]models.StudentAttendances, error)
+	Browse(academicID, levelID, classID, termID int, search, start_date, end_date string) ([]models.StudentAttendances, error)
 
 	// Students specific methods
 	GetAttendanceByStudent(studentID int, start, end string) ([]models.StudentAttendances, error)
@@ -83,7 +83,7 @@ func (r *studentAttsRepository) UpdateByTermID(termID int, studentAtts []models.
 	return nil
 }
 
-func (r *studentAttsRepository) Browse(academicID, levelID, classID int, search, start_date, end_date string) ([]models.StudentAttendances, error) {
+func (r *studentAttsRepository) Browse(academicID, levelID, classID, termID int, search, start_date, end_date string) ([]models.StudentAttendances, error) {
 	var studentAtts []models.StudentAttendances
 	search = "%" + strings.ToLower(search) + "%"
 
@@ -96,10 +96,16 @@ func (r *studentAttsRepository) Browse(academicID, levelID, classID int, search,
 		query = query.Where("academic_id = ?", academicID)
 	}
 	if levelID > 0 {
-		query = query.Joins("JOIN academics ON academics.id = student_attendances.academic_id").Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").Where("classrooms.level_id = ?", levelID)
+		query = query.
+			Joins("JOIN academics ON academics.id = student_attendances.academic_id").
+			Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").
+			Where("classrooms.level_id = ?", levelID)
 	}
 	if classID > 0 {
 		query = query.Where("class_id = ?", classID)
+	}
+	if termID > 0 {
+		query = query.Where("term_id = ?", termID)
 	}
 	if search != "" {
 		query = query.Where("LOWER(student_attendances.display_name) LIKE ?", search)
