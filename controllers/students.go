@@ -158,28 +158,6 @@ func (u *studentsController) UpdateStudentAcademicId(c echo.Context) error {
 	})
 }
 
-func (u *studentsController) GetStudentScoreByToken(c echo.Context) error {
-	claims, errToken := helpers.GetTokenClaims(c)
-	if errToken != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": errToken.Error(),
-		})
-	}
-
-	var id int = int(claims["userId"].(float64))
-	scores, err := u.useCase.GetStudentScoreByUserId(id)
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": scores,
-	})
-}
-
 func (u *studentsController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 

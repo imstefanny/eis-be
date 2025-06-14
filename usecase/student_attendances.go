@@ -285,7 +285,7 @@ func (s *studentAttsUsecase) GetReport(academicID, levelID, classID int, search,
 func (s *studentAttsUsecase) GetAttendanceByStudent(id, month int) (dto.StudentGetAttendancesResponse, error) {
 	student, err := s.studentsRepository.GetByToken(id)
 	if err != nil {
-		return dto.StudentGetAttendancesResponse{}, fmt.Errorf("student with ID %d not found", id)
+		return dto.StudentGetAttendancesResponse{}, fmt.Errorf("student with user ID %d not found", id)
 	}
 
 	loc, _ := time.LoadLocation("Asia/Jakarta")

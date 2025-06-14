@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"eis-be/dto"
+	"eis-be/helpers"
 	"eis-be/usecase"
 
 	"github.com/labstack/echo/v4"
@@ -123,5 +124,34 @@ func (u *studentGradesController) GetReport(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data": studentGrades,
+	})
+}
+
+// Students specific methods
+func (u *studentGradesController) GetStudentScoreByStudent(c echo.Context) error {
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	userID := int(claims["userId"].(float64))
+	termID, err := strconv.Atoi(c.Param("term_id"))
+	if err != nil || termID < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid term ID",
+		})
+	}
+	scores, err := u.useCase.GetStudentScoreByStudent(userID, termID)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": scores,
 	})
 }

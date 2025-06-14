@@ -12,6 +12,9 @@ type StudentGradesRepository interface {
 	Create(studentGrades []models.StudentGrades) error
 	UpdateByTermID(studentGrades, newStudents []models.StudentGrades) error
 	GetReport(startYear, endYear string, levelID, academicID int) ([]dto.StudentGradesReportQuery, error)
+
+	// Students specific methods
+	GetStudentScoreByStudent(studentID, termID int) ([]models.StudentGrades, error)
 }
 
 type studentGradesRepository struct {
@@ -92,5 +95,34 @@ func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, 
 		return []dto.StudentGradesReportQuery{}, err
 	}
 
+	return studentGrades, nil
+}
+
+// Students specific methods
+func (r *studentGradesRepository) GetStudentScoreByStudent(studentID, termID int) ([]models.StudentGrades, error) {
+	// result := []dto.StudentScoreResponse{}
+	// rawSql := `
+	// 	SELECT
+	// 		subjects.name as subject_name,
+	// 		student_grades.first_month,
+	// 		student_grades.second_month,
+	// 		student_grades.first_quiz,
+	// 		student_grades.second_quiz,
+	// 		student_grades.finals
+	// 	FROM student_grades
+	// 	JOIN students ON students.id = student_grades.student_id
+	// 	JOIN academics ON academics.id = students.current_academic_id AND student_grades.academic_id = academics.id
+	// 	JOIN subject_schedules ON subject_schedules.academic_id = students.current_academic_id AND subject_schedules.subject_id = student_grades.subject_id
+	// 	JOIN subjects ON subjects.id = subject_schedules.subject_id
+	// 	WHERE students.user_id = ?
+	// 	GROUP BY subject_schedules.subject_id, student_grades.first_month, student_grades.second_month, student_grades.first_quiz, student_grades.second_quiz, student_grades.finals
+	// `
+	// if err := r.db.Raw(rawSql, userID).Scan(&result).Error; err != nil {
+	// 	return nil, err
+	// }
+	studentGrades := []models.StudentGrades{}
+	if err := r.db.Preload("Subject").Where("student_id = ? AND term_id = ?", studentID, termID).Order("subject_id").Find(&studentGrades).Error; err != nil {
+		return nil, err
+	}
 	return studentGrades, nil
 }

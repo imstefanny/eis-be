@@ -15,6 +15,9 @@ type StudentGradesUsecase interface {
 	Create(studentGrade dto.CreateStudentGradesRequest) error
 	UpdateByTermID(termID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error)
 	GetReport(academicYear string, levelID, academicID int) ([]dto.StudentGradesReport, error)
+
+	// Students specific methods
+	GetStudentScoreByStudent(userID, termID int) ([]dto.StudentScoreResponse, error)
 }
 
 type studentGradesUsecase struct {
@@ -289,6 +292,34 @@ func (s *studentGradesUsecase) GetReport(academicYear string, levelID, academicI
 			Class:    class,
 			Average:  math.Round(average*100) / 100,
 			Students: students,
+		})
+	}
+	return responses, nil
+}
+
+// Students specific methods
+func (s *studentGradesUsecase) GetStudentScoreByStudent(userID, termID int) ([]dto.StudentScoreResponse, error) {
+	student, err := s.studentsRepository.GetByToken(userID)
+	if err != nil {
+		return []dto.StudentScoreResponse{}, fmt.Errorf("student with user ID %d not found", userID)
+	}
+
+	studentScores, err := s.studentGradesRepository.GetStudentScoreByStudent(int(student.ID), termID)
+	if err != nil {
+		return nil, err
+	}
+
+	responses := []dto.StudentScoreResponse{}
+	for _, score := range studentScores {
+		responses = append(responses, dto.StudentScoreResponse{
+			SubjectName: score.Subject.Name,
+			FirstQuiz:   score.FirstQuiz,
+			SecondQuiz:  score.SecondQuiz,
+			FirstMonth:  score.FirstMonth,
+			SecondMonth: score.SecondMonth,
+			Finals:      score.Finals,
+			FinalGrade:  score.FinalGrade,
+			Remarks:     score.Remarks,
 		})
 	}
 	return responses, nil

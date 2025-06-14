@@ -75,6 +75,8 @@ type StudentScoreResponse struct {
 	FirstQuiz   float64 `json:"first_quiz"`
 	SecondQuiz  float64 `json:"second_quiz"`
 	Finals      float64 `json:"finals"`
+	FinalGrade  float64 `json:"final_grade"`
+	Remarks     string  `json:"remarks"`
 }
 
 type StudentGradesReport struct {

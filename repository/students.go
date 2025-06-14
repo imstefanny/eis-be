@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"eis-be/dto"
 	"eis-be/models"
 	"strings"
 
@@ -13,7 +12,6 @@ type StudentsRepository interface {
 	Create(students models.Students) (uint, error)
 	GetByIds(ids []int) ([]models.Students, error)
 	GetByToken(id int) (models.Students, error)
-	GetStudentScoreByUserId(userId int) (interface{}, error)
 	Find(id int) (models.Students, error)
 	Update(id int, student models.Students) error
 	UpdateStudentAcademicId(academic_id int, student []uint) error
@@ -64,6 +62,7 @@ func (r *studentsRepository) GetByToken(id int) (models.Students, error) {
 	if err := r.db.Where("user_id = ?", id).
 		Preload("Guardians").
 		Preload("Academics").
+		Preload("Academics.Terms").
 		Preload("Academics.Classroom").
 		Preload("Academics.HomeroomTeacher").
 		Preload("User").
@@ -72,30 +71,6 @@ func (r *studentsRepository) GetByToken(id int) (models.Students, error) {
 		return student, err
 	}
 	return student, nil
-}
-
-func (r *studentsRepository) GetStudentScoreByUserId(userId int) (interface{}, error) {
-	result := []dto.StudentScoreResponse{}
-	rawSql := `
-		SELECT
-			subjects.name as subject_name,
-			student_grades.first_month,
-			student_grades.second_month,
-			student_grades.first_quiz,
-			student_grades.second_quiz,
-			student_grades.finals
-		FROM student_grades 
-		JOIN students ON students.id = student_grades.student_id
-		JOIN academics ON academics.id = students.current_academic_id AND student_grades.academic_id = academics.id
-		JOIN subject_schedules ON subject_schedules.academic_id = students.current_academic_id AND subject_schedules.subject_id = student_grades.subject_id
-		JOIN subjects ON subjects.id = subject_schedules.subject_id
-		WHERE students.user_id = ?
-		GROUP BY subject_schedules.subject_id, student_grades.first_month, student_grades.second_month, student_grades.first_quiz, student_grades.second_quiz, student_grades.finals
-	`
-	if err := r.db.Raw(rawSql, userId).Scan(&result).Error; err != nil {
-		return nil, err
-	}
-	return result, nil
 }
 
 func (r *studentsRepository) GetByIds(ids []int) ([]models.Students, error) {
