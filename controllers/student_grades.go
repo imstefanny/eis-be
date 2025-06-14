@@ -116,7 +116,7 @@ func (u *studentGradesController) GetReport(c echo.Context) error {
 	if err != nil || academicID < 1 {
 		academicID = 0
 	}
-	termID, err := strconv.Atoi(c.QueryParam("academic_id"))
+	termID, err := strconv.Atoi(c.QueryParam("term_id"))
 	if err != nil || termID < 1 {
 		termID = 0
 	}

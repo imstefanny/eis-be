@@ -66,6 +66,7 @@ func (s *academicsUsecase) Browse(page, limit int, search, academicYear string) 
 			Major:           academic.Major,
 			HomeroomTeacher: academic.HomeroomTeacher.Name,
 			Students:        len(academic.Students),
+			Terms:					 academic.Terms,
 			CreatedAt:       academic.CreatedAt,
 			UpdatedAt:       academic.UpdatedAt,
 			DeletedAt:       academic.DeletedAt,

@@ -45,6 +45,7 @@ func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear
 		Preload("Classroom.Level").
 		Preload("HomeroomTeacher").
 		Preload("Students").
+		Preload("Terms").
 		Find(&academics).Error; err != nil {
 		return nil, 0, err
 	}
