@@ -27,8 +27,8 @@ type Academics struct {
 
 type Terms struct {
 	ID         uint           `json:"id" gorm:"primaryKey"`
-	Name       string         `json:"name"`
-	AcademicID uint           `json:"academic_id"`
+	Name       string         `json:"name" gorm:"size:255;uniqueIndex:academic_term"`
+	AcademicID uint           `json:"academic_id" gorm:"size:255;uniqueIndex:academic_term"`
 	Academic   Academics      `json:"academic" gorm:"foreignKey:AcademicID"`
 	CreatedAt  time.Time      `json:"created_at"`
 	UpdatedAt  time.Time      `json:"updated_at"`
