@@ -8,7 +8,6 @@ import (
 
 type CreateClassNotesRequest struct {
 	AcademicID uint                             `json:"academic_id" validate:"required"`
-	TermID     uint                             `json:"term_id" validate:"required"`
 	Date       string                           `json:"date" validate:"required"`
 	Details    []CreateClassNotesDetailsRequest `json:"details" validate:"required"`
 }
@@ -29,7 +28,6 @@ type CreateBatchClassNotesRequest struct {
 type GetClassNoteResponse struct {
 	ID      uint                        `json:"id"`
 	Date    time.Time                   `json:"date"`
-	TermID  uint                        `json:"term_id"`
 	Entries []GetClassNoteEntryResponse `json:"entries"`
 }
 type GetClassNoteEntryResponse struct {
@@ -47,7 +45,6 @@ type GetClassNoteEntryResponse struct {
 type GetClassNotesResponse struct {
 	ID             uint                          `json:"id"`
 	AcademicID     uint                          `json:"academic_id"`
-	TermID         uint                          `json:"term_id"`
 	Date           time.Time                     `json:"date"`
 	Details        []GetClassNoteEntryResponse   `json:"details"`
 	AbsenceCount   []GetClassNoteAbsenceResponse `json:"absence_count"`
@@ -74,8 +71,6 @@ type BrowseClassNotesResponse struct {
 	DisplayName string         `json:"display_name"`
 	AcademicID  uint           `json:"academic_id"`
 	Academic    string         `json:"academic"`
-	TermID      uint           `json:"term_id"`
-	Term        string         `json:"term"`
 	Date        time.Time      `json:"date"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

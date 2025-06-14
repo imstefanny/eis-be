@@ -278,8 +278,8 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eClassNotes.PUT("/detail/:id", classNotesController.UpdateDetail)
 	eClassNotes.DELETE("/:id", classNotesController.Delete)
 
-	eAcademicNotes := eAcademics.Group("/:academic_id/:term_id/classnotes")
-	eAcademicNotes.GET("", classNotesController.BrowseByTermID)
+	eAcademicNotes := eAcademics.Group("/:academic_id/classnotes")
+	eAcademicNotes.GET("", classNotesController.BrowseByAcademicID)
 
 	eAcademicGrades := eAcademics.Group("/:academic_id/:term_id/grades")
 	eAcademicGrades.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

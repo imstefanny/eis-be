@@ -11,8 +11,6 @@ type ClassNotes struct {
 	DisplayName string              `json:"display_name" gorm:"default:null"`
 	AcademicID  uint                `json:"academic_id" gorm:"default:null"`
 	Academic    Academics           `json:"academic" gorm:"foreignKey:AcademicID"`
-	TermID      uint                `json:"term_id" gorm:"default:null"`
-	Term        Terms               `json:"term" gorm:"foreignKey:TermID"`
 	Date        time.Time           `json:"date"`
 	Details     []ClassNotesDetails `json:"details" gorm:"foreignKey:NoteID"`
 	CreatedAt   time.Time           `json:"created_at"`
