@@ -9,7 +9,7 @@ import (
 
 type ClassNotesRepository interface {
 	Browse(page, limit int, search string) ([]models.ClassNotes, int64, error)
-	BrowseByAcademicID(academicID, page, limit int, search string) ([]models.ClassNotes, int64, error)
+	BrowseByTermID(termID, page, limit int, search string) ([]models.ClassNotes, int64, error)
 	Create(classNotes models.ClassNotes) error
 	CreateBatch(classNotes []models.ClassNotes) error
 	Find(id int) (models.ClassNotes, error)
@@ -36,7 +36,7 @@ func (r *classNotesRepository) Browse(page, limit int, search string) ([]models.
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Find(&classNotes).Error; err != nil {
+	if err := r.db.Where("LOWER(display_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Term").Preload("Academic").Find(&classNotes).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.ClassNotes{}).Where("LOWER(display_name) LIKE ?", search).Count(&total).Error; err != nil {
@@ -45,12 +45,12 @@ func (r *classNotesRepository) Browse(page, limit int, search string) ([]models.
 	return classNotes, total, nil
 }
 
-func (r *classNotesRepository) BrowseByAcademicID(academicID, page, limit int, search string) ([]models.ClassNotes, int64, error) {
+func (r *classNotesRepository) BrowseByTermID(termID, page, limit int, search string) ([]models.ClassNotes, int64, error) {
 	var classNotes []models.ClassNotes
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).
+	if err := r.db.Where("term_id = ? AND LOWER(display_name) LIKE ?", termID, search).
 		Limit(limit).
 		Offset(offset).
 		Preload("Academic").
@@ -61,7 +61,7 @@ func (r *classNotesRepository) BrowseByAcademicID(academicID, page, limit int, s
 		Find(&classNotes).Error; err != nil {
 		return nil, 0, err
 	}
-	if err := r.db.Model(&models.ClassNotes{}).Where("academic_id = ? AND LOWER(display_name) LIKE ?", academicID, search).Count(&total).Error; err != nil {
+	if err := r.db.Model(&models.ClassNotes{}).Where("term_id = ? AND LOWER(display_name) LIKE ?", termID, search).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	return classNotes, total, nil

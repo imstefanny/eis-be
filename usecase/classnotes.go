@@ -13,7 +13,7 @@ import (
 
 type ClassNotesUsecase interface {
 	Browse(page, limit int, search string) ([]dto.BrowseClassNotesResponse, int64, error)
-	BrowseByAcademicID(academicID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error)
+	BrowseByTermID(termID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error)
 	Create(classNote dto.CreateClassNotesRequest) error
 	CreateBatch(classNote dto.CreateBatchClassNotesRequest) error
 	Find(id int) (dto.GetClassNotesResponse, error)
@@ -60,15 +60,13 @@ func (s *classNotesUsecase) Browse(page, limit int, search string) ([]dto.Browse
 
 	responses := []dto.BrowseClassNotesResponse{}
 	for _, classNote := range classNotes {
-		academic, err := s.academicsRepository.Find(int(classNote.AcademicID))
-		if err != nil {
-			return nil, total, err
-		}
 		response := dto.BrowseClassNotesResponse{
 			ID:          classNote.ID,
 			DisplayName: classNote.DisplayName,
 			AcademicID:  classNote.AcademicID,
-			Academic:    academic.DisplayName,
+			Academic:    classNote.Academic.DisplayName,
+			TermID:      classNote.TermID,
+			Term:        classNote.Term.Name,
 			Date:        classNote.Date,
 			CreatedAt:   classNote.CreatedAt,
 			UpdatedAt:   classNote.UpdatedAt,
@@ -80,8 +78,8 @@ func (s *classNotesUsecase) Browse(page, limit int, search string) ([]dto.Browse
 	return responses, total, nil
 }
 
-func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error) {
-	classNotes, total, err := s.classNotesRepository.BrowseByAcademicID(academicID, page, limit, search)
+func (s *classNotesUsecase) BrowseByTermID(termID, page, limit int, search string) ([]dto.GetClassNotesResponse, int64, error) {
+	classNotes, total, err := s.classNotesRepository.BrowseByTermID(termID, page, limit, search)
 
 	if err != nil {
 		return nil, total, err
@@ -104,7 +102,7 @@ func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, sear
 			}
 			details = append(details, detailData)
 		}
-		absences, _ := s.studentAttsRepository.FindByAcademicDate(academicID, classNote.Date.Format("2006-01-02"))
+		absences, _ := s.studentAttsRepository.FindByAcademicDate(int(classNote.AcademicID), classNote.Date.Format("2006-01-02"))
 		absenceCount := []dto.GetClassNoteAbsenceResponse{}
 		absenceDetails := []dto.GetClassNoteAbsenceDetails{}
 		absenceCountMap := make(map[string]int)
@@ -130,6 +128,7 @@ func (s *classNotesUsecase) BrowseByAcademicID(academicID, page, limit int, sear
 		responses = append(responses, dto.GetClassNotesResponse{
 			ID:             classNote.ID,
 			AcademicID:     classNote.AcademicID,
+			TermID:         classNote.TermID,
 			Date:           classNote.Date,
 			Details:        details,
 			AbsenceCount:   absenceCount,
@@ -176,6 +175,7 @@ func (s *classNotesUsecase) Create(classNote dto.CreateClassNotesRequest) error 
 	classNoteData := models.ClassNotes{
 		DisplayName: academic.DisplayName + " - " + classNote.Date,
 		AcademicID:  classNote.AcademicID,
+		TermID:      classNote.TermID,
 		Date:        parsedDate,
 		Details:     details,
 	}

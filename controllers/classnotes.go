@@ -51,11 +51,11 @@ func (u *classNotesController) Browse(c echo.Context) error {
 	})
 }
 
-func (u *classNotesController) BrowseByAcademicID(c echo.Context) error {
-	academicID, err := strconv.Atoi(c.Param("academic_id"))
-	if err != nil || academicID < 1 {
+func (u *classNotesController) BrowseByTermID(c echo.Context) error {
+	termID, err := strconv.Atoi(c.Param("term_id"))
+	if err != nil || termID < 1 {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "Invalid academic ID",
+			"error": "Invalid term ID",
 		})
 	}
 
@@ -71,7 +71,7 @@ func (u *classNotesController) BrowseByAcademicID(c echo.Context) error {
 
 	search := c.QueryParam("search")
 
-	classNotes, total, err := u.useCase.BrowseByAcademicID(academicID, page, limit, search)
+	classNotes, total, err := u.useCase.BrowseByTermID(termID, page, limit, search)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
