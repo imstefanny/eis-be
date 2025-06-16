@@ -23,17 +23,17 @@ type CreateBatchAcademicsRequest struct {
 }
 
 type GetAcademicsResponse struct {
-	ID              uint           			`json:"id"`
-	DisplayName     string         			`json:"display_name"`
-	Classroom       string         			`json:"classroom"`
-	LevelName       string         			`json:"level_name"`
-	Major           string         			`json:"major"`
-	HomeroomTeacher string         			`json:"homeroom_teacher"`
-	Students        int            			`json:"students"`
-	Terms          	[]models.Terms   		`json:"terms"`
-	CreatedAt       time.Time      			`json:"created_at"`
-	UpdatedAt       time.Time      			`json:"updated_at"`
-	DeletedAt       gorm.DeletedAt 			`json:"deleted_at"`
+	ID              uint              `json:"id"`
+	DisplayName     string            `json:"display_name"`
+	Classroom       string            `json:"classroom"`
+	LevelName       string            `json:"level_name"`
+	Major           string            `json:"major"`
+	HomeroomTeacher string            `json:"homeroom_teacher"`
+	Students        []models.Students `json:"students"`
+	Terms           []models.Terms    `json:"terms"`
+	CreatedAt       time.Time         `json:"created_at"`
+	UpdatedAt       time.Time         `json:"updated_at"`
+	DeletedAt       gorm.DeletedAt    `json:"deleted_at"`
 }
 
 type GetAcademicDetailResponse struct {
