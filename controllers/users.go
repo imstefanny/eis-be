@@ -39,7 +39,7 @@ func (u *usersController) Register(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"data": user,
+		"data": "Data created successfully",
 	})
 }
 
@@ -55,8 +55,8 @@ func (u *usersController) Login(c echo.Context) error {
 	userResponse, err := u.useCase.Login(user)
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": "Invalid email or password",
+		return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"error": err.Error(),
 		})
 	}
 
