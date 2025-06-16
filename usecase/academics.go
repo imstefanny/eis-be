@@ -137,16 +137,15 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 
 	academicsData := []models.Academics{}
 
-	terms := []models.Terms{
-		{
-			Name: "Semester 1",
-		},
-		{
-			Name: "Semester 2",
-		},
-	}
-
 	for _, classroom := range classrooms {
+		terms := []models.Terms{
+			{
+				Name: "Semester 1",
+			},
+			{
+				Name: "Semester 2",
+			},
+		}
 		academic := models.Academics{
 			DisplayName: "T.A." + batch.StartYear + "/" + batch.EndYear + " - " + classroom.DisplayName,
 			StartYear:   batch.StartYear,
