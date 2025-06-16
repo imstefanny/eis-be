@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -65,11 +66,12 @@ func (s *studentsUsecase) Create(student dto.CreateStudentsRequest, c echo.Conte
 		return 0, edate
 	}
 
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("123456"), bcrypt.DefaultCost)
 	role, _ := s.rolesRepository.FindByName("Student")
 	userData := models.Users{
 		Name:       student.FullName,
 		Email:      student.Email,
-		Password:   "123456",
+		Password:   string(hashedPassword),
 		RoleID:     role.ID,
 		ProfilePic: student.ProfilePic,
 	}
