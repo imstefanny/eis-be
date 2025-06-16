@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -85,12 +86,13 @@ func (s *teachersUsecase) Create(teacher dto.CreateTeachersRequest, claims jwt.M
 		}
 	}()
 
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("123456"), bcrypt.DefaultCost)
 	userData := models.Users{
 		ProfilePic: teacher.ProfilePic,
 		Name:       teacher.Name,
 		Email:      teacher.Email,
 		RoleID:     teacher.RoleID,
-		Password:   "123456",
+		Password:   string(hashedPassword),
 	}
 	userID, eUser := s.usersRepository.Create(tx, userData)
 	if eUser != nil {

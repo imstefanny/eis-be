@@ -5,6 +5,7 @@ import (
 	"eis-be/models"
 	"fmt"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -220,10 +221,11 @@ func PopulateSuperAdmin() {
 	}
 	role := models.Roles{}
 	_ = DB.Model(&role).Where("name LIKE ?", "Admin").First(&role).Error
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("superadmin2025!!!"), bcrypt.DefaultCost)
 	user := models.Users{
 		Name:     "Administrator",
 		Email:    "admin-eis@gmail.com",
-		Password: "superadmin2025!!!",
+		Password: string(hashedPassword),
 		RoleID:   role.ID,
 	}
 	if err := DB.Create(&user).Error; err != nil {

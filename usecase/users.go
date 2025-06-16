@@ -7,9 +7,11 @@ import (
 	"eis-be/models"
 	"eis-be/repository"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"github.com/go-playground/validator/v10"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -32,7 +34,7 @@ func NewUsersUsecase(usersRepo repository.UsersRepository, rolesRepo repository.
 	return &usersUsecase{
 		usersRepository: usersRepo,
 		rolesRepository: rolesRepo,
-		db: db,
+		db:              db,
 	}
 }
 
@@ -58,16 +60,20 @@ func (s *usersUsecase) Register(data dto.RegisterUsersRequest) error {
 		return e
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
 	role, _ := s.rolesRepository.FindByName("Applicant")
 	userData := models.Users{
 		ProfilePic: data.ProfilePic,
 		Name:       data.Name,
 		Email:      data.Email,
-		Password:   data.Password,
+		Password:   string(hashedPassword),
 		RoleID:     role.ID,
 	}
 
-	_, err := s.usersRepository.Create(s.db, userData)
+	_, err = s.usersRepository.Create(s.db, userData)
 
 	if err != nil {
 		return err
@@ -84,14 +90,18 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 	}
 
 	userData := models.Users{
-		Email:    data.Email,
-		Password: data.Password,
+		Email: data.Email,
 	}
 
 	user, err := s.usersRepository.Login(userData)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Invalid email")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
+	if err != nil {
+		return nil, fmt.Errorf("Invalid password")
 	}
 
 	token, err := middlewares.CreateToken(user.Email, user.ID)
