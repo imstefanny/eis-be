@@ -34,11 +34,17 @@ func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
 
-	query := r.db.Where("LOWER(display_name) LIKE ?", search)
+	query := r.db.Model(&models.Academics{})
+	query = query.Where("LOWER(display_name) LIKE ?", search)
 
 	if startYear != "" && endYear != "" {
 		query = query.Where("start_year = ? AND end_year = ?", startYear, endYear)
 	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
 	if err := query.Limit(limit).
 		Offset(offset).
 		Preload("Classroom").
@@ -47,9 +53,6 @@ func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear
 		Preload("Students").
 		Preload("Terms").
 		Find(&academics).Error; err != nil {
-		return nil, 0, err
-	}
-	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	return academics, total, nil
