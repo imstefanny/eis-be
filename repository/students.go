@@ -32,7 +32,7 @@ func (r *studentsRepository) Browse(page, limit int, search string) ([]models.St
 	var total int64
 	offset := (page - 1) * limit
 	search = "%" + strings.ToLower(search) + "%"
-	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Applicant").Preload("User").Preload("Guardians").Preload("Documents").Unscoped().Find(&students).Error; err != nil {
+	if err := r.db.Where("LOWER(full_name) LIKE ?", search).Limit(limit).Offset(offset).Preload("Academics.Classroom").Preload("Applicant").Preload("User").Preload("Guardians").Preload("Documents").Unscoped().Find(&students).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.db.Model(&models.Students{}).Where("LOWER(full_name) LIKE ?", search).Count(&total).Error; err != nil {
