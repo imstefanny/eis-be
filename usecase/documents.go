@@ -97,7 +97,7 @@ func (s *documentsUsecase) Update(id int, document dto.CreateDocumentsRequest) (
 	}
 
 	applicantData, _ := s.applicantsRepository.Find(int(documentData.ApplicantID))
-	if applicantData.State != "approved" && applicantData.State != "draft" {
+	if applicantData.State == "rejected" {
 		applicantData.State = "draft"
 		err = s.applicantsRepository.Update(int(documentData.ApplicantID), applicantData)
 		if err != nil {

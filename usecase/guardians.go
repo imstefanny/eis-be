@@ -109,7 +109,7 @@ func (s *guardiansUsecase) Update(id int, guardian dto.CreateGuardiansRequest) (
 
 	applicantData, _ := s.applicantsRepository.Find(int(guardianData.ApplicantID))
 
-	if applicantData.State != "approved" && applicantData.State != "draft" {
+	if applicantData.State == "rejected" {
 		applicantData.State = "draft"
 		err = s.applicantsRepository.Update(int(guardianData.ApplicantID), applicantData)
 		if err != nil {
