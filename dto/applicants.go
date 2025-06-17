@@ -20,3 +20,7 @@ type CreateApplicantsRequest struct {
 	RegistrationMajor string `json:"registration_major"`
 	State             string `json:"state" validate:"required"`
 }
+
+type RejectApplicantsRequest struct {
+	Reason string `json:"reason" validate:"required"`
+}

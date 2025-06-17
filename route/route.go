@@ -44,19 +44,20 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	teacherAttsController := controllers.NewTeacherAttsController(teacherAttsService)
 
 	guardiansRepository := repository.NewGuardiansRepository(db)
-	guardiansService := usecase.NewGuardiansUsecase(guardiansRepository)
-	guardiansController := controllers.NewGuardiansController(guardiansService)
-
 	applicantsRepository := repository.NewApplicantsRepository(db)
+
 	applicantsService := usecase.NewApplicantsUsecase(applicantsRepository, studentsRepository, guardiansRepository, usersRepository, rolesRepository)
 	applicantsController := controllers.NewApplicantsController(applicantsService)
+
+	guardiansService := usecase.NewGuardiansUsecase(guardiansRepository, applicantsRepository)
+	guardiansController := controllers.NewGuardiansController(guardiansService)
 
 	docTypesRepository := repository.NewDocTypesRepository(db)
 	docTypesService := usecase.NewDocTypesUsecase(docTypesRepository)
 	docTypesController := controllers.NewDocTypesController(docTypesService)
 
 	documentsRepository := repository.NewDocumentsRepository(db)
-	documentsService := usecase.NewDocumentsUsecase(documentsRepository)
+	documentsService := usecase.NewDocumentsUsecase(documentsRepository, applicantsRepository)
 	documentsController := controllers.NewDocumentsController(documentsService)
 
 	subjectsRepository := repository.NewSubjectsRepository(db)
@@ -138,6 +139,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eApplicants.PUT("/:id", applicantsController.Update)
 	eApplicants.DELETE("/:id", applicantsController.Delete)
 	eApplicants.POST("/approve/:id", applicantsController.ApproveRegistration)
+	eApplicants.POST("/reject/:id", applicantsController.RejectRegistration)
 
 	eGuardians := e.Group("/guardians")
 	eGuardians.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

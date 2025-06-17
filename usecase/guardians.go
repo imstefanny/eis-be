@@ -19,12 +19,14 @@ type GuardiansUsecase interface {
 }
 
 type guardiansUsecase struct {
-	guardiansRepository repository.GuardiansRepository
+	guardiansRepository  repository.GuardiansRepository
+	applicantsRepository repository.ApplicantsRepository
 }
 
-func NewGuardiansUsecase(guardiansRepo repository.GuardiansRepository) *guardiansUsecase {
+func NewGuardiansUsecase(guardiansRepo repository.GuardiansRepository, applicantsRepo repository.ApplicantsRepository) *guardiansUsecase {
 	return &guardiansUsecase{
-		guardiansRepository: guardiansRepo,
+		guardiansRepository:  guardiansRepo,
+		applicantsRepository: applicantsRepo,
 	}
 }
 
@@ -103,6 +105,16 @@ func (s *guardiansUsecase) Update(id int, guardian dto.CreateGuardiansRequest) (
 
 	if err != nil {
 		return models.Guardians{}, err
+	}
+
+	applicantData, _ := s.applicantsRepository.Find(int(guardianData.ApplicantID))
+
+	if applicantData.State != "approved" && applicantData.State != "draft" {
+		applicantData.State = "draft"
+		err = s.applicantsRepository.Update(int(guardianData.ApplicantID), applicantData)
+		if err != nil {
+			return models.Guardians{}, err
+		}
 	}
 
 	guardianData.ApplicantID = guardian.ApplicantID

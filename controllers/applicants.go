@@ -168,6 +168,35 @@ func (u *applicantsController) ApproveRegistration(c echo.Context) error {
 	})
 }
 
+func (u *applicantsController) RejectRegistration(c echo.Context) error {
+	applicant := dto.RejectApplicantsRequest{}
+	id, _ := strconv.Atoi(c.Param("id"))
+	if err := c.Bind(&applicant); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	err := u.useCase.RejectRegistration(id, claims, applicant)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Registration rejected successfully",
+	})
+}
+
 func (u *applicantsController) Delete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 

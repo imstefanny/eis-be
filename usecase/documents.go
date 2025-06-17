@@ -18,12 +18,14 @@ type DocumentsUsecase interface {
 }
 
 type documentsUsecase struct {
-	documentsRepository repository.DocumentsRepository
+	documentsRepository  repository.DocumentsRepository
+	applicantsRepository repository.ApplicantsRepository
 }
 
-func NewDocumentsUsecase(documentsRepo repository.DocumentsRepository) *documentsUsecase {
+func NewDocumentsUsecase(documentsRepo repository.DocumentsRepository, applicantsRepo repository.ApplicantsRepository) *documentsUsecase {
 	return &documentsUsecase{
-		documentsRepository: documentsRepo,
+		documentsRepository:  documentsRepo,
+		applicantsRepository: applicantsRepo,
 	}
 }
 
@@ -92,6 +94,15 @@ func (s *documentsUsecase) Update(id int, document dto.CreateDocumentsRequest) (
 
 	if err != nil {
 		return models.Documents{}, err
+	}
+
+	applicantData, _ := s.applicantsRepository.Find(int(documentData.ApplicantID))
+	if applicantData.State != "approved" && applicantData.State != "draft" {
+		applicantData.State = "draft"
+		err = s.applicantsRepository.Update(int(documentData.ApplicantID), applicantData)
+		if err != nil {
+			return models.Documents{}, err
+		}
 	}
 
 	documentData.Name = document.Name

@@ -29,6 +29,7 @@ type Applicants struct {
 	RegistrationGrade string         `json:"registration_grade"`
 	RegistrationMajor string         `json:"registration_major"`
 	State             string         `json:"state"`
+	Reason            string         `json:"reason" gorm:"default:null"`
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 	DeletedAt         gorm.DeletedAt `json:"deleted_at" gorm:"index"`
