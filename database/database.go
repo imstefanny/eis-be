@@ -262,6 +262,7 @@ func PopulateDocTypes() {
 		{Name: "Akta Kelahiran"},
 		{Name: "KTP Orang Tua"},
 		{Name: "Bukti Pembayaran"},
+		{Name: "Ijazah"},
 	}
 	for _, docType := range docTypes {
 		if err := DB.Create(&docType).Error; err != nil {
