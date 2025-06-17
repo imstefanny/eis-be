@@ -70,6 +70,7 @@ func (s *applicantsUsecase) Create(applicant dto.CreateApplicantsRequest, claims
 		ProfilePic:        applicant.ProfilePic,
 		FullName:          applicant.FullName,
 		IdentityNo:        applicant.IdentityNo,
+		Nisn:              applicant.Nisn,
 		PlaceOfBirth:      applicant.PlaceOfBirth,
 		DateOfBirth:       parsedDate,
 		Address:           applicant.Address,
@@ -124,6 +125,7 @@ func (s *applicantsUsecase) Update(id int, claims jwt.MapClaims, applicant dto.C
 
 	applicantData.FullName = applicant.FullName
 	applicantData.IdentityNo = applicant.IdentityNo
+	applicantData.Nisn = applicant.Nisn
 	applicantData.PlaceOfBirth = applicant.PlaceOfBirth
 	if applicant.DateOfBirth != "" {
 		parsedDate, edate := time.Parse("2006-01-02", applicant.DateOfBirth)
@@ -185,13 +187,12 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	_ = s.usersRepository.Update(userData)
 	userUpdated, _ := s.usersRepository.Find(int(applicant.CreatedBy))
 
-	year := applicant.DateOfBirth.Year()
-	lastThree := year % 1000
 	studentData := models.Students{
 		ApplicantID:      uint(id),
 		UserID:           userUpdated.ID,
 		ProfilePic:       applicant.ProfilePic,
 		FullName:         applicant.FullName,
+		NISN:             applicant.Nisn,
 		IdentityNo:       applicant.IdentityNo,
 		PlaceOfBirth:     applicant.PlaceOfBirth,
 		DateOfBirth:      applicant.DateOfBirth,
@@ -211,9 +212,8 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	}
 
 	uniqueData := models.Students{
-		ID:   studentID,
-		NIS:  fmt.Sprintf("%05d", studentID),
-		NISN: fmt.Sprintf("%03d%07d", lastThree, studentID),
+		ID:  studentID,
+		NIS: fmt.Sprintf("%05d", studentID),
 	}
 	eUpdt := s.studentsRepository.Update(int(studentID), uniqueData)
 	if eUpdt != nil {

@@ -4,6 +4,7 @@ type CreateApplicantsRequest struct {
 	ProfilePic        string `json:"profile_pic"`
 	FullName          string `json:"full_name" validate:"required"`
 	IdentityNo        string `json:"identity_no"`
+	Nisn              string `json:"nisn"`
 	PlaceOfBirth      string `json:"place_of_birth" validate:"required"`
 	DateOfBirth       string `json:"date_of_birth" validate:"required"`
 	Address           string `json:"address" validate:"required"`
