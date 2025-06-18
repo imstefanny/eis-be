@@ -2,11 +2,10 @@ package usecase
 
 import (
 	"eis-be/dto"
-	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
-	"errors"
-	"reflect"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type DocTypesUsecase interface {
@@ -28,13 +27,8 @@ func NewDocTypesUsecase(docTypesRepo repository.DocTypesRepository) *docTypesUse
 }
 
 func validateCreateDocTypesRequest(req dto.CreateDocTypesRequest) error {
-	val := reflect.ValueOf(req)
-	for i := 0; i < val.NumField(); i++ {
-		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("field can't be empty")
-		}
-	}
-	return nil
+	validate := validator.New()
+	return validate.Struct(req)
 }
 
 func (s *docTypesUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {

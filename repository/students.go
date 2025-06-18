@@ -14,6 +14,7 @@ type StudentsRepository interface {
 	GetByToken(id int) (models.Students, error)
 	Find(id int) (models.Students, error)
 	Update(id int, student models.Students) error
+	UpdateStudentCurrentAcademicIdToNull(id int) error
 	UpdateStudentAcademicId(academic_id int, student []uint) error
 	Undelete(id int) error
 	Delete(id int) error
@@ -85,6 +86,14 @@ func (r *studentsRepository) Update(id int, student models.Students) error {
 	query := r.db.Model(&student).Updates(student)
 	if err := query.Error; err != nil {
 		return err
+	}
+	return nil
+}
+
+func (r *studentsRepository) UpdateStudentCurrentAcademicIdToNull(id int) error {
+	query := r.db.Model(&models.Students{}).Where("id = ?", id).Update("current_academic_id", nil)
+	if query.Error != nil {
+		return query.Error
 	}
 	return nil
 }

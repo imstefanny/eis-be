@@ -186,6 +186,7 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 			ID:       student.ID,
 			FullName: student.FullName,
 			NIS:      student.NIS,
+			NISN:     student.NISN,
 		}
 		students = append(students, response)
 	}
@@ -266,6 +267,12 @@ func (s *academicsUsecase) Update(id int, academic dto.CreateAcademicsRequest) (
 
 	if err != nil {
 		return models.Academics{}, err
+	}
+
+	if len(academicData.Students) > 0 {
+		for _, student := range academicData.Students {
+			s.studentsRepository.UpdateStudentCurrentAcademicIdToNull(int(student.ID))
+		}
 	}
 
 	students := []models.Students{}

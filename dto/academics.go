@@ -64,6 +64,7 @@ type GetStudentResponse struct {
 	ID       uint   `json:"id"`
 	FullName string `json:"full_name"`
 	NIS      string `json:"nis"`
+	NISN     string `json:"nisn"`
 }
 
 type StudentGetAcademicsResponse struct {
