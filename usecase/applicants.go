@@ -28,15 +28,17 @@ type applicantsUsecase struct {
 	guardiansRepository  repository.GuardiansRepository
 	usersRepository      repository.UsersRepository
 	rolesRepository      repository.RolesRepository
+	documentsRepository  repository.DocumentsRepository
 }
 
-func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository, studentsRepo repository.StudentsRepository, guardiansRepo repository.GuardiansRepository, usersRepo repository.UsersRepository, rolesRepo repository.RolesRepository) *applicantsUsecase {
+func NewApplicantsUsecase(applicantsRepo repository.ApplicantsRepository, studentsRepo repository.StudentsRepository, guardiansRepo repository.GuardiansRepository, usersRepo repository.UsersRepository, rolesRepo repository.RolesRepository, documentsRepo repository.DocumentsRepository) *applicantsUsecase {
 	return &applicantsUsecase{
 		applicantsRepository: applicantsRepo,
 		studentsRepository:   studentsRepo,
 		guardiansRepository:  guardiansRepo,
 		usersRepository:      usersRepo,
 		rolesRepository:      rolesRepo,
+		documentsRepository:  documentsRepo,
 	}
 }
 
@@ -228,6 +230,15 @@ func (s *applicantsUsecase) ApproveRegistration(id int, claims jwt.MapClaims) er
 	for _, guardian := range guardians {
 		guardian.StudentID = studentID
 		s.guardiansRepository.Update(int(guardian.ID), guardian)
+	}
+
+	documents, errDocs := s.documentsRepository.FindByApplicantId(id)
+	if errDocs != nil {
+		return errDocs
+	}
+	for _, document := range documents {
+		document.StudentID = uint(studentID)
+		s.documentsRepository.Update(int(document.ID), document)
 	}
 
 	return nil
