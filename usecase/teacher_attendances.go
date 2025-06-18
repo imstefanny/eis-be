@@ -13,7 +13,7 @@ import (
 )
 
 type TeacherAttsUsecase interface {
-	Browse(page, limit int, search string, date string) (interface{}, int64, error)
+	Browse(page, limit int, search string, date string, userId *int) (interface{}, int64, error)
 	Create(teacherAtt dto.CreateTeacherAttsRequest) error
 	CreateBatch(teacherAtts dto.CreateBatchTeacherAttsRequest) error
 	Find(id int) (interface{}, error)
@@ -47,8 +47,8 @@ func validateCreateBatchTeacherAttsRequest(req dto.CreateBatchTeacherAttsRequest
 	return validate.Struct(req)
 }
 
-func (s *teacherAttsUsecase) Browse(page, limit int, search string, date string) (interface{}, int64, error) {
-	teacherAtts, total, err := s.teacherAttsRepository.Browse(page, limit, search, date)
+func (s *teacherAttsUsecase) Browse(page, limit int, search string, date string, userId *int) (interface{}, int64, error) {
+	teacherAtts, total, err := s.teacherAttsRepository.Browse(page, limit, search, date, userId)
 
 	if err != nil {
 		return nil, total, err

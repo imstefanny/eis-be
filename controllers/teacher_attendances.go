@@ -33,7 +33,16 @@ func (u *teacherAttsController) Browse(c echo.Context) error {
 	search := c.QueryParam("search")
 	date := c.QueryParam("date")
 
-	teacherAtts, total, err := u.useCase.Browse(page, limit, search, date)
+	var userId *int
+	idStr := c.QueryParam("userId")
+	if idStr != "" {
+		id, err := strconv.Atoi(idStr)
+		if err == nil {
+			userId = &id
+		}
+	}
+
+	teacherAtts, total, err := u.useCase.Browse(page, limit, search, date, userId)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

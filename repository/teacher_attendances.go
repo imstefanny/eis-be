@@ -8,7 +8,7 @@ import (
 )
 
 type TeacherAttsRepository interface {
-	Browse(page, limit int, search, date string) ([]models.TeacherAttendances, int64, error)
+	Browse(page, limit int, search, date string, userId *int) ([]models.TeacherAttendances, int64, error)
 	Create(teacherAtts models.TeacherAttendances) error
 	CreateBatch(teacherAtts []models.TeacherAttendances) error
 	Find(id int) (models.TeacherAttendances, error)
@@ -25,7 +25,7 @@ func NewTeacherAttsRepository(db *gorm.DB) *teacherAttsRepository {
 	return &teacherAttsRepository{db}
 }
 
-func (r *teacherAttsRepository) Browse(page, limit int, search, date string) ([]models.TeacherAttendances, int64, error) {
+func (r *teacherAttsRepository) Browse(page, limit int, search, date string, userId *int) ([]models.TeacherAttendances, int64, error) {
 	var teacherAtts []models.TeacherAttendances
 	var total int64
 	offset := (page - 1) * limit
@@ -39,7 +39,12 @@ func (r *teacherAttsRepository) Browse(page, limit int, search, date string) ([]
 		Preload("WorkingSchedule.Details")
 
 	if date != "" {
-		query = query.Where("DATE(date) = ", date)
+		query = query.Where("DATE(date) = ?", date)
+	}
+	if userId != nil {
+		query = query.
+			Joins("JOIN teachers ON teachers.id = teacher_attendances.teacher_id").
+			Where("teachers.user_id = ?", &userId)
 	}
 
 	if err := query.Find(&teacherAtts).Error; err != nil {
