@@ -164,8 +164,6 @@ func PopulateRolesPermissions() {
 			permMap["classnote:write"],
 			permMap["studentattrep:read"],
 			permMap["examrecap:read"],
-			permMap["teacher:read"],
-			permMap["teacher:write"],
 			permMap["teacheratt:read"],
 			permMap["teacherattrep:read"],
 			permMap["worksched:read"],
