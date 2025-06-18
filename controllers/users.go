@@ -115,6 +115,27 @@ func (u *usersController) Update(c echo.Context) error {
 	})
 }
 
+func (u *usersController) ChangePassword(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	userPass := dto.ChangePasswordRequest{}
+	if err := c.Bind(&userPass); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	err := u.useCase.ChangePassword(uint(id), userPass)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data updated successfully",
+	})
+}
+
 func (u *usersController) Undelete(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	user := dto.UpdateUsersRequest{}

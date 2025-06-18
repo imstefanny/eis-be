@@ -110,6 +110,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eUser.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eUser.GET("", usersController.Browse)
 	eUser.PUT("/:id", usersController.Update)
+	eUser.PUT("/change-password/:id", usersController.ChangePassword)
 	eUser.PUT("/undelete/:id", usersController.Undelete)
 	eUser.DELETE("/:id", usersController.Delete)
 

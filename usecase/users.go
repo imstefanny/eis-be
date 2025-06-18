@@ -20,6 +20,7 @@ type UsersUsecase interface {
 	Register(data dto.RegisterUsersRequest) error
 	Login(data dto.LoginUsersRequest) (interface{}, error)
 	Update(id uint, data dto.UpdateUsersRequest) error
+	ChangePassword(id uint, data dto.ChangePasswordRequest) error
 	Undelete(id int) error
 	Delete(id int) error
 }
@@ -136,8 +137,13 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 
 func (s *usersUsecase) Update(id uint, data dto.UpdateUsersRequest) error {
 	userData, _ := s.usersRepository.Find(int(id))
+
 	if data.Password != "" {
-		userData.Password = data.Password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		userData.Password = string(hashedPassword)
 	}
 	if data.ProfilePic != "" {
 		userData.ProfilePic = data.ProfilePic
@@ -151,6 +157,24 @@ func (s *usersUsecase) Update(id uint, data dto.UpdateUsersRequest) error {
 		return err
 	}
 
+	return nil
+}
+
+func (s *usersUsecase) ChangePassword(id uint, data dto.ChangePasswordRequest) error {
+	userData, err := s.usersRepository.Find(int(id))
+	if (data.NewPassword == "") || (err != nil) {
+		return errors.New("new password cannot be empty or user not found")
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(data.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	userData.Password = string(hashedPassword)
+	err = s.usersRepository.Update(userData)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

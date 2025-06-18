@@ -29,3 +29,7 @@ type UpdateUsersRequest struct {
 	Password   string `json:"password"`
 	RoleID     uint   `json:"role_id" validate:"required,gt=0"`
 }
+
+type ChangePasswordRequest struct {
+	NewPassword string `json:"new_password" validate:"required"`
+}

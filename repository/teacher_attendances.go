@@ -14,7 +14,7 @@ type TeacherAttsRepository interface {
 	Find(id int) (models.TeacherAttendances, error)
 	Update(id int, teacherAtt models.TeacherAttendances) error
 	Delete(id int) error
-	BrowseReport(search, startDate, endDate string) ([]models.TeacherAttendances, error)
+	BrowseReport(search, startDate, endDate string, userId *int) ([]models.TeacherAttendances, error)
 }
 
 type teacherAttsRepository struct {
@@ -57,7 +57,7 @@ func (r *teacherAttsRepository) Browse(page, limit int, search, date string, use
 	return teacherAtts, total, nil
 }
 
-func (r *teacherAttsRepository) BrowseReport(search, startDate, endDate string) ([]models.TeacherAttendances, error) {
+func (r *teacherAttsRepository) BrowseReport(search, startDate, endDate string, userId *int) ([]models.TeacherAttendances, error) {
 	var teacherAtts []models.TeacherAttendances
 	search = "%" + strings.ToLower(search) + "%"
 	query := r.db.
@@ -68,6 +68,11 @@ func (r *teacherAttsRepository) BrowseReport(search, startDate, endDate string) 
 
 	if startDate != "" && endDate != "" {
 		query = query.Where("DATE(date) BETWEEN ? AND ?", startDate, endDate)
+	}
+	if userId != nil {
+		query = query.
+			Joins("JOIN teachers ON teachers.id = teacher_attendances.teacher_id").
+			Where("teachers.user_id = ?", &userId)
 	}
 	if err := query.Find(&teacherAtts).Error; err != nil {
 		return nil, err
