@@ -28,7 +28,6 @@ type LevelHistories struct {
 	Principle     Users     `json:"principle" gorm:"foreignKey:PrincipleID;references:ID"`
 	OperatorID    *uint     `json:"operator_id"`
 	Operator      Users     `json:"operator" gorm:"foreignKey:OperatorID;references:ID"`
-	State         bool      `json:"state"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }

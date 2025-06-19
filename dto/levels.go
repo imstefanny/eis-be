@@ -14,5 +14,4 @@ type CreateLevelHistoriesRequest struct {
 	Phone         string `json:"phone"`
 	PrincipleID   uint   `json:"principle_id"`
 	OperatorID    uint   `json:"operator_id"`
-	State         bool   `json:"state"`
 }

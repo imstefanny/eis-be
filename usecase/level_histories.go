@@ -67,7 +67,6 @@ func (s *levelHistoriesUsecase) Create(levelHistory dto.CreateLevelHistoriesRequ
 		Phone:         levelHistory.Phone,
 		PrincipleID:   principleID,
 		OperatorID:    operatorID,
-		State:         levelHistory.State,
 	}
 
 	err := s.levelHistoriesRepository.Create(levelHistorieData)
@@ -113,7 +112,6 @@ func (s *levelHistoriesUsecase) Update(id int, levelHistory dto.CreateLevelHisto
 	levelHistorieData.Phone = levelHistory.Phone
 	levelHistorieData.PrincipleID = principleID
 	levelHistorieData.OperatorID = operatorID
-	levelHistorieData.State = levelHistory.State
 	e := s.levelHistoriesRepository.Update(id, levelHistorieData)
 
 	if e != nil {
