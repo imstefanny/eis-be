@@ -140,6 +140,7 @@ func (s *teachersUsecase) Update(id int, teacher dto.CreateTeachersRequest) (mod
 
 	userData, _ := s.usersRepository.Find(int(teacherData.UserID))
 	userData.RoleID = teacher.RoleID
+	userData.ProfilePic = teacher.ProfilePic
 
 	eUser := s.usersRepository.Update(userData)
 	if eUser != nil {

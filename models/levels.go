@@ -19,6 +19,7 @@ type LevelHistories struct {
 	ID            uint      `json:"id" gorm:"primaryKey"`
 	LevelID       uint      `json:"level_id"`
 	OpCertNum     string    `json:"op_cert_num"`
+	NPSN          string    `json:"npsn"`
 	Accreditation string    `json:"accreditation"`
 	Curriculum    string    `json:"curriculum"`
 	Email         string    `json:"email"`

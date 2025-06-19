@@ -20,6 +20,7 @@ type LoginUsersResponse struct {
 	RoleID      uint     `json:"role_id"`
 	RoleName    string   `json:"role_name"`
 	Permissions []string `json:"permissions"`
+	ProfilePic  string   `json:"profile_pic"`
 }
 
 type UpdateUsersRequest struct {

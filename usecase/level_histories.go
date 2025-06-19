@@ -60,6 +60,7 @@ func (s *levelHistoriesUsecase) Create(levelHistory dto.CreateLevelHistoriesRequ
 	levelHistorieData := models.LevelHistories{
 		LevelID:       levelHistory.LevelID,
 		OpCertNum:     levelHistory.OpCertNum,
+		NPSN:          levelHistory.NPSN,
 		Accreditation: levelHistory.Accreditation,
 		Curriculum:    levelHistory.Curriculum,
 		Email:         levelHistory.Email,
@@ -105,6 +106,7 @@ func (s *levelHistoriesUsecase) Update(id int, levelHistory dto.CreateLevelHisto
 
 	levelHistorieData.LevelID = levelHistory.LevelID
 	levelHistorieData.OpCertNum = levelHistory.OpCertNum
+	levelHistorieData.NPSN = levelHistory.NPSN
 	levelHistorieData.Accreditation = levelHistory.Accreditation
 	levelHistorieData.Curriculum = levelHistory.Curriculum
 	levelHistorieData.Email = levelHistory.Email

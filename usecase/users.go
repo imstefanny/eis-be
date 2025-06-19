@@ -130,6 +130,7 @@ func (s *usersUsecase) Login(data dto.LoginUsersRequest) (interface{}, error) {
 		RoleID:      user.RoleID,
 		RoleName:    user.Role.Name,
 		Permissions: permissions,
+		ProfilePic:  user.ProfilePic,
 	}
 
 	return userResponse, nil
