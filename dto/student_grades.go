@@ -107,7 +107,7 @@ type GetPrintReportByStudent struct {
 	Level           string                `json:"level"`
 	Class           string                `json:"class"`
 	Fase            string                `json:"fase"`
-	Term            string                `json:"term"`
+	Term            int                   `json:"term"`
 	AcademicYear    string                `json:"academic_year"`
 	Grades          []GetPrintReportGrade `json:"grades"`
 	Sick            int                   `json:"sick"`

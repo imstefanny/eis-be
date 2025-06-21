@@ -6,6 +6,7 @@ import (
 	"eis-be/repository"
 	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -292,8 +293,9 @@ func (s *studentGradesUsecase) GetAllByStudent(termID, studentID int) (dto.GetPr
 	principal := ""
 	levelHist := term.Academic.Classroom.Level.Histories
 	if len(levelHist) > 0 {
-		principal = levelHist[len(levelHist) - 1].Principle.Name
+		principal = levelHist[len(levelHist)-1].Principle.Name
 	}
+	termName, _ := strconv.Atoi(term.Name[9:])
 	response := dto.GetPrintReportByStudent{
 		Name:            student.FullName,
 		NIS:             student.NIS,
@@ -301,7 +303,7 @@ func (s *studentGradesUsecase) GetAllByStudent(termID, studentID int) (dto.GetPr
 		Level:           term.Academic.Classroom.Level.Name,
 		Class:           term.Academic.Classroom.Grade,
 		Fase:            term.Academic.Classroom.Name,
-		Term:            term.Name[8:],
+		Term:            termName,
 		AcademicYear:    term.Academic.StartYear + "/" + term.Academic.EndYear,
 		Grades:          grades,
 		Sick:            attsMap["Sick"],
