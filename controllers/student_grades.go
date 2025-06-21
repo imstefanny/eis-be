@@ -101,6 +101,30 @@ func (u *studentGradesController) UpdateByTermID(c echo.Context) error {
 	})
 }
 
+func (u *studentGradesController) GetAllByStudent(c echo.Context) error {
+	studentID, err := strconv.Atoi(c.Param("student_id"))
+	if err != nil || studentID < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid student ID",
+		})
+	}
+	termID, err := strconv.Atoi(c.Param("term_id"))
+	if err != nil || termID < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid term ID",
+		})
+	}
+	studentGrades, err := u.useCase.GetAllByStudent(termID, studentID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": studentGrades,
+	})
+}
+
 func (u *studentGradesController) GetReport(c echo.Context) error {
 	academicYear := c.QueryParam("academic_year")
 	if academicYear == "" {

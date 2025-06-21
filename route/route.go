@@ -98,7 +98,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classNotesDetailsController := controllers.NewClassNotesDetailsController(classNotesDetailsService)
 
 	studentGradesRepository := repository.NewStudentGradesRepository(db)
-	studentGradesService := usecase.NewStudentGradesUsecase(studentGradesRepository, academicsRepository, termsRepository, studentsRepository, subjectsRepository)
+	studentGradesService := usecase.NewStudentGradesUsecase(studentGradesRepository, studentAttsRepository, academicsRepository, termsRepository, studentsRepository, subjectsRepository)
 	studentGradesController := controllers.NewStudentGradesController(studentGradesService)
 
 	e.Pre(middleware.RemoveTrailingSlash())
@@ -287,6 +287,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademicGrades.GET("", studentGradesController.GetAll)
 	eAcademicGrades.POST("", studentGradesController.Create)
 	eAcademicGrades.PUT("", studentGradesController.UpdateByTermID)
+	eAcademicGrades.GET("/:student_id", studentGradesController.GetAllByStudent)
 
 	tSchedules := eTeachers.Group("/schedules")
 	tSchedules.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

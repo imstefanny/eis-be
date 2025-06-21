@@ -99,3 +99,25 @@ type StudentGradesReportQuery struct {
 	Class     string  `json:"class"`
 	Finals    float64 `json:"finals"`
 }
+
+type GetPrintReportByStudent struct {
+	Name            string                `json:"name"`
+	NIS             string                `json:"nis"`
+	NISN            string                `json:"nisn"`
+	Level           string                `json:"level"`
+	Class           string                `json:"class"`
+	Fase            string                `json:"fase"`
+	Term            string                `json:"term"`
+	AcademicYear    string                `json:"academic_year"`
+	Grades          []GetPrintReportGrade `json:"grades"`
+	Sick            int                   `json:"sick"`
+	Permission      int                   `json:"permission"`
+	Absent          int                   `json:"absent"`
+	HomeRoomTeacher string                `json:"home_room_teacher"`
+	Principal       string                `json:"principal"`
+}
+type GetPrintReportGrade struct {
+	Subject string  `json:"subject"`
+	Finals  float64 `json:"finals"`
+	Remarks string  `json:"remarks"`
+}

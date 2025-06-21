@@ -13,6 +13,7 @@ type StudentAttsRepository interface {
 	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
 	UpdateByTermID(termID int, studentAtt []models.StudentAttendances) error
 	Browse(academicID, levelID, classID, termID int, search, start_date, end_date string) ([]models.StudentAttendances, error)
+	GetByTermStudent(termID, studentID int) ([]models.StudentAttendances, error)
 
 	// Students specific methods
 	GetAttendanceByStudent(studentID int, start, end string) ([]models.StudentAttendances, error)
@@ -118,6 +119,17 @@ func (r *studentAttsRepository) Browse(academicID, levelID, classID, termID int,
 		return nil, err
 	}
 
+	return studentAtts, nil
+}
+
+func (r *studentAttsRepository) GetByTermStudent(termID, studentID int) ([]models.StudentAttendances, error) {
+	var studentAtts []models.StudentAttendances
+	if err := r.db.
+		Where("term_id = ?", termID).
+		Where("student_id = ?", studentID).
+		Find(&studentAtts).Error; err != nil {
+		return nil, err
+	}
 	return studentAtts, nil
 }
 
