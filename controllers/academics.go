@@ -33,10 +33,19 @@ func (u *academicsController) Browse(c echo.Context) error {
 		limit = 10
 	}
 
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	var userId int = int(claims["userId"].(float64))
+
 	search := c.QueryParam("search")
 	academicYear := c.QueryParam("academic_year")
 
-	academics, total, err := u.useCase.Browse(page, limit, search, academicYear)
+	academics, total, err := u.useCase.Browse(page, limit, search, academicYear, userId)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{

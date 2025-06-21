@@ -8,7 +8,7 @@ import (
 )
 
 type AcademicsRepository interface {
-	Browse(page, limit int, search, startYear, endYear string) ([]models.Academics, int64, error)
+	Browse(page, limit int, search, startYear, endYear string, homeroomTeacherId int) ([]models.Academics, int64, error)
 	GetAll() ([]models.Academics, error)
 	Create(academic models.Academics) error
 	CreateBatch(academics []models.Academics) error
@@ -28,7 +28,7 @@ func NewAcademicsRepository(db *gorm.DB) *academicsRepository {
 	return &academicsRepository{db}
 }
 
-func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear string) ([]models.Academics, int64, error) {
+func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear string, homeroomTeacherId int) ([]models.Academics, int64, error) {
 	var academics []models.Academics
 	var total int64
 	offset := (page - 1) * limit
@@ -39,6 +39,9 @@ func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear
 
 	if startYear != "" && endYear != "" {
 		query = query.Where("start_year = ? AND end_year = ?", startYear, endYear)
+	}
+	if homeroomTeacherId != 0 {
+		query = query.Where("homeroom_teacher_id = ?", homeroomTeacherId)
 	}
 
 	if err := query.Count(&total).Error; err != nil {

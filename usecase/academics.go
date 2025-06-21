@@ -10,7 +10,7 @@ import (
 )
 
 type AcademicsUsecase interface {
-	Browse(page, limit int, search, academicYear string) (interface{}, int64, error)
+	Browse(page, limit int, search, academicYear string, userId int) (interface{}, int64, error)
 	Create(academic dto.CreateAcademicsRequest) error
 	CreateBatch(batch dto.CreateBatchAcademicsRequest) error
 	Find(id int) (interface{}, error)
@@ -25,13 +25,15 @@ type academicsUsecase struct {
 	academicsRepository  repository.AcademicsRepository
 	studentsRepository   repository.StudentsRepository
 	classroomsRepository repository.ClassroomsRepository
+	teachersRepository repository.TeachersRepository
 }
 
-func NewAcademicsUsecase(academicsRepo repository.AcademicsRepository, studentsRepo repository.StudentsRepository, classroomsRepo repository.ClassroomsRepository) *academicsUsecase {
+func NewAcademicsUsecase(academicsRepo repository.AcademicsRepository, studentsRepo repository.StudentsRepository, classroomsRepo repository.ClassroomsRepository, teachersRepo repository.TeachersRepository) *academicsUsecase {
 	return &academicsUsecase{
 		academicsRepository:  academicsRepo,
 		studentsRepository:   studentsRepo,
 		classroomsRepository: classroomsRepo,
+		teachersRepository:  teachersRepo,
 	}
 }
 
@@ -45,12 +47,18 @@ func validateBatchCreateAcademicsRequest(req dto.CreateBatchAcademicsRequest) er
 	return validate.Struct(req)
 }
 
-func (s *academicsUsecase) Browse(page, limit int, search, academicYear string) (interface{}, int64, error) {
+func (s *academicsUsecase) Browse(page, limit int, search, academicYear string, userId int) (interface{}, int64, error) {
 	startYear, endYear := "", ""
 	if academicYear != "" {
 		startYear, endYear = academicYear[:4], academicYear[5:9]
 	}
-	academics, total, err := s.academicsRepository.Browse(page, limit, search, startYear, endYear)
+
+	teacher, _ := s.teachersRepository.GetByToken(userId)
+	if teacher.User.Role.Name != "Homeroom Teacher" {
+		teacher.ID = 0
+	}
+
+	academics, total, err := s.academicsRepository.Browse(page, limit, search, startYear, endYear, int(teacher.ID))
 
 	if err != nil {
 		return nil, total, err
