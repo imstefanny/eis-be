@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"eis-be/dto"
 	"eis-be/helpers"
@@ -102,11 +104,16 @@ func (u *studentGradesController) UpdateByTermID(c echo.Context) error {
 }
 
 func (u *studentGradesController) GetAllByStudent(c echo.Context) error {
-	studentID, err := strconv.Atoi(c.Param("student_id"))
-	if err != nil || studentID < 1 {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"error": "Invalid student ID",
-		})
+	studentIDsString := strings.Split(c.Param("student_ids"), ",")
+	studentIDs := make([]int, 0, len(studentIDsString))
+	for _, idStr := range studentIDsString {
+		id, err := strconv.Atoi(idStr)
+		if err != nil || id < 1 {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"error": fmt.Sprintf("Invalid student ID: %s", idStr),
+			})
+		}
+		studentIDs = append(studentIDs, id)
 	}
 	termID, err := strconv.Atoi(c.Param("term_id"))
 	if err != nil || termID < 1 {
@@ -114,7 +121,7 @@ func (u *studentGradesController) GetAllByStudent(c echo.Context) error {
 			"error": "Invalid term ID",
 		})
 	}
-	studentGrades, err := u.useCase.GetAllByStudent(termID, studentID)
+	studentGrades, err := u.useCase.GetAllByStudent(termID, studentIDs)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),

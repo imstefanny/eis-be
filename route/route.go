@@ -287,7 +287,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademicGrades.GET("", studentGradesController.GetAll)
 	eAcademicGrades.POST("", studentGradesController.Create)
 	eAcademicGrades.PUT("", studentGradesController.UpdateByTermID)
-	eAcademicGrades.GET("/:student_id", studentGradesController.GetAllByStudent)
+	eAcademicGrades.GET("/:student_ids", studentGradesController.GetAllByStudent)
 
 	tSchedules := eTeachers.Group("/schedules")
 	tSchedules.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
