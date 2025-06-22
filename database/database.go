@@ -62,6 +62,7 @@ func InitialMigration() {
 	DB.AutoMigrate(&models.ClassNotesDetails{})
 	DB.AutoMigrate(&models.StudentGrades{})
 	DB.AutoMigrate(&models.Roles{}, &models.Permissions{})
+	DB.AutoMigrate(&models.StudentBehaviourActivities{})
 }
 
 func PopulateRolesPermissions() {
