@@ -132,6 +132,35 @@ func (u *studentGradesController) GetAllByStudent(c echo.Context) error {
 	})
 }
 
+func (u *studentGradesController) GetMonthlyReportByStudent(c echo.Context) error {
+	academicID, err := strconv.Atoi(c.Param("academic_id"))
+	if err != nil || academicID < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid academic ID",
+		})
+	}
+	studentIDsString := strings.Split(c.Param("student_ids"), ",")
+	studentIDs := make([]int, 0, len(studentIDsString))
+	for _, idStr := range studentIDsString {
+		id, err := strconv.Atoi(idStr)
+		if err != nil || id < 1 {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"error": fmt.Sprintf("Invalid student ID: %s", idStr),
+			})
+		}
+		studentIDs = append(studentIDs, id)
+	}
+	studentGrades, err := u.useCase.GetMonthlyReportByStudent(academicID, studentIDs)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": studentGrades,
+	})
+}
+
 func (u *studentGradesController) GetReport(c echo.Context) error {
 	academicYear := c.QueryParam("academic_year")
 	if academicYear == "" {

@@ -121,3 +121,65 @@ type GetPrintReportGrade struct {
 	Finals  float64 `json:"finals"`
 	Remarks string  `json:"remarks"`
 }
+
+type GetPrintMonthlyReportByStudent struct {
+	Name            string                       `json:"name"`
+	NIS             string                       `json:"nis"`
+	Class           string                       `json:"class"`
+	AcademicYear    string                       `json:"academic_year"`
+	Grades          []GetPrintMonthlyReportGrade `json:"grades"`
+	HomeRoomTeacher string                       `json:"home_room_teacher"`
+
+	StFirstBehavior  string `json:"st_first_behavior"`
+	StSecondBehavior string `json:"st_second_behavior"`
+	StFirstCraft     string `json:"st_first_craft"`
+	StSecondCraft    string `json:"st_second_craft"`
+	StFirstTidiness  string `json:"st_first_tidiness"`
+	StSecondTidiness string `json:"st_second_tidiness"`
+
+	StFirstExtracurricularFirst       string `json:"st_first_extracurricular_first"`
+	StFirstExtracurricularScoreFirst  string `json:"st_first_extracurricular_score_first"`
+	StFirstExtracurricularSecond      string `json:"st_first_extracurricular_second"`
+	StFirstExtracurricularScoreSecond string `json:"st_first_extracurricular_score_second"`
+	StFirstNotes                      string `json:"st_first_notes"`
+	StSecondNotes                     string `json:"st_second_notes"`
+
+	StFirstSick        int `json:"st_first_sick"`
+	StSecondSick       int `json:"st_second_sick"`
+	StFirstPermission  int `json:"st_first_permission"`
+	StSecondPermission int `json:"st_second_permission"`
+	StFirstAbsent      int `json:"st_first_absent"`
+	StSecondAbsent     int `json:"st_second_absent"`
+
+	NdFirstBehavior  string `json:"nd_first_behavior"`
+	NdSecondBehavior string `json:"nd_second_behavior"`
+	NdFirstCraft     string `json:"nd_first_craft"`
+	NdSecondCraft    string `json:"nd_second_craft"`
+	NdFirstTidiness  string `json:"nd_first_tidiness"`
+	NdSecondTidiness string `json:"nd_second_tidiness"`
+
+	NdFirstExtracurricularFirst       string `json:"nd_first_extracurricular_first"`
+	NdFirstExtracurricularScoreFirst  string `json:"nd_first_extracurricular_score_first"`
+	NdFirstExtracurricularSecond      string `json:"nd_first_extracurricular_second"`
+	NdFirstExtracurricularScoreSecond string `json:"nd_first_extracurricular_score_second"`
+	NdFirstNotes                      string `json:"nd_first_notes"`
+	NdSecondNotes                     string `json:"nd_second_notes"`
+
+	NdFirstSick        int `json:"nd_first_sick"`
+	NdSecondSick       int `json:"nd_second_sick"`
+	NdFirstPermission  int `json:"nd_first_permission"`
+	NdSecondPermission int `json:"nd_second_permission"`
+	NdFirstAbsent      int `json:"nd_first_absent"`
+	NdSecondAbsent     int `json:"nd_second_absent"`
+}
+type GetPrintMonthlyReportGrade struct {
+	Subject       string  `json:"subject"`
+	StFirstQuiz   float64 `json:"st_first_quiz"`
+	StSecondQuiz  float64 `json:"st_second_quiz"`
+	StFirstMonth  float64 `json:"st_first_month"`
+	StSecondMonth float64 `json:"st_second_month"`
+	NdFirstQuiz   float64 `json:"nd_first_quiz"`
+	NdSecondQuiz  float64 `json:"nd_second_quiz"`
+	NdFirstMonth  float64 `json:"nd_first_month"`
+	NdSecondMonth float64 `json:"nd_second_month"`
+}
