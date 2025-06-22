@@ -8,7 +8,7 @@ type StudentBehaviourActivityRequest struct {
 	StudentName string `json:"student_name"`
 
 	FirstNeatness   string `json:"first_neatness"`
-	FirstCrafts     string `json:"first_craft"`
+	FirstCrafts     string `json:"first_crafts"`
 	FirstBehaviour  string `json:"first_behaviour"`
 	SecondNeatness  string `json:"second_neatness"`
 	SecondCrafts    string `json:"second_crafts"`
