@@ -15,7 +15,7 @@ type StudentGradesUsecase interface {
 	GetAll(termID int) (dto.GetStudentGradesResponse, error)
 	Create(studentGrade dto.CreateStudentGradesRequest) error
 	UpdateByTermID(termID int, studentGrade dto.UpdateStudentGradesRequest) (dto.GetStudentGradesResponse, error)
-	GetAllByStudent(termID, studentID int) (dto.GetPrintReportByStudent, error)
+	GetAllByStudent(termID int, studentIDs []int) ([]dto.GetPrintReportByStudent, error)
 	GetReport(academicYear string, levelID, academicID, termID int) ([]dto.StudentGradesReport, error)
 
 	// Students specific methods
@@ -258,61 +258,65 @@ func (s *studentGradesUsecase) UpdateByTermID(termID int, studentGrade dto.Updat
 	return response, nil
 }
 
-func (s *studentGradesUsecase) GetAllByStudent(termID, studentID int) (dto.GetPrintReportByStudent, error) {
+func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]dto.GetPrintReportByStudent, error) {
 	term, err := s.termsRepository.Find(termID)
 	if err != nil {
-		return dto.GetPrintReportByStudent{}, fmt.Errorf("term with ID %d not found: %w", termID, err)
+		return []dto.GetPrintReportByStudent{}, fmt.Errorf("term with ID %d not found: %w", termID, err)
 	}
-	studentScores, err := s.studentGradesRepository.GetStudentScoreByStudent(studentID, termID)
-	if err != nil {
-		return dto.GetPrintReportByStudent{}, fmt.Errorf("error getting student scores: %w", err)
-	}
-	studentAtts, err := s.studentAttsRepository.GetByTermStudent(termID, studentID)
-	if err != nil {
-		return dto.GetPrintReportByStudent{}, fmt.Errorf("error getting student attendance: %w", err)
-	}
-	student, err := s.studentsRepository.Find(studentID)
-	if err != nil {
-		return dto.GetPrintReportByStudent{}, fmt.Errorf("student with ID %d not found: %w", studentID, err)
-	}
-	grades := []dto.GetPrintReportGrade{}
-	for _, score := range studentScores {
-		grades = append(grades, dto.GetPrintReportGrade{
-			Subject: score.Subject.Name,
-			Finals:  score.Finals,
-			Remarks: score.Remarks,
-		})
-	}
-	attsMap := make(map[string]int)
-	for _, att := range studentAtts {
-		if _, exists := attsMap[att.Status]; !exists {
-			attsMap[att.Status] = 0
+	responses := []dto.GetPrintReportByStudent{}
+	for _, studentID := range studentIDs {
+		studentScores, err := s.studentGradesRepository.GetStudentScoreByStudent(studentID, termID)
+		if err != nil {
+			return []dto.GetPrintReportByStudent{}, fmt.Errorf("error getting student scores: %w", err)
 		}
-		attsMap[att.Status]++
+		studentAtts, err := s.studentAttsRepository.GetByTermStudent(termID, studentID)
+		if err != nil {
+			return []dto.GetPrintReportByStudent{}, fmt.Errorf("error getting student attendance: %w", err)
+		}
+		student, err := s.studentsRepository.Find(studentID)
+		if err != nil {
+			return []dto.GetPrintReportByStudent{}, fmt.Errorf("student with ID %d not found: %w", studentID, err)
+		}
+		grades := []dto.GetPrintReportGrade{}
+		for _, score := range studentScores {
+			grades = append(grades, dto.GetPrintReportGrade{
+				Subject: score.Subject.Name,
+				Finals:  score.Finals,
+				Remarks: score.Remarks,
+			})
+		}
+		attsMap := make(map[string]int)
+		for _, att := range studentAtts {
+			if _, exists := attsMap[att.Status]; !exists {
+				attsMap[att.Status] = 0
+			}
+			attsMap[att.Status]++
+		}
+		principal := ""
+		levelHist := term.Academic.Classroom.Level.Histories
+		if len(levelHist) > 0 {
+			principal = levelHist[len(levelHist)-1].Principle.Name
+		}
+		termName, _ := strconv.Atoi(term.Name[9:])
+		response := dto.GetPrintReportByStudent{
+			Name:            student.FullName,
+			NIS:             student.NIS,
+			NISN:            student.NISN,
+			Level:           term.Academic.Classroom.Level.Name,
+			Class:           term.Academic.Classroom.Grade,
+			Fase:            term.Academic.Classroom.Name,
+			Term:            termName,
+			AcademicYear:    term.Academic.StartYear + "/" + term.Academic.EndYear,
+			Grades:          grades,
+			Sick:            attsMap["Sick"],
+			Absent:          attsMap["Absent"],
+			Permission:      attsMap["Permission"],
+			HomeRoomTeacher: term.Academic.HomeroomTeacher.Name,
+			Principal:       principal,
+		}
+		responses = append(responses, response)
 	}
-	principal := ""
-	levelHist := term.Academic.Classroom.Level.Histories
-	if len(levelHist) > 0 {
-		principal = levelHist[len(levelHist)-1].Principle.Name
-	}
-	termName, _ := strconv.Atoi(term.Name[9:])
-	response := dto.GetPrintReportByStudent{
-		Name:            student.FullName,
-		NIS:             student.NIS,
-		NISN:            student.NISN,
-		Level:           term.Academic.Classroom.Level.Name,
-		Class:           term.Academic.Classroom.Grade,
-		Fase:            term.Academic.Classroom.Name,
-		Term:            termName,
-		AcademicYear:    term.Academic.StartYear + "/" + term.Academic.EndYear,
-		Grades:          grades,
-		Sick:            attsMap["Sick"],
-		Absent:          attsMap["Absent"],
-		Permission:      attsMap["Permission"],
-		HomeRoomTeacher: term.Academic.HomeroomTeacher.Name,
-		Principal:       principal,
-	}
-	return response, nil
+	return responses, nil
 }
 
 func (s *studentGradesUsecase) GetReport(academicYear string, levelID, academicID, termID int) ([]dto.StudentGradesReport, error) {
