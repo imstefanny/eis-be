@@ -8,6 +8,7 @@ import (
 
 type TermsRepository interface {
 	Find(id int) (models.Terms, error)
+	Update(term models.Terms) error
 }
 
 type termsRepository struct {
@@ -31,4 +32,11 @@ func (r *termsRepository) Find(id int) (models.Terms, error) {
 		return term, err
 	}
 	return term, nil
+}
+
+func (r *termsRepository) Update(term models.Terms) error {
+	if err := r.db.Save(&term).Error; err != nil {
+		return err
+	}
+	return nil
 }

@@ -79,3 +79,11 @@ type StudentGetTermResponse struct {
 	DisplayName string `json:"display_name"`
 	Name        string `json:"name"`
 }
+
+type UpdateTermRequest struct {
+	ID              uint   `json:"id" validate:"required"`
+	FirstStartDate  string `json:"first_start_date"`
+	FirstEndDate    string `json:"first_end_date"`
+	SecondStartDate string `json:"second_start_date"`
+	SecondEndDate   string `json:"second_end_date"`
+}

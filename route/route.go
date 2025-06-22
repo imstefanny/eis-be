@@ -77,6 +77,9 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classroomsController := controllers.NewClassroomsController(classroomsService)
 
 	termsRepository := repository.NewTermsRepository(db)
+	termsService := usecase.NewTermsUsecase(termsRepository)
+	termsController := controllers.NewTermsController(termsService)
+
 	academicsRepository := repository.NewAcademicsRepository(db)
 	academicsService := usecase.NewAcademicsUsecase(academicsRepository, studentsRepository, classroomsRepository, teachersRepository)
 	academicsController := controllers.NewAcademicsController(academicsService)
@@ -241,6 +244,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eTeacherAtts.DELETE("/:id", teacherAttsController.Delete)
 	eTeacherAtts.GET("/report", teacherAttsController.GetReport)
 
+	eTerms := e.Group("/terms")
+	eTerms.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eTerms.PUT("/:id", termsController.Update)
+
 	eAcademics := e.Group("/academics")
 	eAcademics.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eAcademics.GET("", academicsController.Browse)
@@ -298,6 +305,9 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademicGrades.POST("", studentGradesController.Create)
 	eAcademicGrades.PUT("", studentGradesController.UpdateByTermID)
 	eAcademicGrades.GET("/:student_ids", studentGradesController.GetAllByStudent)
+
+	eAcademicReports := eAcademics.Group("/:academic_id/report")
+	eAcademicReports.GET("/monthly/:student_ids", studentGradesController.GetMonthlyReportByStudent)
 
 	tSchedules := eTeachers.Group("/schedules")
 	tSchedules.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

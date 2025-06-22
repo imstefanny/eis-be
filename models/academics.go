@@ -26,11 +26,15 @@ type Academics struct {
 }
 
 type Terms struct {
-	ID         uint           `json:"id" gorm:"primaryKey"`
-	Name       string         `json:"name" gorm:"size:255;uniqueIndex:academic_term"`
-	AcademicID uint           `json:"academic_id" gorm:"size:255;uniqueIndex:academic_term"`
-	Academic   Academics      `json:"academic" gorm:"foreignKey:AcademicID"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	ID              uint           `json:"id" gorm:"primaryKey"`
+	Name            string         `json:"name" gorm:"size:255;uniqueIndex:academic_term"`
+	AcademicID      uint           `json:"academic_id" gorm:"size:255;uniqueIndex:academic_term"`
+	Academic        Academics      `json:"academic" gorm:"foreignKey:AcademicID"`
+	FirstStartDate  time.Time      `json:"first_start_date"`
+	FirstEndDate    time.Time      `json:"first_end_date"`
+	SecondStartDate time.Time      `json:"second_start_date"`
+	SecondEndDate   time.Time      `json:"second_end_date"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 }
