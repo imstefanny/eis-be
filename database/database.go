@@ -16,9 +16,9 @@ func init() {
 	InitDB()
 	InitialMigration()
 	PopulateRolesPermissions()
-	PopulateSuperAdmin()
 	PopulateLevels()
 	PopulateDocTypes()
+	PopulateSuperAdmin()
 }
 
 func InitDB() *gorm.DB {
@@ -91,7 +91,6 @@ func PopulateRolesPermissions() {
 		"news:read", "news:write",
 		"users:read", "users:write",
 		"accessrights:read", "accessrights:write",
-		"users:read", "users:write",
 		"academic_score:read", "academic_score:write",
 	}
 
