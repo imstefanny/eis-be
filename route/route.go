@@ -97,6 +97,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	classNotesDetailsService := usecase.NewClassNotesDetailsUsecase(classNotesDetailsRepository, teachersRepository, studentAttsRepository)
 	classNotesDetailsController := controllers.NewClassNotesDetailsController(classNotesDetailsService)
 
+	studentBehaviourRepository := repository.NewStudentBehaviourActivitiesRepository(db)
+	studentBehaviourService := usecase.NewStudentBehaviourActivitiesUsecase(studentBehaviourRepository, academicsRepository, termsRepository, studentsRepository)
+	studentBehaviourController := controllers.NewStudentBehaviourActivitiesController(studentBehaviourService)
+
 	studentGradesRepository := repository.NewStudentGradesRepository(db)
 	studentGradesService := usecase.NewStudentGradesUsecase(studentGradesRepository, studentAttsRepository, academicsRepository, termsRepository, studentsRepository, subjectsRepository)
 	studentGradesController := controllers.NewStudentGradesController(studentGradesService)
@@ -259,6 +263,11 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eStudentMarks := eStudents.Group("/marks")
 	eStudentMarks.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eStudentMarks.GET("/report", studentGradesController.GetReport)
+
+	eStudentBehaviour := eStudents.Group("/behaviour/:academic_id/:term_id")
+	eStudentBehaviour.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eStudentBehaviour.GET("", studentBehaviourController.GetByAcademicIdAndTermId)
+	eStudentBehaviour.POST("", studentBehaviourController.Create)
 
 	eSubjScheds := e.Group("/subjectschedules")
 	eSubjScheds.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
