@@ -28,6 +28,8 @@ type StudentBehaviourActivities struct {
 	SecondMonthExtracurricularScoreFirst  string         `json:"second_month_extracurricular_score_first" gorm:"default:''"`
 	SecondMonthExtracurricularSecond      string         `json:"second_month_extracurricular_second" gorm:"default:''"`
 	SecondMonthExtracurricularScoreSecond string         `json:"second_month_extracurricular_score_second" gorm:"default:''"`
+	FirstNotes                            string         `json:"first_notes" gorm:"default:''"`
+	SecondNotes                           string         `json:"second_notes" gorm:"default:''"`
 	CreatedAt                             time.Time      `json:"created_at"`
 	UpdatedAt                             time.Time      `json:"updated_at"`
 	DeletedAt                             gorm.DeletedAt `json:"deleted_at" gorm:"index"`

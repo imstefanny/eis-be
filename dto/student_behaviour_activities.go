@@ -14,6 +14,8 @@ type StudentBehaviourActivityRequest struct {
 	SecondNeatness  string `json:"second_neatness"`
 	SecondCrafts    string `json:"second_crafts"`
 	SecondBehaviour string `json:"second_behaviour"`
+	FirstNotes      string `json:"first_notes"`
+	SecondNotes     string `json:"second_notes"`
 
 	FirstMonthExtracurricularFirst       string `json:"first_month_extracurricular_first"`
 	FirstMonthExtracurricularScoreFirst  string `json:"first_month_extracurricular_score_first"`

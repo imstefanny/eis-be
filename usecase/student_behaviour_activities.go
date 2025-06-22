@@ -58,6 +58,8 @@ func (s *studentBehaviourActivitiesUsecase) GetByAcademicIdAndTermId(academicId,
 			SecondMonthExtracurricularScoreFirst:  studentBehaviour.SecondMonthExtracurricularScoreFirst,
 			SecondMonthExtracurricularSecond:      studentBehaviour.SecondMonthExtracurricularSecond,
 			SecondMonthExtracurricularScoreSecond: studentBehaviour.SecondMonthExtracurricularScoreSecond,
+			FirstNotes:                            studentBehaviour.FirstNotes,
+			SecondNotes:                           studentBehaviour.SecondNotes,
 		})
 	}
 
@@ -86,6 +88,8 @@ func (s *studentBehaviourActivitiesUsecase) Create(studentBehaviour []dto.Studen
 			SecondMonthExtracurricularScoreFirst:  detail.SecondMonthExtracurricularScoreFirst,
 			SecondMonthExtracurricularSecond:      detail.SecondMonthExtracurricularSecond,
 			SecondMonthExtracurricularScoreSecond: detail.SecondMonthExtracurricularScoreSecond,
+			FirstNotes:                            detail.FirstNotes,
+			SecondNotes:                           detail.SecondNotes,
 		})
 	}
 
@@ -121,6 +125,8 @@ func (s *studentBehaviourActivitiesUsecase) Update(studentBehaviour []dto.Studen
 			SecondMonthExtracurricularScoreFirst:  detail.SecondMonthExtracurricularScoreFirst,
 			SecondMonthExtracurricularSecond:      detail.SecondMonthExtracurricularSecond,
 			SecondMonthExtracurricularScoreSecond: detail.SecondMonthExtracurricularScoreSecond,
+			FirstNotes:                            detail.FirstNotes,
+			SecondNotes:                           detail.SecondNotes,
 		}
 
 		if result != nil {
