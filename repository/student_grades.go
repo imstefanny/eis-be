@@ -80,9 +80,9 @@ func (r *studentGradesRepository) GetMonthlyReportByStudent(academicID, studentI
 			student_grades.first_month,
 			student_grades.second_month
 		FROM student_grades
-			JOIN subjects ON student_grades.subject_id = subjects.id
-			JOIN academics ON student_grades.academic_id = academics.id
-			JOIN terms ON academics.id = terms.academic_id
+			LEFT JOIN terms ON student_grades.term_id = terms.id
+			LEFT JOIN academics ON terms.academic_id = academics.id
+			LEFT JOIN subjects ON student_grades.subject_id = subjects.id
 		WHERE
 			student_grades.student_id = ? AND terms.name = 'Semester 1' AND academics.id = ?
 	), second AS (
@@ -95,9 +95,9 @@ func (r *studentGradesRepository) GetMonthlyReportByStudent(academicID, studentI
 			student_grades.first_month,
 			student_grades.second_month
 		FROM student_grades
-			JOIN subjects ON student_grades.subject_id = subjects.id
-			JOIN academics ON student_grades.academic_id = academics.id
-			JOIN terms ON academics.id = terms.academic_id
+			LEFT JOIN terms ON student_grades.term_id = terms.id
+			LEFT JOIN academics ON terms.academic_id = academics.id
+			LEFT JOIN subjects ON student_grades.subject_id = subjects.id
 		WHERE
 			student_grades.student_id = ? AND terms.name = 'Semester 2' AND academics.id = ?
 	) SELECT
@@ -110,7 +110,7 @@ func (r *studentGradesRepository) GetMonthlyReportByStudent(academicID, studentI
 		second.second_quiz AS nd_second_quiz,
 		second.first_month AS nd_first_month,
 		second.second_month AS nd_second_month
-	FROM first JOIN second ON first.subject_id = second.subject_id
+	FROM first LEFT JOIN second ON first.subject_id = second.subject_id
 	ORDER BY first.subject_id
 	`
 

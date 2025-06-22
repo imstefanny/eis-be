@@ -304,9 +304,9 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademicGrades.GET("", studentGradesController.GetAll)
 	eAcademicGrades.POST("", studentGradesController.Create)
 	eAcademicGrades.PUT("", studentGradesController.UpdateByTermID)
-	eAcademicGrades.GET("/:student_ids", studentGradesController.GetAllByStudent)
-
+	
 	eAcademicReports := eAcademics.Group("/:academic_id/report")
+	eAcademicReports.GET("/:term_id/:student_ids", studentGradesController.GetAllByStudent)
 	eAcademicReports.GET("/monthly/:student_ids", studentGradesController.GetMonthlyReportByStudent)
 
 	tSchedules := eTeachers.Group("/schedules")

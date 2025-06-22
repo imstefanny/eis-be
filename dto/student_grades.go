@@ -137,12 +137,16 @@ type GetPrintMonthlyReportByStudent struct {
 	StFirstTidiness  string `json:"st_first_tidiness"`
 	StSecondTidiness string `json:"st_second_tidiness"`
 
-	StFirstExtracurricularFirst       string `json:"st_first_extracurricular_first"`
-	StFirstExtracurricularScoreFirst  string `json:"st_first_extracurricular_score_first"`
-	StFirstExtracurricularSecond      string `json:"st_first_extracurricular_second"`
-	StFirstExtracurricularScoreSecond string `json:"st_first_extracurricular_score_second"`
-	StFirstNotes                      string `json:"st_first_notes"`
-	StSecondNotes                     string `json:"st_second_notes"`
+	StFirstExtracurricularFirst        string `json:"st_first_extracurricular_first"`
+	StFirstExtracurricularScoreFirst   string `json:"st_first_extracurricular_score_first"`
+	StFirstExtracurricularSecond       string `json:"st_first_extracurricular_second"`
+	StFirstExtracurricularScoreSecond  string `json:"st_first_extracurricular_score_second"`
+	StSecondExtracurricularFirst       string `json:"st_second_extracurricular_first"`
+	StSecondExtracurricularScoreFirst  string `json:"st_second_extracurricular_score_first"`
+	StSecondExtracurricularSecond      string `json:"st_second_extracurricular_second"`
+	StSecondExtracurricularScoreSecond string `json:"st_second_extracurricular_score_second"`
+	StFirstNotes                       string `json:"st_first_notes"`
+	StSecondNotes                      string `json:"st_second_notes"`
 
 	StFirstSick        int `json:"st_first_sick"`
 	StSecondSick       int `json:"st_second_sick"`
@@ -158,12 +162,16 @@ type GetPrintMonthlyReportByStudent struct {
 	NdFirstTidiness  string `json:"nd_first_tidiness"`
 	NdSecondTidiness string `json:"nd_second_tidiness"`
 
-	NdFirstExtracurricularFirst       string `json:"nd_first_extracurricular_first"`
-	NdFirstExtracurricularScoreFirst  string `json:"nd_first_extracurricular_score_first"`
-	NdFirstExtracurricularSecond      string `json:"nd_first_extracurricular_second"`
-	NdFirstExtracurricularScoreSecond string `json:"nd_first_extracurricular_score_second"`
-	NdFirstNotes                      string `json:"nd_first_notes"`
-	NdSecondNotes                     string `json:"nd_second_notes"`
+	NdFirstExtracurricularFirst        string `json:"nd_first_extracurricular_first"`
+	NdFirstExtracurricularScoreFirst   string `json:"nd_first_extracurricular_score_first"`
+	NdFirstExtracurricularSecond       string `json:"nd_first_extracurricular_second"`
+	NdFirstExtracurricularScoreSecond  string `json:"nd_first_extracurricular_score_second"`
+	NdSecondExtracurricularFirst       string `json:"nd_second_extracurricular_first"`
+	NdSecondExtracurricularScoreFirst  string `json:"nd_second_extracurricular_score_first"`
+	NdSecondExtracurricularSecond      string `json:"nd_second_extracurricular_second"`
+	NdSecondExtracurricularScoreSecond string `json:"nd_second_extracurricular_score_second"`
+	NdFirstNotes                       string `json:"nd_first_notes"`
+	NdSecondNotes                      string `json:"nd_second_notes"`
 
 	NdFirstSick        int `json:"nd_first_sick"`
 	NdSecondSick       int `json:"nd_second_sick"`
@@ -171,6 +179,11 @@ type GetPrintMonthlyReportByStudent struct {
 	NdSecondPermission int `json:"nd_second_permission"`
 	NdFirstAbsent      int `json:"nd_first_absent"`
 	NdSecondAbsent     int `json:"nd_second_absent"`
+
+	StFirstDate  string `json:"st_first_date"`
+	StSecondDate string `json:"st_second_date"`
+	NdFirstDate  string `json:"nd_first_date"`
+	NdSecondDate string `json:"nd_second_date"`
 }
 type GetPrintMonthlyReportGrade struct {
 	Subject       string  `json:"subject"`
