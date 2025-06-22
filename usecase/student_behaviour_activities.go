@@ -10,6 +10,7 @@ import (
 type StudentBehaviourActivitiesUsecase interface {
 	GetByAcademicIdAndTermId(academicID, termID int) ([]dto.StudentBehaviourActivityRequest, error)
 	Create(studentGrade []dto.StudentBehaviourActivityRequest) error
+	Update(studentGrade []dto.StudentBehaviourActivityRequest) error
 }
 
 type studentBehaviourActivitiesUsecase struct {
@@ -93,5 +94,47 @@ func (s *studentBehaviourActivitiesUsecase) Create(studentBehaviour []dto.Studen
 		return err
 	}
 
+	return nil
+}
+
+func (s *studentBehaviourActivitiesUsecase) Update(studentBehaviour []dto.StudentBehaviourActivityRequest) error {
+	for _, detail := range studentBehaviour {
+		result, _ := s.studentBehaviourRepository.FindByStudentIDAndAcademicIDAndTermID(detail.StudentID, detail.AcademicID, detail.TermID)
+
+		entry := models.StudentBehaviourActivities{
+			AcademicID:                            detail.AcademicID,
+			TermID:                                detail.TermID,
+			StudentID:                             detail.StudentID,
+			FirstBehaviour:                        detail.FirstBehaviour,
+			FirstNeatness:                         detail.FirstNeatness,
+			FirstCrafts:                           detail.FirstCrafts,
+			FirstMonthExtracurricularFirst:        detail.FirstMonthExtracurricularFirst,
+			FirstMonthExtracurricularScoreFirst:   detail.FirstMonthExtracurricularScoreFirst,
+			FirstMonthExtracurricularSecond:       detail.FirstMonthExtracurricularSecond,
+			FirstMonthExtracurricularScoreSecond:  detail.FirstMonthExtracurricularScoreSecond,
+			SecondNeatness:                        detail.SecondNeatness,
+			SecondCrafts:                          detail.SecondCrafts,
+			SecondBehaviour:                       detail.SecondBehaviour,
+			SecondMonthExtracurricularFirst:       detail.SecondMonthExtracurricularFirst,
+			SecondMonthExtracurricularScoreFirst:  detail.SecondMonthExtracurricularScoreFirst,
+			SecondMonthExtracurricularSecond:      detail.SecondMonthExtracurricularSecond,
+			SecondMonthExtracurricularScoreSecond: detail.SecondMonthExtracurricularScoreSecond,
+		}
+
+		if result != nil {
+			entry.CreatedAt = result.CreatedAt
+		}
+
+		var err error
+		if result == nil {
+			err = s.studentBehaviourRepository.Create([]models.StudentBehaviourActivities{entry})
+		} else {
+			err = s.studentBehaviourRepository.Update(entry)
+		}
+
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

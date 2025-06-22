@@ -268,6 +268,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eStudentBehaviour.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eStudentBehaviour.GET("", studentBehaviourController.GetByAcademicIdAndTermId)
 	eStudentBehaviour.POST("", studentBehaviourController.Create)
+	eStudentBehaviour.PUT("", studentBehaviourController.Update)
 
 	eSubjScheds := e.Group("/subjectschedules")
 	eSubjScheds.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

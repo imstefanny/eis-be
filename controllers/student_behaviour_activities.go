@@ -69,3 +69,32 @@ func (u *studentBehaviourActivitiesController) Create(c echo.Context) error {
 		"message": "Student behaviour activities created successfully",
 	})
 }
+
+func (u *studentBehaviourActivitiesController) Update(c echo.Context) error {
+	termID, err := strconv.Atoi(c.Param("term_id"))
+	if err != nil || termID < 1 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid term ID",
+		})
+	}
+
+	studentBehaviour := []dto.StudentBehaviourActivityRequest{}
+
+	if err := c.Bind(&studentBehaviour); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	errUpdate := u.useCase.Update(studentBehaviour)
+
+	if errUpdate != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data updated successfully",
+	})
+}

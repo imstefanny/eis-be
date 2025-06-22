@@ -9,7 +9,8 @@ import (
 type StudentBehaviourActivitiesRepository interface {
 	GetByAcademicIdAndTermId(academicID, termID int) ([]models.StudentBehaviourActivities, error)
 	Create(studentBehaviour []models.StudentBehaviourActivities) error
-	// UpdateByTermID(studentBehaviour, newStudents []models.StudentBehaviourActivities) error
+	Update(studentBehaviour models.StudentBehaviourActivities) error
+	FindByStudentIDAndAcademicIDAndTermID(studentID, academicID, termID uint) (*models.StudentBehaviourActivities, error)
 }
 
 type studentBehaviourActivitiesRepository struct {
@@ -39,4 +40,26 @@ func (r *studentBehaviourActivitiesRepository) Create(studentBehaviour []models.
 		return err.Error
 	}
 	return nil
+}
+
+func (r *studentBehaviourActivitiesRepository) Update(studentBehaviour models.StudentBehaviourActivities) error {
+	err := r.db.Save(&studentBehaviour)
+	if err.Error != nil {
+		return err.Error
+	}
+	return nil
+}
+
+func (r *studentBehaviourActivitiesRepository) FindByStudentIDAndAcademicIDAndTermID(studentID, academicID, termID uint) (*models.StudentBehaviourActivities, error) {
+	var studentBehaviour models.StudentBehaviourActivities
+	if err := r.db.Where("student_id = ?", studentID).
+		Where("academic_id = ?", academicID).
+		Where("term_id = ?", termID).
+		Preload("Academic").
+		Preload("Term").
+		Preload("Student").
+		First(&studentBehaviour).Error; err != nil {
+		return nil, err
+	}
+	return &studentBehaviour, nil
 }
