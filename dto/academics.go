@@ -56,8 +56,12 @@ type GetAcademicDetailResponse struct {
 }
 
 type GetTermResponse struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	ID              uint      `json:"id"`
+	Name            string    `json:"name"`
+	FirstStartDate  time.Time `json:"first_start_date"`
+	FirstEndDate    time.Time `json:"first_end_date"`
+	SecondStartDate time.Time `json:"second_start_date"`
+	SecondEndDate   time.Time `json:"second_end_date"`
 }
 
 type GetStudentResponse struct {

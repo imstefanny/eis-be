@@ -35,7 +35,25 @@ func (r *termsRepository) Find(id int) (models.Terms, error) {
 }
 
 func (r *termsRepository) Update(term models.Terms) error {
-	if err := r.db.Save(&term).Error; err != nil {
+	updateData := map[string]interface{}{}
+
+	if !term.FirstStartDate.IsZero() {
+		updateData["first_start_date"] = term.FirstStartDate
+	}
+	if !term.FirstEndDate.IsZero() {
+		updateData["first_end_date"] = term.FirstEndDate
+	}
+	if !term.SecondStartDate.IsZero() {
+		updateData["second_start_date"] = term.SecondStartDate
+	}
+	if !term.SecondEndDate.IsZero() {
+		updateData["second_end_date"] = term.SecondEndDate
+	}
+
+	if len(updateData) == 0 {
+		return nil
+	}
+	if err := r.db.Model(&term).Updates(updateData).Error; err != nil {
 		return err
 	}
 	return nil

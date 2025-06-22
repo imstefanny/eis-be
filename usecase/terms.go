@@ -27,14 +27,18 @@ func (u *termsUsecase) Update(id int, term dto.UpdateTermRequest) (models.Terms,
 		return models.Terms{}, err
 	}
 
-	parsedFirstStartDate, _ := time.Parse("2006-01-02", term.FirstStartDate)
-	termData.FirstStartDate = parsedFirstStartDate
-	parsedFirstEndDate, _ := time.Parse("2006-01-02", term.FirstEndDate)
-	termData.FirstEndDate = parsedFirstEndDate
-	parsedSecondStartDate, _ := time.Parse("2006-01-02", term.SecondStartDate)
-	termData.SecondStartDate = parsedSecondStartDate
-	parsedSecondEndDate, _ := time.Parse("2006-01-02", term.SecondEndDate)
-	termData.SecondEndDate = parsedSecondEndDate
+	if term.FirstEndDate != "" && term.FirstStartDate != "" {
+		parsedFirstStartDate, _ := time.Parse("2006-01-02", term.FirstStartDate)
+		termData.FirstStartDate = parsedFirstStartDate
+		parsedFirstEndDate, _ := time.Parse("2006-01-02", term.FirstEndDate)
+		termData.FirstEndDate = parsedFirstEndDate
+	}
+	if term.SecondStartDate != "" && term.SecondEndDate != "" {
+		parsedSecondStartDate, _ := time.Parse("2006-01-02", term.SecondStartDate)
+		termData.SecondStartDate = parsedSecondStartDate
+		parsedSecondEndDate, _ := time.Parse("2006-01-02", term.SecondEndDate)
+		termData.SecondEndDate = parsedSecondEndDate
+	}
 
 	if err := u.termsRepository.Update(termData); err != nil {
 		return models.Terms{}, err

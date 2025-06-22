@@ -25,7 +25,7 @@ type academicsUsecase struct {
 	academicsRepository  repository.AcademicsRepository
 	studentsRepository   repository.StudentsRepository
 	classroomsRepository repository.ClassroomsRepository
-	teachersRepository repository.TeachersRepository
+	teachersRepository   repository.TeachersRepository
 }
 
 func NewAcademicsUsecase(academicsRepo repository.AcademicsRepository, studentsRepo repository.StudentsRepository, classroomsRepo repository.ClassroomsRepository, teachersRepo repository.TeachersRepository) *academicsUsecase {
@@ -33,7 +33,7 @@ func NewAcademicsUsecase(academicsRepo repository.AcademicsRepository, studentsR
 		academicsRepository:  academicsRepo,
 		studentsRepository:   studentsRepo,
 		classroomsRepository: classroomsRepo,
-		teachersRepository:  teachersRepo,
+		teachersRepository:   teachersRepo,
 	}
 }
 
@@ -183,8 +183,12 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 	terms := []dto.GetTermResponse{}
 	for _, term := range academic.Terms {
 		termResponse := dto.GetTermResponse{
-			ID:   term.ID,
-			Name: term.Name,
+			ID:              term.ID,
+			Name:            term.Name,
+			FirstStartDate:  term.FirstStartDate,
+			FirstEndDate:    term.FirstEndDate,
+			SecondStartDate: term.SecondStartDate,
+			SecondEndDate:   term.SecondEndDate,
 		}
 		terms = append(terms, termResponse)
 	}
