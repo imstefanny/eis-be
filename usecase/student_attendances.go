@@ -142,7 +142,7 @@ func (s *studentAttsUsecase) UpdateByTermID(termID int, studentAtt dto.UpdateStu
 		for _, student := range studentAtt.Students {
 			studentDetail, _ := s.studentsRepository.Find(int(student.StudentID))
 			toBeCreated = append(toBeCreated, models.StudentAttendances{
-				DisplayName: studentDetail.FullName,
+				DisplayName: studentDetail.FullName + " - " + parseDate.Format("2006-01-02"),
 				AcademicID:  term.AcademicID,
 				TermID:      uint(termID),
 				StudentID:   student.StudentID,
