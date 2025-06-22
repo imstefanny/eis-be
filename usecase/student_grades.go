@@ -411,6 +411,10 @@ func (s *studentGradesUsecase) GetMonthlyReportByStudent(academicID int, student
 			response.StFirstExtracurricularScoreFirst = stTermBehavior.FirstMonthExtracurricularScoreFirst
 			response.StFirstExtracurricularSecond = stTermBehavior.FirstMonthExtracurricularSecond
 			response.StFirstExtracurricularScoreSecond = stTermBehavior.FirstMonthExtracurricularScoreSecond
+			response.StSecondExtracurricularFirst = stTermBehavior.SecondMonthExtracurricularFirst
+			response.StSecondExtracurricularScoreFirst = stTermBehavior.SecondMonthExtracurricularScoreFirst
+			response.StSecondExtracurricularSecond = stTermBehavior.SecondMonthExtracurricularSecond
+			response.StSecondExtracurricularScoreSecond = stTermBehavior.SecondMonthExtracurricularScoreSecond
 			response.StFirstNotes = stTermBehavior.FirstNotes
 			response.StSecondNotes = stTermBehavior.SecondNotes
 		}
@@ -419,10 +423,14 @@ func (s *studentGradesUsecase) GetMonthlyReportByStudent(academicID int, student
 			response.NdSecondBehavior = ndTermBehavior.SecondBehaviour
 			response.NdFirstCraft = ndTermBehavior.FirstCrafts
 			response.NdSecondCraft = ndTermBehavior.SecondCrafts
-			response.NdFirstExtracurricularFirst = ndTermBehavior.SecondMonthExtracurricularFirst
-			response.NdFirstExtracurricularScoreFirst = ndTermBehavior.SecondMonthExtracurricularScoreFirst
-			response.NdFirstExtracurricularSecond = ndTermBehavior.SecondMonthExtracurricularSecond
-			response.NdFirstExtracurricularScoreSecond = ndTermBehavior.SecondMonthExtracurricularScoreSecond
+			response.NdFirstExtracurricularFirst = ndTermBehavior.FirstMonthExtracurricularFirst
+			response.NdFirstExtracurricularScoreFirst = ndTermBehavior.FirstMonthExtracurricularScoreFirst
+			response.NdFirstExtracurricularSecond = ndTermBehavior.FirstMonthExtracurricularSecond
+			response.NdFirstExtracurricularScoreSecond = ndTermBehavior.FirstMonthExtracurricularScoreSecond
+			response.NdSecondExtracurricularFirst = stTermBehavior.SecondMonthExtracurricularFirst
+			response.NdSecondExtracurricularScoreFirst = stTermBehavior.SecondMonthExtracurricularScoreFirst
+			response.NdSecondExtracurricularSecond = stTermBehavior.SecondMonthExtracurricularSecond
+			response.NdSecondExtracurricularScoreSecond = stTermBehavior.SecondMonthExtracurricularScoreSecond
 			response.NdFirstNotes = ndTermBehavior.FirstNotes
 			response.NdSecondNotes = ndTermBehavior.SecondNotes
 		}
