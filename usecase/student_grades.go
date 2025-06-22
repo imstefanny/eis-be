@@ -336,6 +336,10 @@ func (s *studentGradesUsecase) GetMonthlyReportByStudent(academicID int, student
 			ndTerm = term
 		}
 	}
+	stFirstDate := stTerm.FirstStartDate
+	stSecondDate := stTerm.SecondStartDate
+	ndFirstDate := ndTerm.FirstStartDate
+	ndSecondDate := ndTerm.SecondStartDate
 	responses := []dto.GetPrintMonthlyReportByStudent{}
 	for _, studentID := range studentsIDs {
 		student, err := s.studentsRepository.Find(studentID)
@@ -397,6 +401,10 @@ func (s *studentGradesUsecase) GetMonthlyReportByStudent(academicID int, student
 			NdSecondPermission: ndSecondAttsMap["Permission"],
 			NdFirstAbsent:      ndFirstAttsMap["Absent"],
 			NdSecondAbsent:     ndSecondAttsMap["Absent"],
+			StFirstDate:        stFirstDate.Format("02 January 2006"),
+			StSecondDate:       stSecondDate.Format("02 January 2006"),
+			NdFirstDate:        ndFirstDate.Format("02 January 2006"),
+			NdSecondDate:       ndSecondDate.Format("02 January 2006"),
 		}
 		stTermBehavior, _ := s.studentBehaviourRepository.FindByStudentIDAndAcademicIDAndTermID(student.ID, academic.ID, stTerm.ID)
 		ndTermBehavior, _ := s.studentBehaviourRepository.FindByStudentIDAndAcademicIDAndTermID(student.ID, academic.ID, ndTerm.ID)

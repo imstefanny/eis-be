@@ -179,6 +179,11 @@ type GetPrintMonthlyReportByStudent struct {
 	NdSecondPermission int `json:"nd_second_permission"`
 	NdFirstAbsent      int `json:"nd_first_absent"`
 	NdSecondAbsent     int `json:"nd_second_absent"`
+
+	StFirstDate  string `json:"st_first_date"`
+	StSecondDate string `json:"st_second_date"`
+	NdFirstDate  string `json:"nd_first_date"`
+	NdSecondDate string `json:"nd_second_date"`
 }
 type GetPrintMonthlyReportGrade struct {
 	Subject       string  `json:"subject"`
