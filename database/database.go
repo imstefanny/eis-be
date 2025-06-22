@@ -92,7 +92,11 @@ func PopulateRolesPermissions() {
 		"news:read", "news:write",
 		"users:read", "users:write",
 		"accessrights:read", "accessrights:write",
-		"academic_score:read", "academic_score:write",
+		"academic_all_score:write",
+		"academic_print:read",
+		"academic_transfer:write",
+		"academic_behaviour:write",
+		"academic_classnote:write",
 	}
 
 	permissions := []models.Permissions{}
@@ -155,6 +159,8 @@ func PopulateRolesPermissions() {
 			permMap["users:write"],
 			permMap["accessrights:read"],
 			permMap["accessrights:write"],
+			permMap["academic_transfer:write"],
+			permMap["academic_classnote:write"],
 		}},
 		{Name: "Teacher", Permissions: []models.Permissions{
 			permMap["student:read"],
@@ -185,8 +191,10 @@ func PopulateRolesPermissions() {
 			permMap["teacherattrep:read"],
 			permMap["worksched:read"],
 			permMap["news:read"],
-			permMap["academic_score:read"],
-			permMap["academic_score:write"],
+			permMap["academic_all_score:write"],
+			permMap["academic_print:read"],
+			permMap["academic_behaviour:write"],
+			permMap["academic_classnote:write"],
 		}},
 		{Name: "Student", Permissions: []models.Permissions{
 			permMap["student:read"],
