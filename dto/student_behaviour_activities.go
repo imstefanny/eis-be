@@ -6,6 +6,7 @@ type StudentBehaviourActivityRequest struct {
 	TermID      uint   `json:"term_id" validate:"required"`
 	StudentID   uint   `json:"student_id"`
 	StudentName string `json:"student_name"`
+	StudentNIS  string `json:"student_nis"`
 
 	FirstNeatness   string `json:"first_neatness"`
 	FirstCrafts     string `json:"first_crafts"`

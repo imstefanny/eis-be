@@ -42,6 +42,7 @@ func (s *studentBehaviourActivitiesUsecase) GetByAcademicIdAndTermId(academicId,
 			AcademicID:                            studentBehaviour.AcademicID,
 			TermID:                                studentBehaviour.TermID,
 			StudentID:                             studentBehaviour.StudentID,
+			StudentNIS:                            studentBehaviour.Student.NIS,
 			StudentName:                           studentBehaviour.Student.FullName,
 			FirstBehaviour:                        studentBehaviour.FirstBehaviour,
 			FirstNeatness:                         studentBehaviour.FirstNeatness,
@@ -102,6 +103,7 @@ func (s *studentBehaviourActivitiesUsecase) Update(studentBehaviour []dto.Studen
 		result, _ := s.studentBehaviourRepository.FindByStudentIDAndAcademicIDAndTermID(detail.StudentID, detail.AcademicID, detail.TermID)
 
 		entry := models.StudentBehaviourActivities{
+			ID:                                    detail.ID,
 			AcademicID:                            detail.AcademicID,
 			TermID:                                detail.TermID,
 			StudentID:                             detail.StudentID,
@@ -126,7 +128,7 @@ func (s *studentBehaviourActivitiesUsecase) Update(studentBehaviour []dto.Studen
 		}
 
 		var err error
-		if result == nil {
+		if detail.ID == 0 {
 			err = s.studentBehaviourRepository.Create([]models.StudentBehaviourActivities{entry})
 		} else {
 			err = s.studentBehaviourRepository.Update(entry)
