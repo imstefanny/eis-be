@@ -288,6 +288,48 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 				Remarks: score.Remarks,
 			})
 		}
+		extracurriculars := []dto.GetPrintReportExtracurricular{}
+		extracurricularsData, err := s.studentBehaviourRepository.FindByStudentIDAndAcademicIDAndTermID(student.ID, term.AcademicID, term.ID)
+		if err != nil {
+			return []dto.GetPrintReportByStudent{}, fmt.Errorf("error getting student extracurricular activities: %w", err)
+		}
+		extMap := map[string]int{
+			"A": 4,
+			"B": 3,
+			"C": 2,
+			"D": 1,
+			"E": 0,
+		}
+		stFirstExtScore := extMap[extracurricularsData.FirstMonthExtracurricularScoreFirst]
+		stSecondExtScore := extMap[extracurricularsData.FirstMonthExtracurricularScoreSecond]
+		ndFirstExtScore := extMap[extracurricularsData.SecondMonthExtracurricularScoreFirst]
+		ndSecondExtScore := extMap[extracurricularsData.SecondMonthExtracurricularScoreSecond]
+		firstScore := ""
+		if stFirstExtScore > ndFirstExtScore {
+			firstScore = extracurricularsData.FirstMonthExtracurricularScoreFirst
+		} else {
+			firstScore = extracurricularsData.SecondMonthExtracurricularScoreFirst
+		}
+		secondScore := ""
+		if stSecondExtScore > ndSecondExtScore {
+			secondScore = extracurricularsData.FirstMonthExtracurricularScoreSecond
+		} else {
+			secondScore = extracurricularsData.SecondMonthExtracurricularScoreSecond
+		}
+		extracurriculars = append(extracurriculars, []dto.GetPrintReportExtracurricular{
+			{
+				Name:  extracurricularsData.FirstMonthExtracurricularFirst,
+				Score: firstScore,
+			},
+			{
+				Name:  extracurricularsData.FirstMonthExtracurricularSecond,
+				Score: secondScore,
+			},
+			{
+				Name: "",
+				Score: "",
+			},
+		}...)
 		attsMap := make(map[string]int)
 		for _, att := range studentAtts {
 			if _, exists := attsMap[att.Status]; !exists {
@@ -302,20 +344,21 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 		}
 		termName, _ := strconv.Atoi(term.Name[9:])
 		response := dto.GetPrintReportByStudent{
-			Name:            student.FullName,
-			NIS:             student.NIS,
-			NISN:            student.NISN,
-			Level:           term.Academic.Classroom.Level.Name,
-			Class:           term.Academic.Classroom.Grade,
-			Fase:            term.Academic.Classroom.Name,
-			Term:            termName,
-			AcademicYear:    term.Academic.StartYear + "/" + term.Academic.EndYear,
-			Grades:          grades,
-			Sick:            attsMap["Sick"],
-			Absent:          attsMap["Absent"],
-			Permission:      attsMap["Permission"],
-			HomeRoomTeacher: term.Academic.HomeroomTeacher.Name,
-			Principal:       principal,
+			Name:             student.FullName,
+			NIS:              student.NIS,
+			NISN:             student.NISN,
+			Level:            term.Academic.Classroom.Level.Name,
+			Class:            term.Academic.Classroom.Grade,
+			Fase:             term.Academic.Classroom.Name,
+			Term:             termName,
+			AcademicYear:     term.Academic.StartYear + "/" + term.Academic.EndYear,
+			Grades:           grades,
+			Extracurriculars: extracurriculars,
+			Sick:             attsMap["Sick"],
+			Absent:           attsMap["Absent"],
+			Permission:       attsMap["Permission"],
+			HomeRoomTeacher:  term.Academic.HomeroomTeacher.Name,
+			Principal:        principal,
 		}
 		responses = append(responses, response)
 	}
