@@ -72,6 +72,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	levelHistoriesService := usecase.NewLevelHistoriesUsecase(levelHistoriesRepository)
 	levelHistoriesController := controllers.NewLevelHistoriesController(levelHistoriesService)
 
+	curriculumsRepository := repository.NewCurriculumsRepository(db)
+	curriculumsService := usecase.NewCurriculumsUsecase(curriculumsRepository, levelsRepository)
+	curriculumsController := controllers.NewCurriculumsController(curriculumsService)
+
 	classroomsRepository := repository.NewClassroomsRepository(db)
 	classroomsService := usecase.NewClassroomsUsecase(classroomsRepository, levelsRepository)
 	classroomsController := controllers.NewClassroomsController(classroomsService)
@@ -208,6 +212,14 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eLevelHistories.PUT("/:id", levelHistoriesController.Update)
 	eLevelHistories.DELETE("/:id", levelHistoriesController.Delete)
 
+	eCurriculums := e.Group("/curriculums")
+	eCurriculums.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eCurriculums.GET("", curriculumsController.Browse)
+	eCurriculums.GET("/:id", curriculumsController.Find)
+	eCurriculums.POST("", curriculumsController.Create)
+	eCurriculums.PUT("/:id", curriculumsController.Update)
+	eCurriculums.DELETE("/:id", curriculumsController.Delete)
+
 	eClassrooms := e.Group("/classrooms")
 	eClassrooms.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eClassrooms.GET("", classroomsController.Browse)
@@ -304,7 +316,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademicGrades.GET("", studentGradesController.GetAll)
 	eAcademicGrades.POST("", studentGradesController.Create)
 	eAcademicGrades.PUT("", studentGradesController.UpdateByTermID)
-	
+
 	eAcademicReports := eAcademics.Group("/:academic_id/report")
 	eAcademicReports.GET("/:term_id/:student_ids", studentGradesController.GetAllByStudent)
 	eAcademicReports.GET("/monthly/:student_ids", studentGradesController.GetMonthlyReportByStudent)
