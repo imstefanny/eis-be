@@ -206,11 +206,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 
 	eLevelHistories := e.Group("/levelhistories")
 	eLevelHistories.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
-	eLevelHistories.GET("", levelHistoriesController.Browse)
-	eLevelHistories.GET("/:id", levelHistoriesController.Find)
 	eLevelHistories.POST("", levelHistoriesController.Create)
-	eLevelHistories.PUT("/:id", levelHistoriesController.Update)
-	eLevelHistories.DELETE("/:id", levelHistoriesController.Delete)
 
 	eCurriculums := e.Group("/curriculums")
 	eCurriculums.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
