@@ -10,7 +10,7 @@ import (
 )
 
 type AcademicsUsecase interface {
-	Browse(page, limit int, search, academicYear string, userId int) (interface{}, int64, error)
+	Browse(page, limit int, search, academicYear string, userId int) ([]dto.GetAcademicsResponse, int64, error)
 	Create(academic dto.CreateAcademicsRequest) error
 	CreateBatch(batch dto.CreateBatchAcademicsRequest) error
 	Find(id int) (interface{}, error)
@@ -22,18 +22,25 @@ type AcademicsUsecase interface {
 }
 
 type academicsUsecase struct {
-	academicsRepository  repository.AcademicsRepository
-	studentsRepository   repository.StudentsRepository
-	classroomsRepository repository.ClassroomsRepository
-	teachersRepository   repository.TeachersRepository
+	academicsRepository   repository.AcademicsRepository
+	studentsRepository    repository.StudentsRepository
+	classroomsRepository  repository.ClassroomsRepository
+	teachersRepository    repository.TeachersRepository
+	curriculumsRepository repository.CurriculumsRepository
 }
 
-func NewAcademicsUsecase(academicsRepo repository.AcademicsRepository, studentsRepo repository.StudentsRepository, classroomsRepo repository.ClassroomsRepository, teachersRepo repository.TeachersRepository) *academicsUsecase {
+func NewAcademicsUsecase(
+	academicsRepo repository.AcademicsRepository,
+	studentsRepo repository.StudentsRepository,
+	classroomsRepo repository.ClassroomsRepository,
+	teachersRepo repository.TeachersRepository,
+	curriculumsRepo repository.CurriculumsRepository) *academicsUsecase {
 	return &academicsUsecase{
-		academicsRepository:  academicsRepo,
-		studentsRepository:   studentsRepo,
-		classroomsRepository: classroomsRepo,
-		teachersRepository:   teachersRepo,
+		academicsRepository:   academicsRepo,
+		studentsRepository:    studentsRepo,
+		classroomsRepository:  classroomsRepo,
+		teachersRepository:    teachersRepo,
+		curriculumsRepository: curriculumsRepo,
 	}
 }
 
@@ -47,7 +54,7 @@ func validateBatchCreateAcademicsRequest(req dto.CreateBatchAcademicsRequest) er
 	return validate.Struct(req)
 }
 
-func (s *academicsUsecase) Browse(page, limit int, search, academicYear string, userId int) (interface{}, int64, error) {
+func (s *academicsUsecase) Browse(page, limit int, search, academicYear string, userId int) ([]dto.GetAcademicsResponse, int64, error) {
 	startYear, endYear := "", ""
 	if academicYear != "" {
 		startYear, endYear = academicYear[:4], academicYear[5:9]
@@ -72,6 +79,7 @@ func (s *academicsUsecase) Browse(page, limit int, search, academicYear string, 
 			Classroom:       academic.Classroom.DisplayName,
 			LevelName:       academic.Classroom.Level.Name,
 			Major:           academic.Major,
+			Curriculum:      academic.Curriculum.DisplayName,
 			HomeroomTeacher: academic.HomeroomTeacher.Name,
 			Students:        academic.Students,
 			Terms:           academic.Terms,
@@ -119,6 +127,7 @@ func (s *academicsUsecase) Create(academic dto.CreateAcademicsRequest) error {
 		EndYear:           academic.EndYear,
 		ClassroomID:       academic.ClassroomID,
 		Major:             academic.Major,
+		CurriculumID:      academic.CurriculumID,
 		HomeroomTeacherID: academic.HomeroomTeacherID,
 		Students:          students,
 		Terms:             terms,
@@ -146,6 +155,14 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 	academicsData := []models.Academics{}
 
 	for _, classroom := range classrooms {
+		curriculum, err := s.curriculumsRepository.GetCurriculumnsByLevelIDandGrade(int(classroom.LevelID), classroom.Grade)
+		if err != nil || len(curriculum) == 0 {
+			curriculum = []models.Curriculums{
+				{
+					ID: 0,
+				},
+			}
+		}
 		terms := []models.Terms{
 			{
 				Name: "Semester 1",
@@ -155,12 +172,13 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 			},
 		}
 		academic := models.Academics{
-			DisplayName: "T.A." + batch.StartYear + "/" + batch.EndYear + " - " + classroom.DisplayName,
-			StartYear:   batch.StartYear,
-			EndYear:     batch.EndYear,
-			ClassroomID: classroom.ID,
-			Major:       "General",
-			Terms:       terms,
+			DisplayName:  "T.A." + batch.StartYear + "/" + batch.EndYear + " - " + classroom.DisplayName,
+			StartYear:    batch.StartYear,
+			EndYear:      batch.EndYear,
+			ClassroomID:  classroom.ID,
+			CurriculumID: curriculum[0].ID,
+			Major:        "General",
+			Terms:        terms,
 		}
 		academicsData = append(academicsData, academic)
 	}
@@ -252,23 +270,36 @@ func (s *academicsUsecase) Find(id int) (interface{}, error) {
 		classnotes = append(classnotes, classNote)
 	}
 
+	curriculumSubjects := []dto.GetCurriculumSubjectResponse{}
+	for _, subject := range academic.Curriculum.CurriculumSubjects {
+		subjectResponse := dto.GetCurriculumSubjectResponse{
+			ID:          subject.ID,
+			SubjectID:   subject.Subject.ID,
+			SubjectName: subject.Subject.Name,
+		}
+		curriculumSubjects = append(curriculumSubjects, subjectResponse)
+	}
+
 	response := dto.GetAcademicDetailResponse{
-		ID:                academic.ID,
-		DisplayName:       academic.DisplayName,
-		StartYear:         academic.StartYear,
-		EndYear:           academic.EndYear,
-		Classroom:         academic.Classroom.DisplayName,
-		LevelName:         academic.Classroom.Level.Name,
-		Major:             academic.Major,
-		HomeroomTeacherId: academic.HomeroomTeacherID,
-		HomeroomTeacher:   academic.HomeroomTeacher.Name,
-		Terms:             terms,
-		Students:          students,
-		SubjScheds:        schedules,
-		ClassNotes:        classnotes,
-		CreatedAt:         academic.CreatedAt,
-		UpdatedAt:         academic.UpdatedAt,
-		DeletedAt:         academic.DeletedAt,
+		ID:                 academic.ID,
+		DisplayName:        academic.DisplayName,
+		StartYear:          academic.StartYear,
+		EndYear:            academic.EndYear,
+		Classroom:          academic.Classroom.DisplayName,
+		LevelName:          academic.Classroom.Level.Name,
+		Major:              academic.Major,
+		HomeroomTeacherId:  academic.HomeroomTeacherID,
+		HomeroomTeacher:    academic.HomeroomTeacher.Name,
+		CurriculumID:       academic.CurriculumID,
+		Curriculum:         academic.Curriculum.DisplayName,
+		CurriculumSubjects: curriculumSubjects,
+		Terms:              terms,
+		Students:           students,
+		SubjScheds:         schedules,
+		ClassNotes:         classnotes,
+		CreatedAt:          academic.CreatedAt,
+		UpdatedAt:          academic.UpdatedAt,
+		DeletedAt:          academic.DeletedAt,
 	}
 
 	return response, nil
@@ -307,6 +338,7 @@ func (s *academicsUsecase) Update(id int, academic dto.CreateAcademicsRequest) (
 	academicData.StartYear = academic.StartYear
 	academicData.EndYear = academic.EndYear
 	academicData.ClassroomID = academic.ClassroomID
+	academicData.CurriculumID = academic.CurriculumID
 	academicData.Major = academic.Major
 	academicData.HomeroomTeacherID = academic.HomeroomTeacherID
 	academicData.Students = students

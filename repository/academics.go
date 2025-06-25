@@ -55,6 +55,7 @@ func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear
 		Preload("HomeroomTeacher").
 		Preload("Students").
 		Preload("Terms").
+		Preload("Curriculum").
 		Find(&academics).Error; err != nil {
 		return nil, 0, err
 	}
@@ -103,6 +104,9 @@ func (r *academicsRepository) Find(id int) (models.Academics, error) {
 		Preload("ClassNotes.Details.Teacher").
 		Preload("ClassNotes.Details.SubjSched.Teacher").
 		Preload("ClassNotes.Details.SubjSched.Subject").
+		Preload("Curriculum").
+		Preload("Curriculum.CurriculumSubjects").
+		Preload("Curriculum.CurriculumSubjects.Subject").
 		First(&academic, id).Error; err != nil {
 		return academic, err
 	}

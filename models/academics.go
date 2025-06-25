@@ -8,7 +8,7 @@ import (
 
 type Academics struct {
 	ID                uint               `json:"id" gorm:"primaryKey"`
-	DisplayName       string             `json:"display_name"`
+	DisplayName       string             `json:"display_name" gorm:"size:255;unique"`
 	StartYear         string             `json:"start_year"`
 	EndYear           string             `json:"end_year"`
 	ClassroomID       uint               `json:"classroom_id" gorm:"default:null"`
@@ -16,6 +16,8 @@ type Academics struct {
 	Major             string             `json:"major" gorm:"default:'General'"`
 	HomeroomTeacherID uint               `json:"homeroom_teacher_id" gorm:"default:null"`
 	HomeroomTeacher   Teachers           `json:"homeroom_teacher" gorm:"foreignKey:HomeroomTeacherID"`
+	CurriculumID      uint               `json:"curriculum_id" gorm:"default:null"`
+	Curriculum        Curriculums        `json:"curriculum" gorm:"foreignKey:CurriculumID"`
 	Students          []Students         `json:"students" gorm:"many2many:academic_students;"`
 	SubjScheds        []SubjectSchedules `json:"subj_schedules" gorm:"foreignKey:AcademicID"`
 	ClassNotes        []ClassNotes       `json:"class_notes" gorm:"foreignKey:AcademicID"`

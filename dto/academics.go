@@ -12,6 +12,7 @@ type CreateAcademicsRequest struct {
 	StartYear         string `json:"start_year" validate:"required"`
 	EndYear           string `json:"end_year" validate:"required"`
 	ClassroomID       uint   `json:"classroom_id" validate:"required"`
+	CurriculumID      uint   `json:"curriculum_id" validate:"required"`
 	Major             string `json:"major"`
 	HomeroomTeacherID uint   `json:"homeroom_teacher_id" validate:"required"`
 	Students          []int  `json:"students"`
@@ -29,6 +30,7 @@ type GetAcademicsResponse struct {
 	LevelName       string            `json:"level_name"`
 	Major           string            `json:"major"`
 	HomeroomTeacher string            `json:"homeroom_teacher"`
+	Curriculum      string            `json:"curriculum"`
 	Students        []models.Students `json:"students"`
 	Terms           []models.Terms    `json:"terms"`
 	CreatedAt       time.Time         `json:"created_at"`
@@ -37,22 +39,31 @@ type GetAcademicsResponse struct {
 }
 
 type GetAcademicDetailResponse struct {
-	ID                uint                         `json:"id"`
-	DisplayName       string                       `json:"display_name"`
-	StartYear         string                       `json:"start_year"`
-	EndYear           string                       `json:"end_year"`
-	Classroom         string                       `json:"classroom"`
-	LevelName         string                       `json:"level_name"`
-	Major             string                       `json:"major"`
-	HomeroomTeacherId uint                         `json:"homeroom_teacher_id"`
-	HomeroomTeacher   string                       `json:"homeroom_teacher"`
-	Terms             []GetTermResponse            `json:"terms"`
-	Students          []GetStudentResponse         `json:"students"`
-	SubjScheds        []GetSubjectScheduleResponse `json:"subject_schedules"`
-	ClassNotes        []GetClassNoteResponse       `json:"class_notes"`
-	CreatedAt         time.Time                    `json:"created_at"`
-	UpdatedAt         time.Time                    `json:"updated_at"`
-	DeletedAt         gorm.DeletedAt               `json:"deleted_at"`
+	ID                 uint                           `json:"id"`
+	DisplayName        string                         `json:"display_name"`
+	StartYear          string                         `json:"start_year"`
+	EndYear            string                         `json:"end_year"`
+	Classroom          string                         `json:"classroom"`
+	LevelName          string                         `json:"level_name"`
+	Major              string                         `json:"major"`
+	HomeroomTeacherId  uint                           `json:"homeroom_teacher_id"`
+	HomeroomTeacher    string                         `json:"homeroom_teacher"`
+	CurriculumID       uint                           `json:"curriculum_id"`
+	Curriculum         string                         `json:"curriculum"`
+	CurriculumSubjects []GetCurriculumSubjectResponse `json:"curriculum_subjects"`
+	Terms              []GetTermResponse              `json:"terms"`
+	Students           []GetStudentResponse           `json:"students"`
+	SubjScheds         []GetSubjectScheduleResponse   `json:"subject_schedules"`
+	ClassNotes         []GetClassNoteResponse         `json:"class_notes"`
+	CreatedAt          time.Time                      `json:"created_at"`
+	UpdatedAt          time.Time                      `json:"updated_at"`
+	DeletedAt          gorm.DeletedAt                 `json:"deleted_at"`
+}
+
+type GetCurriculumSubjectResponse struct {
+	ID          uint   `json:"id"`
+	SubjectID   uint   `json:"subject_id"`
+	SubjectName string `json:"subject_name"`
 }
 
 type GetTermResponse struct {

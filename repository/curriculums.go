@@ -13,6 +13,9 @@ type CurriculumsRepository interface {
 	Find(id int) (models.Curriculums, error)
 	Update(id int, params map[string]interface{}) error
 	Delete(id int) error
+
+	// Helper methods
+	GetCurriculumnsByLevelIDandGrade(levelID int, grade string) ([]models.Curriculums, error)
 }
 
 type curriculumsRepository struct {
@@ -90,4 +93,12 @@ func (r *curriculumsRepository) Delete(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (r *curriculumsRepository) GetCurriculumnsByLevelIDandGrade(levelID int, grade string) ([]models.Curriculums, error) {
+	var curriculums []models.Curriculums
+	if err := r.db.Where("level_id = ? AND grade = ?", levelID, grade).Find(&curriculums).Error; err != nil {
+		return nil, err
+	}
+	return curriculums, nil
 }
