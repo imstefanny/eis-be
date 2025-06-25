@@ -98,6 +98,7 @@ func PopulateRolesPermissions() {
 		"news:read", "news:write",
 		"users:read", "users:write",
 		"accessrights:read", "accessrights:write",
+		"curriculum: read", "curriculum:write",
 	}
 
 	permissions := []models.Permissions{}
@@ -162,6 +163,8 @@ func PopulateRolesPermissions() {
 			permMap["accessrights:write"],
 			permMap["academic_transfer:write"],
 			permMap["academic_classnote:write"],
+			permMap["curriculum:read"],
+			permMap["curriculum:write"],
 		}},
 		{Name: "Teacher", Permissions: []models.Permissions{
 			permMap["student:read"],
