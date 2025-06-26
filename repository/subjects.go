@@ -11,6 +11,7 @@ type SubjectsRepository interface {
 	Browse(page, limit int, search, sortColumn, sortOrder string) ([]models.Subjects, int64, error)
 	Create(subjects models.Subjects) error
 	Find(id int) (models.Subjects, error)
+	FindByCode(code string) models.Subjects
 	Update(id int, subject models.Subjects) error
 	Delete(id int) error
 }
@@ -29,7 +30,7 @@ func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrd
 	offset := (page - 1) * limit
 
 	allowedColumns := map[string]bool{
-		"id": true, "name": true, "created_at": true,
+		"id": true, "name": true, "code": true, "created_at": true,
 	}
 	if !allowedColumns[sortColumn] {
 		sortColumn = "created_at"
@@ -66,6 +67,14 @@ func (r *subjectsRepository) Find(id int) (models.Subjects, error) {
 		return subject, err
 	}
 	return subject, nil
+}
+
+func (r *subjectsRepository) FindByCode(code string) models.Subjects {
+	subject := models.Subjects{}
+	if err := r.db.Where("code = ?", code).First(&subject).Error; err != nil {
+		return subject
+	}
+	return subject
 }
 
 func (r *subjectsRepository) Update(id int, subject models.Subjects) error {

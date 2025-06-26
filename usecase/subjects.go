@@ -55,7 +55,12 @@ func (s *subjectsUsecase) Create(subject dto.CreateSubjectsRequest) error {
 	}
 
 	subjectData := models.Subjects{
+		Code: subject.Code,
 		Name: subject.Name,
+	}
+	subjectResult := s.subjectsRepository.FindByCode(subject.Code)
+	if subjectResult.ID != 0 {
+		return errors.New("mata pelajaran dengan kode ini sudah ada")
 	}
 
 	err := s.subjectsRepository.Create(subjectData)
@@ -85,6 +90,7 @@ func (s *subjectsUsecase) Update(id int, subject dto.CreateSubjectsRequest) (mod
 	}
 
 	subjectData.Name = subject.Name
+	subjectData.Code = subject.Code
 
 	e := s.subjectsRepository.Update(id, subjectData)
 
