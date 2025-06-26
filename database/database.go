@@ -98,7 +98,7 @@ func PopulateRolesPermissions() {
 		"news:read", "news:write",
 		"users:read", "users:write",
 		"accessrights:read", "accessrights:write",
-		"curriculum: read", "curriculum:write",
+		"curriculum:read", "curriculum:write",
 	}
 
 	permissions := []models.Permissions{}

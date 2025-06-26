@@ -24,26 +24,28 @@ type StudentGradesUsecase interface {
 }
 
 type studentGradesUsecase struct {
-	studentGradesRepository    repository.StudentGradesRepository
-	studentAttsRepository      repository.StudentAttsRepository
-	academicsRepository        repository.AcademicsRepository
-	termsRepository            repository.TermsRepository
-	studentsRepository         repository.StudentsRepository
-	subjectsRepository         repository.SubjectsRepository
-	studentBehaviourRepository repository.StudentBehaviourActivitiesRepository
-	levelHistoriesRepository   repository.LevelHistoriesRepository
+	studentGradesRepository      repository.StudentGradesRepository
+	studentAttsRepository        repository.StudentAttsRepository
+	academicsRepository          repository.AcademicsRepository
+	termsRepository              repository.TermsRepository
+	studentsRepository           repository.StudentsRepository
+	subjectsRepository           repository.SubjectsRepository
+	studentBehaviourRepository   repository.StudentBehaviourActivitiesRepository
+	levelHistoriesRepository     repository.LevelHistoriesRepository
+	curriculumSubjectsRepository repository.CurriculumSubjectsRepository
 }
 
-func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepository, studentAttsRepo repository.StudentAttsRepository, academicsRepo repository.AcademicsRepository, termsRepo repository.TermsRepository, studentsRepo repository.StudentsRepository, subjectsRepo repository.SubjectsRepository, studentBehaviourRepo repository.StudentBehaviourActivitiesRepository, levelHistoriesRepo repository.LevelHistoriesRepository) *studentGradesUsecase {
+func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepository, studentAttsRepo repository.StudentAttsRepository, academicsRepo repository.AcademicsRepository, termsRepo repository.TermsRepository, studentsRepo repository.StudentsRepository, subjectsRepo repository.SubjectsRepository, studentBehaviourRepo repository.StudentBehaviourActivitiesRepository, levelHistoriesRepo repository.LevelHistoriesRepository, curriculumSubjectsRepo repository.CurriculumSubjectsRepository) *studentGradesUsecase {
 	return &studentGradesUsecase{
-		studentGradesRepository:    studentGradesRepo,
-		studentAttsRepository:      studentAttsRepo,
-		academicsRepository:        academicsRepo,
-		termsRepository:            termsRepo,
-		studentsRepository:         studentsRepo,
-		subjectsRepository:         subjectsRepo,
-		studentBehaviourRepository: studentBehaviourRepo,
-		levelHistoriesRepository:   levelHistoriesRepo,
+		studentGradesRepository:      studentGradesRepo,
+		studentAttsRepository:        studentAttsRepo,
+		academicsRepository:          academicsRepo,
+		termsRepository:              termsRepo,
+		studentsRepository:           studentsRepo,
+		subjectsRepository:           subjectsRepo,
+		studentBehaviourRepository:   studentBehaviourRepo,
+		levelHistoriesRepository:     levelHistoriesRepo,
+		curriculumSubjectsRepository: curriculumSubjectsRepo,
 	}
 }
 
@@ -284,10 +286,11 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 		}
 		grades := []dto.GetPrintReportGrade{}
 		for _, score := range studentScores {
+			remarks, _ := s.curriculumSubjectsRepository.GetByCurriculumSubjectID(term.Academic.CurriculumID, score.SubjectID)
 			grades = append(grades, dto.GetPrintReportGrade{
 				Subject: score.Subject.Name,
-				Finals:  score.Finals,
-				Remarks: score.Remarks,
+				Finals:  score.FinalGrade,
+				Remarks: remarks.Competence,
 			})
 		}
 		extracurriculars := []dto.GetPrintReportExtracurricular{}
