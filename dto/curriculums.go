@@ -1,5 +1,7 @@
 package dto
 
+import "gorm.io/gorm"
+
 type CreateCurriculumsRequest struct {
 	Name               string                            `json:"name" validate:"required"`
 	LevelID            uint                              `json:"level_id" validate:"required"`
@@ -21,6 +23,7 @@ type GetCurriculumsResponse struct {
 	Level              string                          `json:"level"`
 	Grade              string                          `json:"grade"`
 	CurriculumSubjects []GetCurriculumSubjectsResponse `json:"curriculum_subjects"`
+	DeletedAt          gorm.DeletedAt                  `json:"deleted_at"`
 }
 type GetCurriculumSubjectsResponse struct {
 	ID         uint   `json:"id"`
