@@ -293,7 +293,16 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 		extracurriculars := []dto.GetPrintReportExtracurricular{}
 		extracurricularsData, err := s.studentBehaviourRepository.FindByStudentIDAndAcademicIDAndTermID(student.ID, term.AcademicID, term.ID)
 		if err != nil {
-			return []dto.GetPrintReportByStudent{}, fmt.Errorf("error getting student extracurricular activities: %w", err)
+			extracurricularsData = &models.StudentBehaviourActivities{
+				FirstMonthExtracurricularFirst:        "",
+				FirstMonthExtracurricularScoreFirst:   "",
+				FirstMonthExtracurricularSecond:       "",
+				FirstMonthExtracurricularScoreSecond:  "",
+				SecondMonthExtracurricularFirst:       "",
+				SecondMonthExtracurricularScoreFirst:  "",
+				SecondMonthExtracurricularSecond:      "",
+				SecondMonthExtracurricularScoreSecond: "",
+			}
 		}
 		extMap := map[string]int{
 			"A": 4,
