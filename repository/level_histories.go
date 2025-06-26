@@ -8,6 +8,7 @@ import (
 
 type LevelHistoriesRepository interface {
 	Create(levelID uint, levelHistories models.LevelHistories) error
+	GetAllByLevelID(levelID uint) ([]models.LevelHistories, error)
 }
 
 type levelHistoriesRepository struct {
@@ -32,4 +33,12 @@ func (r *levelHistoriesRepository) Create(levelID uint, levelHistories models.Le
 		return err
 	}
 	return nil
+}
+
+func (r *levelHistoriesRepository) GetAllByLevelID(levelID uint) ([]models.LevelHistories, error) {
+	var levelHistories []models.LevelHistories
+	if err := r.db.Where("level_id = ?", levelID).Unscoped().Find(&levelHistories).Error; err != nil {
+		return nil, err
+	}
+	return levelHistories, nil
 }
