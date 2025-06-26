@@ -289,7 +289,7 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 			remarks, _ := s.curriculumSubjectsRepository.GetByCurriculumSubjectID(term.Academic.CurriculumID, score.SubjectID)
 			grades = append(grades, dto.GetPrintReportGrade{
 				Subject: score.Subject.Name,
-				Finals:  score.Finals,
+				Finals:  score.FinalGrade,
 				Remarks: remarks.Competence,
 			})
 		}
