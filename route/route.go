@@ -72,6 +72,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	levelHistoriesService := usecase.NewLevelHistoriesUsecase(levelHistoriesRepository)
 	levelHistoriesController := controllers.NewLevelHistoriesController(levelHistoriesService)
 
+	curriculumSubjectsRepository := repository.NewCurriculumSubjectsRepository(db)
 	curriculumsRepository := repository.NewCurriculumsRepository(db)
 	curriculumsService := usecase.NewCurriculumsUsecase(curriculumsRepository, levelsRepository)
 	curriculumsController := controllers.NewCurriculumsController(curriculumsService)
@@ -109,7 +110,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	studentBehaviourController := controllers.NewStudentBehaviourActivitiesController(studentBehaviourService)
 
 	studentGradesRepository := repository.NewStudentGradesRepository(db)
-	studentGradesService := usecase.NewStudentGradesUsecase(studentGradesRepository, studentAttsRepository, academicsRepository, termsRepository, studentsRepository, subjectsRepository, studentBehaviourRepository, levelHistoriesRepository)
+	studentGradesService := usecase.NewStudentGradesUsecase(studentGradesRepository, studentAttsRepository, academicsRepository, termsRepository, studentsRepository, subjectsRepository, studentBehaviourRepository, levelHistoriesRepository, curriculumSubjectsRepository)
 	studentGradesController := controllers.NewStudentGradesController(studentGradesService)
 
 	e.Pre(middleware.RemoveTrailingSlash())
