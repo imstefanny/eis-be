@@ -31,9 +31,10 @@ type studentGradesUsecase struct {
 	studentsRepository         repository.StudentsRepository
 	subjectsRepository         repository.SubjectsRepository
 	studentBehaviourRepository repository.StudentBehaviourActivitiesRepository
+	levelHistoriesRepository   repository.LevelHistoriesRepository
 }
 
-func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepository, studentAttsRepo repository.StudentAttsRepository, academicsRepo repository.AcademicsRepository, termsRepo repository.TermsRepository, studentsRepo repository.StudentsRepository, subjectsRepo repository.SubjectsRepository, studentBehaviourRepo repository.StudentBehaviourActivitiesRepository) *studentGradesUsecase {
+func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepository, studentAttsRepo repository.StudentAttsRepository, academicsRepo repository.AcademicsRepository, termsRepo repository.TermsRepository, studentsRepo repository.StudentsRepository, subjectsRepo repository.SubjectsRepository, studentBehaviourRepo repository.StudentBehaviourActivitiesRepository, levelHistoriesRepo repository.LevelHistoriesRepository) *studentGradesUsecase {
 	return &studentGradesUsecase{
 		studentGradesRepository:    studentGradesRepo,
 		studentAttsRepository:      studentAttsRepo,
@@ -42,6 +43,7 @@ func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepositor
 		studentsRepository:         studentsRepo,
 		subjectsRepository:         subjectsRepo,
 		studentBehaviourRepository: studentBehaviourRepo,
+		levelHistoriesRepository:   levelHistoriesRepo,
 	}
 }
 
@@ -326,7 +328,7 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 				Score: secondScore,
 			},
 			{
-				Name: "",
+				Name:  "",
 				Score: "",
 			},
 		}...)
@@ -338,6 +340,30 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 			attsMap[att.Status]++
 		}
 		principal := ""
+		startRange := ""
+		if term.Name == "Semester 1" {
+			startRange = fmt.Sprintf("%s-07-01", term.Academic.StartYear)
+		} else {
+			startRange = fmt.Sprintf("%s-01-01", term.Academic.EndYear)
+		}
+		endRange := ""
+		if term.Name == "Semester 1" {
+			endRange = fmt.Sprintf("%s-12-31", term.Academic.StartYear)
+		} else {
+			endRange = fmt.Sprintf("%s-06-30", term.Academic.EndYear)
+		}
+		levelHistories, _ := s.levelHistoriesRepository.GetAllByLevelID(term.Academic.Classroom.LevelID)
+		if len(levelHistories) != 0 {
+			for _, levelHistory := range levelHistories {
+				if !levelHistory.DeletedAt.Valid && startRange <= levelHistory.CreatedAt.Format("2006-01-02") && levelHistory.CreatedAt.Format("2006-01-02") <= endRange {
+					principal = levelHistory.Principle.Name
+					break
+				} else if levelHistory.DeletedAt.Valid && startRange <= levelHistory.DeletedAt.Time.Format("2006-01-02") && levelHistory.DeletedAt.Time.Format("2006-01-02") <= endRange {
+					principal = levelHistory.Principle.Name
+					break
+				}
+			}
+		}
 		levelHist := term.Academic.Classroom.Level.Histories
 		if len(levelHist) > 0 {
 			principal = levelHist[len(levelHist)-1].Principle.Name
