@@ -105,16 +105,33 @@ func (s *studentGradesUsecase) GetAll(termID int) (dto.GetStudentGradesResponse,
 			Remarks:     grade.Remarks,
 		})
 	}
-	var detailsList []dto.GetStudentGradesDetailResponse
+	detailsList := []dto.GetStudentGradesDetailResponse{}
 	for _, detail := range details {
 		detailsList = append(detailsList, *detail)
 	}
+	notesList := []dto.GetTeacherNotesResponse{}
+	teacherNotes, err := s.academicStudentsRepository.FindByAcademicID(term.AcademicID)
+	for _, notes := range teacherNotes {
+		termNotes := ""
+		if term.Name == "Semester 1" {
+			termNotes = notes.FirstTermNotes
+		} else {
+			termNotes = notes.SecondTermNotes
+		}
+		notesList = append(notesList, dto.GetTeacherNotesResponse{
+			ID:        notes.ID,
+			StudentID: notes.StudentsID,
+			Student:   notes.Student.FullName,
+			Notes:     termNotes,
+		})
+	}
 	response := dto.GetStudentGradesResponse{
-		AcademicID: term.AcademicID,
-		Academic:   term.Academic.DisplayName,
-		TermID:     term.ID,
-		Term:       term.Name,
-		Details:    detailsList,
+		AcademicID:   term.AcademicID,
+		Academic:     term.Academic.DisplayName,
+		TermID:       term.ID,
+		Term:         term.Name,
+		Details:      detailsList,
+		TeacherNotes: notesList,
 	}
 
 	return response, nil

@@ -10,6 +10,7 @@ type AcademicStudentsRepository interface {
 	GetByIDs(ids []int) ([]models.AcademicStudents, error)
 	Update(academicStudents []models.AcademicStudents) error
 	FindByAcademicIDAndStudentID(academicID, studentID uint) (models.AcademicStudents, error)
+	FindByAcademicID(academicID uint) ([]models.AcademicStudents, error)
 }
 
 type academicStudentsRepository struct {
@@ -42,4 +43,12 @@ func (r *academicStudentsRepository) FindByAcademicIDAndStudentID(academicID, st
 		return academicStudent, err
 	}
 	return academicStudent, nil
+}
+
+func (r *academicStudentsRepository) FindByAcademicID(academicID uint) ([]models.AcademicStudents, error) {
+	academicStudents := []models.AcademicStudents{}
+	if err := r.db.Where("academics_id = ?", academicID).Preload("Student").Find(&academicStudents).Error; err != nil {
+		return academicStudents, err
+	}
+	return academicStudents, nil
 }

@@ -22,11 +22,12 @@ type CreateStudentGradesEntryRequest struct {
 }
 
 type GetStudentGradesResponse struct {
-	AcademicID uint                             `json:"academic_id"`
-	Academic   string                           `json:"academic"`
-	TermID     uint                             `json:"term_id"`
-	Term       string                           `json:"term"`
-	Details    []GetStudentGradesDetailResponse `json:"details"`
+	AcademicID   uint                             `json:"academic_id"`
+	Academic     string                           `json:"academic"`
+	TermID       uint                             `json:"term_id"`
+	Term         string                           `json:"term"`
+	Details      []GetStudentGradesDetailResponse `json:"details"`
+	TeacherNotes []GetTeacherNotesResponse        `json:"teacher_notes"`
 }
 type GetStudentGradesDetailResponse struct {
 	SubjectID uint                            `json:"subject_id"`
@@ -45,6 +46,12 @@ type GetStudentGradesEntryResponse struct {
 	Finals      float64 `json:"finals"`
 	FinalGrade  float64 `json:"final_grade"`
 	Remarks     string  `json:"remarks"`
+}
+type GetTeacherNotesResponse struct {
+	ID        uint   `json:"id"`
+	StudentID uint   `json:"student_id"`
+	Student   string `json:"student"`
+	Notes     string `json:"notes"`
 }
 
 type UpdateStudentGradesRequest struct {
