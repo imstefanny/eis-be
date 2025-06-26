@@ -89,6 +89,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	academicsService := usecase.NewAcademicsUsecase(academicsRepository, studentsRepository, classroomsRepository, teachersRepository, curriculumsRepository)
 	academicsController := controllers.NewAcademicsController(academicsService)
 
+	academicStudentsRepository := repository.NewAcademicStudentsRepository(db)
+	academicStudentsService := usecase.NewAcademicStudentsUsecase(academicStudentsRepository)
+	academicStudentsController := controllers.NewAcademicStudentsController(academicStudentsService)
+
 	subjSchedsRepository := repository.NewSubjSchedsRepository(db)
 	subjSchedsService := usecase.NewSubjSchedsUsecase(subjSchedsRepository, academicsRepository, teachersRepository, studentsRepository)
 	subjSchedsController := controllers.NewSubjSchedsController(subjSchedsService)
@@ -271,6 +275,10 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eAcademicAtts.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eAcademicAtts.GET("", studentAttsController.BrowseByTermID)
 	eAcademicAtts.PUT("", studentAttsController.UpdateByTermID)
+
+	eAcademicHTNotes := eAcademics.Group("/notes")
+	eAcademicHTNotes.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
+	eAcademicHTNotes.PUT("", academicStudentsController.Update)
 
 	eStudentAtts := eStudents.Group("/attendances")
 	eStudentAtts.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

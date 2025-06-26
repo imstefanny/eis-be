@@ -19,6 +19,7 @@ type Academics struct {
 	CurriculumID      uint               `json:"curriculum_id" gorm:"default:null"`
 	Curriculum        Curriculums        `json:"curriculum" gorm:"foreignKey:CurriculumID"`
 	Students          []Students         `json:"students" gorm:"many2many:academic_students;"`
+	AcademicStudents  []AcademicStudents `json:"academic_students" gorm:"foreignKey:AcademicsID"`
 	SubjScheds        []SubjectSchedules `json:"subj_schedules" gorm:"foreignKey:AcademicID"`
 	ClassNotes        []ClassNotes       `json:"class_notes" gorm:"foreignKey:AcademicID"`
 	Terms             []Terms            `json:"terms" gorm:"foreignKey:AcademicID"`
@@ -36,6 +37,19 @@ type Terms struct {
 	FirstEndDate    time.Time      `json:"first_end_date" gorm:"default:null"`
 	SecondStartDate time.Time      `json:"second_start_date" gorm:"default:null"`
 	SecondEndDate   time.Time      `json:"second_end_date" gorm:"default:null"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+}
+
+type AcademicStudents struct {
+	ID              uint           `json:"id" gorm:"primaryKey"`
+	AcademicsID     uint           `json:"academics_id" gorm:"index"`
+	Academic        Academics      `json:"academic" gorm:"foreignKey:AcademicsID"`
+	StudentsID      uint           `json:"students_id" gorm:"index"`
+	Student         Students       `json:"student" gorm:"foreignKey:StudentsID"`
+	FirstTermNotes  string         `json:"first_term_notes" gorm:"default:''"`
+	SecondTermNotes string         `json:"second_term_notes" gorm:"default:''"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`
