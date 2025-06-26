@@ -33,8 +33,11 @@ func (s *academicStudentsUsecase) Update(academicStudents []dto.UpdateAcademicSt
 	for _, academicStudentData := range academicStudentDatas {
 		for _, student := range academicStudents {
 			if academicStudentData.ID == uint(student.ID) {
-				academicStudentData.FirstTermNotes = student.FirstTermNotes
-				academicStudentData.SecondTermNotes = student.SecondTermNotes
+				if student.IsFirstTerm {
+					academicStudentData.FirstTermNotes = student.FirstTermNotes
+				} else {
+					academicStudentData.SecondTermNotes = student.SecondTermNotes
+				}
 			}
 		}
 		academicStudentsData = append(academicStudentsData, academicStudentData)
