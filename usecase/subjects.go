@@ -56,7 +56,7 @@ func (s *subjectsUsecase) Create(subject dto.CreateSubjectsRequest) error {
 
 	subjectData := models.Subjects{
 		Code: subject.Code,
-		Name: subject.Name,
+		Name: subject.Code + " - " + subject.Name,
 	}
 	subjectResult := s.subjectsRepository.FindByCode(subject.Code)
 	if subjectResult.ID != 0 {
