@@ -45,6 +45,8 @@ type GetAcademicDetailResponse struct {
 	EndYear            string                         `json:"end_year"`
 	Classroom          string                         `json:"classroom"`
 	LevelName          string                         `json:"level_name"`
+	LevelID            uint                           `json:"level_id"`
+	Grade              string                         `json:"grade"`
 	Major              string                         `json:"major"`
 	HomeroomTeacherId  uint                           `json:"homeroom_teacher_id"`
 	HomeroomTeacher    string                         `json:"homeroom_teacher"`

@@ -13,6 +13,7 @@ type CurriculumsRepository interface {
 	Find(id int) (models.Curriculums, error)
 	Update(id int, params map[string]interface{}) error
 	Delete(id int) error
+	UnDelete(id int) error
 
 	// Helper methods
 	GetCurriculumnsByLevelIDandGrade(levelID int, grade string) ([]models.Curriculums, error)
@@ -90,6 +91,14 @@ func (r *curriculumsRepository) Update(id int, params map[string]interface{}) er
 func (r *curriculumsRepository) Delete(id int) error {
 	curriculum := models.Curriculums{}
 	if err := r.db.Delete(&curriculum, id).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *curriculumsRepository) UnDelete(id int) error {
+	curriculum := models.Curriculums{}
+	if err := r.db.Unscoped().Model(&curriculum).Where("id = ?", id).Update("deleted_at", nil).Error; err != nil {
 		return err
 	}
 	return nil

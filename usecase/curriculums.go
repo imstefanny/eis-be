@@ -16,6 +16,7 @@ type CurriculumsUsecase interface {
 	Find(id int) (dto.GetCurriculumsResponse, error)
 	Update(id int, curriculum dto.CreateCurriculumsRequest) (dto.GetCurriculumsResponse, error)
 	Delete(id int) error
+	UnDelete(id int) error
 }
 
 type curriculumsUsecase struct {
@@ -53,6 +54,7 @@ func (s *curriculumsUsecase) Browse(page, limit int, search string) ([]dto.GetCu
 			Level:              curriculum.Level.Name,
 			Grade:              curriculum.Grade,
 			CurriculumSubjects: subjects,
+			DeletedAt:          curriculum.DeletedAt,
 		}
 		responses = append(responses, response)
 	}
@@ -213,6 +215,16 @@ func (s *curriculumsUsecase) Update(id int, curriculum dto.CreateCurriculumsRequ
 
 func (s *curriculumsUsecase) Delete(id int) error {
 	err := s.curriculumsRepository.Delete(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *curriculumsUsecase) UnDelete(id int) error {
+	err := s.curriculumsRepository.UnDelete(id)
 
 	if err != nil {
 		return err
