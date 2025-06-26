@@ -9,6 +9,7 @@ import (
 type AcademicStudentsRepository interface {
 	GetByIDs(ids []int) ([]models.AcademicStudents, error)
 	Update(academicStudents []models.AcademicStudents) error
+	FindByAcademicIDAndStudentID(academicID, studentID uint) (models.AcademicStudents, error)
 }
 
 type academicStudentsRepository struct {
@@ -33,4 +34,12 @@ func (r *academicStudentsRepository) Update(academicStudents []models.AcademicSt
 		return err
 	}
 	return nil
+}
+
+func (r *academicStudentsRepository) FindByAcademicIDAndStudentID(academicID, studentID uint) (models.AcademicStudents, error) {
+	academicStudent := models.AcademicStudents{}
+	if err := r.db.Where("academics_id = ? AND students_id = ?", academicID, studentID).First(&academicStudent).Error; err != nil {
+		return academicStudent, err
+	}
+	return academicStudent, nil
 }

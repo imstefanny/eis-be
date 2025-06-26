@@ -33,9 +33,20 @@ type studentGradesUsecase struct {
 	studentBehaviourRepository   repository.StudentBehaviourActivitiesRepository
 	levelHistoriesRepository     repository.LevelHistoriesRepository
 	curriculumSubjectsRepository repository.CurriculumSubjectsRepository
+	academicStudentsRepository   repository.AcademicStudentsRepository
 }
 
-func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepository, studentAttsRepo repository.StudentAttsRepository, academicsRepo repository.AcademicsRepository, termsRepo repository.TermsRepository, studentsRepo repository.StudentsRepository, subjectsRepo repository.SubjectsRepository, studentBehaviourRepo repository.StudentBehaviourActivitiesRepository, levelHistoriesRepo repository.LevelHistoriesRepository, curriculumSubjectsRepo repository.CurriculumSubjectsRepository) *studentGradesUsecase {
+func NewStudentGradesUsecase(
+	studentGradesRepo repository.StudentGradesRepository,
+	studentAttsRepo repository.StudentAttsRepository,
+	academicsRepo repository.AcademicsRepository,
+	termsRepo repository.TermsRepository,
+	studentsRepo repository.StudentsRepository,
+	subjectsRepo repository.SubjectsRepository,
+	studentBehaviourRepo repository.StudentBehaviourActivitiesRepository,
+	levelHistoriesRepo repository.LevelHistoriesRepository,
+	curriculumSubjectsRepo repository.CurriculumSubjectsRepository,
+	academicStudentsRepo repository.AcademicStudentsRepository) *studentGradesUsecase {
 	return &studentGradesUsecase{
 		studentGradesRepository:      studentGradesRepo,
 		studentAttsRepository:        studentAttsRepo,
@@ -46,6 +57,7 @@ func NewStudentGradesUsecase(studentGradesRepo repository.StudentGradesRepositor
 		studentBehaviourRepository:   studentBehaviourRepo,
 		levelHistoriesRepository:     levelHistoriesRepo,
 		curriculumSubjectsRepository: curriculumSubjectsRepo,
+		academicStudentsRepository:   academicStudentsRepo,
 	}
 }
 
@@ -351,12 +363,16 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 			}
 			attsMap[att.Status]++
 		}
+		academicStudent, _ := s.academicStudentsRepository.FindByAcademicIDAndStudentID(term.AcademicID, student.ID)
+		teacherNotes := ""
 		principal := ""
 		startRange := ""
 		if term.Name == "Semester 1" {
 			startRange = fmt.Sprintf("%s-07-01", term.Academic.StartYear)
+			teacherNotes = academicStudent.FirstTermNotes
 		} else {
 			startRange = fmt.Sprintf("%s-01-01", term.Academic.EndYear)
+			teacherNotes = academicStudent.SecondTermNotes
 		}
 		endRange := ""
 		if term.Name == "Semester 1" {
@@ -397,6 +413,7 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 			Permission:       attsMap["Permission"],
 			HomeRoomTeacher:  term.Academic.HomeroomTeacher.Name,
 			Principal:        principal,
+			TeacherNotes:     teacherNotes,
 		}
 		responses = append(responses, response)
 	}
