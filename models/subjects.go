@@ -8,7 +8,7 @@ import (
 
 type Subjects struct {
 	ID        uint           `json:"id" gorm:"primaryKey"`
-	Code      string         `json:"code" gorm:"uniqueIndex;not null"`
+	Code      string         `json:"code" gorm:"not null"`
 	Name      string         `json:"name"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
