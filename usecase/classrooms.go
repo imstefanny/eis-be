@@ -2,11 +2,8 @@ package usecase
 
 import (
 	"eis-be/dto"
-	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
-	"errors"
-	"reflect"
 )
 
 type ClassroomsUsecase interface {
@@ -30,16 +27,6 @@ func NewClassroomsUsecase(classroomsRepo repository.ClassroomsRepository, levels
 	}
 }
 
-func validateCreateClassroomsRequest(req dto.CreateClassroomsRequest) error {
-	val := reflect.ValueOf(req)
-	for i := 0; i < val.NumField(); i++ {
-		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("field can't be empty")
-		}
-	}
-	return nil
-}
-
 func (s *classroomsUsecase) Browse(page, limit int, search string) (interface{}, int64, error) {
 	classrooms, total, err := s.classroomsRepository.Browse(page, limit, search)
 
@@ -51,12 +38,6 @@ func (s *classroomsUsecase) Browse(page, limit int, search string) (interface{},
 }
 
 func (s *classroomsUsecase) Create(classroom dto.CreateClassroomsRequest) error {
-	e := validateCreateClassroomsRequest(classroom)
-
-	if e != nil {
-		return e
-	}
-
 	level, err := s.levelsRepository.Find(int(classroom.LevelID))
 	if err != nil {
 		return err

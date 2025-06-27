@@ -8,7 +8,8 @@ import (
 )
 
 type AcademicsRepository interface {
-	Browse(page, limit int, search, startYear, endYear string, homeroomTeacherId int) ([]models.Academics, int64, error)
+	Browse(page, limit int, search, startYear, endYear string) ([]models.Academics, int64, error)
+	BrowseByTeacherId(page, limit int, search, startYear, endYear string, teacherId int) ([]models.Academics, int64, error)
 	GetAll() ([]models.Academics, error)
 	Create(academic models.Academics) error
 	CreateBatch(academics []models.Academics) error
@@ -28,7 +29,7 @@ func NewAcademicsRepository(db *gorm.DB) *academicsRepository {
 	return &academicsRepository{db}
 }
 
-func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear string, homeroomTeacherId int) ([]models.Academics, int64, error) {
+func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear string) ([]models.Academics, int64, error) {
 	var academics []models.Academics
 	var total int64
 	offset := (page - 1) * limit
@@ -39,9 +40,6 @@ func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear
 
 	if startYear != "" && endYear != "" {
 		query = query.Where("start_year = ? AND end_year = ?", startYear, endYear)
-	}
-	if homeroomTeacherId != 0 {
-		query = query.Where("homeroom_teacher_id = ?", homeroomTeacherId)
 	}
 
 	if err := query.Count(&total).Error; err != nil {
@@ -57,6 +55,42 @@ func (r *academicsRepository) Browse(page, limit int, search, startYear, endYear
 		Preload("Terms").
 		Preload("Curriculum").
 		Unscoped().
+		Find(&academics).Error; err != nil {
+		return nil, 0, err
+	}
+	return academics, total, nil
+}
+
+func (r *academicsRepository) BrowseByTeacherId(page, limit int, search, startYear, endYear string, teacherId int) ([]models.Academics, int64, error) {
+	var academics []models.Academics
+	var total int64
+	offset := (page - 1) * limit
+	search = "%" + strings.ToLower(search) + "%"
+
+	query := r.db.Debug().Model(&models.Academics{}).
+		Joins("JOIN subject_schedules ON subject_schedules.academic_id = academics.id").
+		Joins("JOIN teachers ON teachers.id = subject_schedules.teacher_id").
+		Where("LOWER(academics.display_name) LIKE ?", search).
+		Where("teachers.id = ? OR academics.homeroom_teacher_id = ?", teacherId, teacherId)
+
+	if startYear != "" && endYear != "" {
+		query = query.Where("academics.start_year = ? AND academics.end_year = ?", startYear, endYear)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	if err := query.Limit(limit).
+		Offset(offset).
+		Preload("Classroom").
+		Preload("Classroom.Level").
+		Preload("HomeroomTeacher").
+		Preload("Students").
+		Preload("Terms").
+		Preload("Curriculum").
+		Unscoped().
+		Distinct().
 		Find(&academics).Error; err != nil {
 		return nil, 0, err
 	}
