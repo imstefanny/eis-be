@@ -59,13 +59,16 @@ func (s *academicsUsecase) Browse(page, limit int, search, academicYear string, 
 	if academicYear != "" {
 		startYear, endYear = academicYear[:4], academicYear[5:9]
 	}
+	var academics []models.Academics
+	var total int64
+	var err error
 
 	teacher, _ := s.teachersRepository.GetByToken(userId)
-	if teacher.User.Role.Name != "Homeroom Teacher" {
-		teacher.ID = 0
+	if teacher.User.Role.Name != "Homeroom Teacher" && teacher.User.Role.Name != "Teacher" {
+		academics, total, err = s.academicsRepository.Browse(page, limit, search, startYear, endYear)
+	} else {
+		academics, total, err = s.academicsRepository.BrowseByTeacherId(page, limit, search, startYear, endYear, int(teacher.ID))
 	}
-
-	academics, total, err := s.academicsRepository.Browse(page, limit, search, startYear, endYear, int(teacher.ID))
 
 	if err != nil {
 		return nil, total, err
