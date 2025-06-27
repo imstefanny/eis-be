@@ -6,6 +6,7 @@ import (
 	"eis-be/repository"
 	"fmt"
 	"math"
+	"sort"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
@@ -109,6 +110,9 @@ func (s *studentGradesUsecase) GetAll(termID int) (dto.GetStudentGradesResponse,
 	for _, detail := range details {
 		detailsList = append(detailsList, *detail)
 	}
+	sort.Slice(detailsList, func(i, j int) bool {
+		return detailsList[i].SubjectID < detailsList[j].SubjectID
+	})
 	notesList := []dto.GetTeacherNotesResponse{}
 	teacherNotes, err := s.academicStudentsRepository.FindByAcademicID(term.AcademicID)
 	for _, notes := range teacherNotes {
