@@ -12,7 +12,7 @@ type StudentAttsRepository interface {
 	CreateBatch(studentAtts []models.StudentAttendances) error
 	FindByAcademicDate(academicID int, date string) ([]models.StudentAttendances, error)
 	UpdateByTermID(termID int, studentAtt []models.StudentAttendances) error
-	Browse(academicID, levelID, classID, termID int, search, start_date, end_date string) ([]models.StudentAttendances, error)
+	GetReport(academicID, levelID, classID, termID int, search, start_date, end_date, state string) ([]models.StudentAttendances, error)
 	GetByTermStudent(termID, studentID int) ([]models.StudentAttendances, error)
 
 	// Students specific methods
@@ -84,14 +84,15 @@ func (r *studentAttsRepository) UpdateByTermID(termID int, studentAtts []models.
 	return nil
 }
 
-func (r *studentAttsRepository) Browse(academicID, levelID, classID, termID int, search, start_date, end_date string) ([]models.StudentAttendances, error) {
+func (r *studentAttsRepository) GetReport(academicID, levelID, classID, termID int, search, start_date, end_date, state string) ([]models.StudentAttendances, error) {
 	var studentAtts []models.StudentAttendances
 	search = "%" + strings.ToLower(search) + "%"
 
 	query := r.db.
 		Preload("Academic").
 		Preload("Academic.Classroom.Level").
-		Preload("Student")
+		Preload("Student").
+		Where("DATE(date) BETWEEN ? AND ?", start_date, end_date)
 
 	if academicID > 0 {
 		query = query.Where("academic_id = ?", academicID)
@@ -111,8 +112,8 @@ func (r *studentAttsRepository) Browse(academicID, levelID, classID, termID int,
 	if search != "" {
 		query = query.Where("LOWER(student_attendances.display_name) LIKE ?", search)
 	}
-	if start_date != "" && end_date != "" {
-		query = query.Where("DATE(date) BETWEEN ? AND ?", start_date, end_date)
+	if state != "" {
+		query = query.Where("state = ?", state)
 	}
 
 	if err := query.Find(&studentAtts).Error; err != nil {

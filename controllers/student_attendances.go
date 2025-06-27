@@ -122,7 +122,8 @@ func (u *studentAttsController) GetReport(c echo.Context) error {
 	search := c.QueryParam("search")
 	start_date := c.QueryParam("start_date")
 	end_date := c.QueryParam("end_date")
-	studentAtts, err := u.useCase.GetReport(academicID, levelID, classID, termID, search, start_date, end_date)
+	state := c.QueryParam("status")
+	studentAtts, err := u.useCase.GetReport(academicID, levelID, classID, termID, search, start_date, end_date, state)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"error": err.Error(),

@@ -15,7 +15,7 @@ type StudentAttsUsecase interface {
 	BrowseByTermID(termID, page, limit int, search string, date string) (dto.GetAllStudentAttsRequest, int64, error)
 	CreateBatch(studentAtts dto.CreateBatchStudentAttsRequest) error
 	UpdateByTermID(termID int, studentAtt dto.UpdateStudentAttsRequest) (dto.GetAllStudentAttsRequest, error)
-	GetReport(academicID, levelID, classID, termID int, search, start_date, end_date string) (dto.GetStudentAttsReport, error)
+	GetReport(academicID, levelID, classID, termID int, search, start_date, end_date, state string) (dto.GetStudentAttsReport, error)
 
 	// Students specific methods
 	GetAttendanceByStudent(id, month int) (dto.StudentGetAttendancesResponse, error)
@@ -221,8 +221,11 @@ func (s *studentAttsUsecase) UpdateByTermID(termID int, studentAtt dto.UpdateStu
 	return response, nil
 }
 
-func (s *studentAttsUsecase) GetReport(academicID, levelID, classID, termID int, search, start_date, end_date string) (dto.GetStudentAttsReport, error) {
-	studentAtts, err := s.studentAttsRepository.Browse(academicID, levelID, classID, termID, search, start_date, end_date)
+func (s *studentAttsUsecase) GetReport(academicID, levelID, classID, termID int, search, start_date, end_date, state string) (dto.GetStudentAttsReport, error) {
+	if start_date == "" || end_date == "" {
+		return dto.GetStudentAttsReport{}, nil
+	}
+	studentAtts, err := s.studentAttsRepository.GetReport(academicID, levelID, classID, termID, search, start_date, end_date, state)
 	if err != nil {
 		return dto.GetStudentAttsReport{}, err
 	}
