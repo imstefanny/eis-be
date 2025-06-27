@@ -126,3 +126,19 @@ func (u *classroomsController) Delete(c echo.Context) error {
 		"message": "Data deleted successfully",
 	})
 }
+
+func (u *classroomsController) UnDelete(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	err := u.useCase.UnDelete(id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Data undeleted successfully",
+	})
+}

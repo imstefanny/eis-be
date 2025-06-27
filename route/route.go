@@ -240,6 +240,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eClassrooms.POST("", classroomsController.Create)
 	eClassrooms.PUT("/:id", classroomsController.Update)
 	eClassrooms.DELETE("/:id", classroomsController.Delete)
+	eClassrooms.PUT("/undelete/:id", classroomsController.UnDelete)
 
 	eStudents := e.Group("/students")
 	eStudents.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))

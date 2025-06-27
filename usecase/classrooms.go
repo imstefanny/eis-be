@@ -15,6 +15,7 @@ type ClassroomsUsecase interface {
 	Find(id int) (interface{}, error)
 	Update(id int, classroom dto.CreateClassroomsRequest) (models.Classrooms, error)
 	Delete(id int) error
+	UnDelete(id int) error
 }
 
 type classroomsUsecase struct {
@@ -103,6 +104,7 @@ func (s *classroomsUsecase) Update(id int, classroom dto.CreateClassroomsRequest
 	classroomData.LevelID = classroom.LevelID
 	classroomData.Grade = classroom.Grade
 	classroomData.Name = classroom.Name
+	classroomData.DeletedAt = classroom.DeletedAt
 
 	e := s.classroomsRepository.Update(id, classroomData)
 
@@ -121,6 +123,16 @@ func (s *classroomsUsecase) Update(id int, classroom dto.CreateClassroomsRequest
 
 func (s *classroomsUsecase) Delete(id int) error {
 	err := s.classroomsRepository.Delete(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *classroomsUsecase) UnDelete(id int) error {
+	err := s.classroomsRepository.UnDelete(id)
 
 	if err != nil {
 		return err
