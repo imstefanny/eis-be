@@ -113,7 +113,7 @@ func (r *studentAttsRepository) GetReport(academicID, levelID, classID, termID i
 		query = query.Where("LOWER(student_attendances.display_name) LIKE ?", search)
 	}
 	if state != "" {
-		query = query.Where("state = ?", state)
+		query = query.Where("status = ?", state)
 	}
 
 	if err := query.Find(&studentAtts).Error; err != nil {
