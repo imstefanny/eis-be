@@ -8,6 +8,7 @@ import (
 	"math"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -387,35 +388,37 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 		academicStudent, _ := s.academicStudentsRepository.FindByAcademicIDAndStudentID(term.AcademicID, student.ID)
 		teacherNotes := ""
 		principal := ""
-		startRange := ""
+		termDate := ""
 		if term.Name == "Semester 1" {
-			startRange = fmt.Sprintf("%s-07-01", term.Academic.StartYear)
+			termDate = fmt.Sprintf("%s-12-31", term.Academic.StartYear)
 			teacherNotes = academicStudent.FirstTermNotes
 		} else {
-			startRange = fmt.Sprintf("%s-01-01", term.Academic.EndYear)
+			termDate = fmt.Sprintf("%s-06-30", term.Academic.EndYear)
 			teacherNotes = academicStudent.SecondTermNotes
 		}
-		endRange := ""
-		if term.Name == "Semester 1" {
-			endRange = fmt.Sprintf("%s-12-31", term.Academic.StartYear)
-		} else {
-			endRange = fmt.Sprintf("%s-06-30", term.Academic.EndYear)
-		}
 		levelHistories, _ := s.levelHistoriesRepository.GetAllByLevelID(term.Academic.Classroom.LevelID)
+		rangeMap := []map[string]string{}
 		if len(levelHistories) != 0 {
 			for _, levelHistory := range levelHistories {
-				if !levelHistory.DeletedAt.Valid && startRange <= levelHistory.CreatedAt.Format("2006-01-02") && levelHistory.CreatedAt.Format("2006-01-02") <= endRange {
-					principal = levelHistory.Principle.Name
-					break
-				} else if levelHistory.DeletedAt.Valid && startRange <= levelHistory.DeletedAt.Time.Format("2006-01-02") && levelHistory.DeletedAt.Time.Format("2006-01-02") <= endRange {
-					principal = levelHistory.Principle.Name
-					break
+				start := levelHistory.CreatedAt
+				end := time.Time{}
+				if levelHistory.DeletedAt.Valid {
+					end = levelHistory.DeletedAt.Time
+				} else {
+					end, _ = time.Parse("2006-01-02", termDate)
 				}
+				rangeMap = append(rangeMap, map[string]string{
+					"start":     start.Format("2006-01-02"),
+					"end":       end.Format("2006-01-02"),
+					"principal": levelHistory.Principle.Name,
+				})
 			}
 		}
-		levelHist := term.Academic.Classroom.Level.Histories
-		if len(levelHist) > 0 {
-			principal = levelHist[len(levelHist)-1].Principle.Name
+		for _, r := range rangeMap {
+			if r["start"] <= termDate && r["end"] >= termDate {
+				principal = r["principal"]
+				break
+			}
 		}
 		termName, _ := strconv.Atoi(term.Name[9:])
 		response := dto.GetPrintReportByStudent{

@@ -37,7 +37,7 @@ func (r *levelHistoriesRepository) Create(levelID uint, levelHistories models.Le
 
 func (r *levelHistoriesRepository) GetAllByLevelID(levelID uint) ([]models.LevelHistories, error) {
 	var levelHistories []models.LevelHistories
-	if err := r.db.Where("level_id = ?", levelID).Unscoped().Find(&levelHistories).Error; err != nil {
+	if err := r.db.Where("level_id = ?", levelID).Preload("Principle").Unscoped().Find(&levelHistories).Error; err != nil {
 		return nil, err
 	}
 	return levelHistories, nil
