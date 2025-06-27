@@ -8,7 +8,7 @@ import (
 
 type TeacherAttendances struct {
 	ID                uint           `json:"id" gorm:"primaryKey"`
-	DisplayName       string         `json:"display_name" gorm:"index"`
+	DisplayName       string         `json:"display_name" gorm:"size:255;unique"`
 	TeacherID         uint           `json:"teacher_id" gorm:"index"`
 	Teacher           Teachers       `json:"teacher" gorm:"foreignKey:TeacherID;references:ID"`
 	WorkingScheduleID uint           `json:"working_schedule_id" gorm:"index"`

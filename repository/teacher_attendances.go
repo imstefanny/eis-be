@@ -15,6 +15,7 @@ type TeacherAttsRepository interface {
 	Update(id int, teacherAtt models.TeacherAttendances) error
 	Delete(id int) error
 	BrowseReport(search, startDate, endDate string, userId *int) ([]models.TeacherAttendances, error)
+	FindByTeacherIdDate(teacherId int, date string) (models.TeacherAttendances, error)
 }
 
 type teacherAttsRepository struct {
@@ -119,4 +120,12 @@ func (r *teacherAttsRepository) Delete(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (r *teacherAttsRepository) FindByTeacherIdDate(teacherId int, date string) (models.TeacherAttendances, error) {
+	teacherAtt := models.TeacherAttendances{}
+	if err := r.db.Where("teacher_id = ? AND DATE(date) = ?", teacherId, date).First(&teacherAtt).Error; err != nil {
+		return teacherAtt, err
+	}
+	return teacherAtt, nil
 }

@@ -2,13 +2,11 @@ package helpers
 
 import (
 	"eis-be/models"
-	"fmt"
 	"strings"
 	"time"
 )
 
 func TeacherAttsRemark(att models.TeacherAttendances, workSched models.WorkScheds) string {
-	fmt.Println("\nTeacher Attendance Remark Calculation for:", att.DisplayName, "on :", workSched.Name)
 	dayOfWeek := att.Date.Weekday()
 	remark := []string{}
 	for _, schedule := range workSched.Details {

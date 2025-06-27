@@ -6,6 +6,7 @@ import (
 	"eis-be/models"
 	"eis-be/repository"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -64,6 +65,10 @@ func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) err
 		return e
 	}
 
+	exist, _ := s.teacherAttsRepository.FindByTeacherIdDate(int(teacherAtt.TeacherID), teacherAtt.Date)
+	if exist.ID > 0 {
+		return fmt.Errorf("attendance for teacher with ID %d on date %s already exists", teacherAtt.TeacherID, teacherAtt.Date)
+	}
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	parseDate, err := time.Parse("2006-01-02", teacherAtt.Date)
 	if err != nil {
@@ -86,7 +91,7 @@ func (s *teacherAttsUsecase) Create(teacherAtt dto.CreateTeacherAttsRequest) err
 		return err
 	}
 	teacherAttData := models.TeacherAttendances{
-		DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
+		DisplayName:       strconv.Itoa(int(teacherAtt.TeacherID)) + " - " + teacher.Name + " / " + parseDate.Format("2006-01-02"),
 		TeacherID:         teacherAtt.TeacherID,
 		WorkingScheduleID: teacher.WorkSchedID,
 		Date:              time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc),
@@ -115,6 +120,10 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 	teacherAttsData := []models.TeacherAttendances{}
 	loc, _ := time.LoadLocation("Asia/Jakarta")
 	for _, teacherAtt := range teacherAtts.Entries {
+		exist, _ := s.teacherAttsRepository.FindByTeacherIdDate(int(teacherAtt.TeacherID), teacherAtt.Date)
+		if exist.ID > 0 {
+			continue
+		}
 		parseDate, err := time.Parse("2006-01-02", teacherAtt.Date)
 		if err != nil {
 			return err
@@ -139,7 +148,7 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 		}
 		workSched, _ := s.workSchedsRepository.Find(int(teacher.WorkSchedID))
 		teacherAttData := models.TeacherAttendances{
-			DisplayName:       teacher.Name + " - " + parseDate.Format("2006-01-02"),
+			DisplayName:       strconv.Itoa(int(teacherAtt.TeacherID)) + " - " + teacher.Name + " / " + parseDate.Format("2006-01-02"),
 			TeacherID:         teacher.ID,
 			WorkingScheduleID: teacher.WorkSchedID,
 			Date:              time.Date(parseDate.Year(), parseDate.Month(), parseDate.Day(), parseDate.Hour(), parseDate.Minute(), parseDate.Second(), 0, loc),
@@ -153,6 +162,9 @@ func (s *teacherAttsUsecase) CreateBatch(teacherAtts dto.CreateBatchTeacherAttsR
 		teacherAttsData = append(teacherAttsData, teacherAttData)
 	}
 
+	if len(teacherAttsData) == 0 {
+		return nil
+	}
 	err := s.teacherAttsRepository.CreateBatch(teacherAttsData)
 
 	if err != nil {
