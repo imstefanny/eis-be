@@ -68,8 +68,8 @@ func (r *academicsRepository) BrowseByTeacherId(page, limit int, search, startYe
 	search = "%" + strings.ToLower(search) + "%"
 
 	query := r.db.Debug().Model(&models.Academics{}).
-		Joins("JOIN subject_schedules ON subject_schedules.academic_id = academics.id").
-		Joins("JOIN teachers ON teachers.id = subject_schedules.teacher_id").
+		Joins("LEFT JOIN subject_schedules ON subject_schedules.academic_id = academics.id").
+		Joins("LEFT JOIN teachers ON teachers.id = subject_schedules.teacher_id").
 		Where("LOWER(academics.display_name) LIKE ?", search).
 		Where("teachers.id = ? OR academics.homeroom_teacher_id = ?", teacherId, teacherId)
 

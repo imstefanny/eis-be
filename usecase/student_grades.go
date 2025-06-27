@@ -213,6 +213,10 @@ func (s *studentGradesUsecase) UpdateByTermID(termID int, studentGrade dto.Updat
 	studentGradesData := []models.StudentGrades{}
 	newStudents := []models.StudentGrades{}
 	for _, detail := range studentGrade.Details {
+		subject, err := s.subjectsRepository.Find(int(detail.SubjectID))
+		if err != nil {
+			return dto.GetStudentGradesResponse{}, fmt.Errorf("subject with ID %d not found: %w", detail.SubjectID, err)
+		}
 		for _, grade := range detail.Students {
 			finals := math.Round((((grade.FirstMonth+grade.SecondMonth)/2+(grade.FirstQuiz+grade.SecondQuiz)/2)/2 + grade.Finals) / 2)
 			if grade.ID != 0 {
@@ -234,7 +238,7 @@ func (s *studentGradesUsecase) UpdateByTermID(termID int, studentGrade dto.Updat
 			} else {
 				student, _ := s.studentsRepository.Find(int(grade.StudentID))
 				newStudents = append(newStudents, models.StudentGrades{
-					DisplayName: term.Academic.DisplayName + " - " + detail.Subject + " - " + student.FullName,
+					DisplayName: term.Academic.DisplayName + " - " + subject.Name + " - " + student.FullName,
 					AcademicID:  studentGrade.AcademicID,
 					TermID:      term.ID,
 					StudentID:   grade.StudentID,
