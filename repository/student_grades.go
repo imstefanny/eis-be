@@ -130,7 +130,7 @@ func (r *studentGradesRepository) GetReport(startYear, endYear string, levelID, 
 			students.nis,
 			classrooms.id AS class_id,
     		CONCAT(classrooms.display_name, " : ", terms.name) AS class,
-			ROUND(AVG(student_grades.final_grade), 2) AS finals
+			SUM(student_grades.final_grade) AS finals
 		`).
 		Joins("JOIN terms ON terms.id = student_grades.term_id").
 		Joins("JOIN academics ON terms.academic_id = academics.id").
