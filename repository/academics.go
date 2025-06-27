@@ -16,6 +16,7 @@ type AcademicsRepository interface {
 	Find(id int) (models.Academics, error)
 	Update(id int, academic models.Academics) error
 	Delete(id int) error
+	UpdateNewCurriculum(levelID int, grade string, curriculumID uint) error
 
 	// Students specific methods
 	GetAcademicsByStudent(studentID int) ([]models.Academics, error)
@@ -181,4 +182,19 @@ func (r *academicsRepository) GetAcademicsByStudent(studentID int) ([]models.Aca
 		return nil, err
 	}
 	return academics, nil
+}
+
+func (r *academicsRepository) UpdateNewCurriculum(levelID int, grade string, curriculumID uint) error {
+	ids := []int{}
+	r.db.Table("academics").
+		Joins("JOIN classrooms ON classrooms.id = academics.classroom_id").
+		Where("classrooms.level_id = ? AND classrooms.grade = ?", levelID, grade).
+		Where("curriculum_id IS NULL").
+		Pluck("academics.id", &ids)
+	if len(ids) > 0 {
+		if err := r.db.Model(&models.Academics{}).Where("id IN ?", ids).Update("curriculum_id", curriculumID).Error; err != nil {
+			return err
+		}
+	}
+	return nil
 }

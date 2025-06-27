@@ -72,11 +72,6 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	levelHistoriesService := usecase.NewLevelHistoriesUsecase(levelHistoriesRepository)
 	levelHistoriesController := controllers.NewLevelHistoriesController(levelHistoriesService)
 
-	curriculumSubjectsRepository := repository.NewCurriculumSubjectsRepository(db)
-	curriculumsRepository := repository.NewCurriculumsRepository(db)
-	curriculumsService := usecase.NewCurriculumsUsecase(curriculumsRepository, levelsRepository)
-	curriculumsController := controllers.NewCurriculumsController(curriculumsService)
-
 	classroomsRepository := repository.NewClassroomsRepository(db)
 	classroomsService := usecase.NewClassroomsUsecase(classroomsRepository, levelsRepository)
 	classroomsController := controllers.NewClassroomsController(classroomsService)
@@ -85,7 +80,13 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	termsService := usecase.NewTermsUsecase(termsRepository)
 	termsController := controllers.NewTermsController(termsService)
 
+	curriculumSubjectsRepository := repository.NewCurriculumSubjectsRepository(db)
+	curriculumsRepository := repository.NewCurriculumsRepository(db)
 	academicsRepository := repository.NewAcademicsRepository(db)
+
+	curriculumsService := usecase.NewCurriculumsUsecase(curriculumsRepository, levelsRepository, academicsRepository)
+	curriculumsController := controllers.NewCurriculumsController(curriculumsService)
+
 	academicsService := usecase.NewAcademicsUsecase(academicsRepository, studentsRepository, classroomsRepository, teachersRepository, curriculumsRepository)
 	academicsController := controllers.NewAcademicsController(academicsService)
 

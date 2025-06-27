@@ -9,7 +9,7 @@ import (
 
 type CurriculumsRepository interface {
 	Browse(page, limit int, search string) ([]models.Curriculums, int64, error)
-	Create(curriculums models.Curriculums) error
+	Create(curriculums models.Curriculums) (uint, error)
 	Find(id int) (models.Curriculums, error)
 	Update(id int, params map[string]interface{}) error
 	Delete(id int) error
@@ -41,12 +41,12 @@ func (r *curriculumsRepository) Browse(page, limit int, search string) ([]models
 	return curriculums, total, nil
 }
 
-func (r *curriculumsRepository) Create(curriculums models.Curriculums) error {
+func (r *curriculumsRepository) Create(curriculums models.Curriculums) (uint, error) {
 	err := r.db.Create(&curriculums)
 	if err.Error != nil {
-		return err.Error
+		return 0, err.Error
 	}
-	return nil
+	return curriculums.ID, nil
 }
 
 func (r *curriculumsRepository) Find(id int) (models.Curriculums, error) {

@@ -22,12 +22,14 @@ type CurriculumsUsecase interface {
 type curriculumsUsecase struct {
 	curriculumsRepository repository.CurriculumsRepository
 	levelsRepository      repository.LevelsRepository
+	academicsRepository   repository.AcademicsRepository
 }
 
-func NewCurriculumsUsecase(curriculumsRepo repository.CurriculumsRepository, levelsRepo repository.LevelsRepository) *curriculumsUsecase {
+func NewCurriculumsUsecase(curriculumsRepo repository.CurriculumsRepository, levelsRepo repository.LevelsRepository, academicsRepo repository.AcademicsRepository) *curriculumsUsecase {
 	return &curriculumsUsecase{
 		curriculumsRepository: curriculumsRepo,
 		levelsRepository:      levelsRepo,
+		academicsRepository:   academicsRepo,
 	}
 }
 
@@ -85,11 +87,12 @@ func (s *curriculumsUsecase) Create(curriculum dto.CreateCurriculumsRequest) err
 		CurriculumSubjects: subjects,
 	}
 
-	err := s.curriculumsRepository.Create(curriculumData)
-
+	curriculumID, err := s.curriculumsRepository.Create(curriculumData)
 	if err != nil {
 		return err
 	}
+
+	_ = s.academicsRepository.UpdateNewCurriculum(int(curriculum.LevelID), curriculum.Grade, curriculumID)
 
 	return nil
 }
