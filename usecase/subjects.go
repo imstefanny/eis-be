@@ -10,9 +10,9 @@ import (
 )
 
 type SubjectsUsecase interface {
-	Browse(page, limit int, search, sortColumn, sortOrder string) (interface{}, int64, error)
+	Browse(page, limit int, search, sortColumn, sortOrder string) ([]dto.GetSubjectsResponse, int64, error)
 	Create(subject dto.CreateSubjectsRequest) error
-	Find(id int) (interface{}, error)
+	Find(id int) (dto.GetSubjectsResponse, error)
 	Update(id int, subject dto.CreateSubjectsRequest) (models.Subjects, error)
 	Delete(id int) error
 }
@@ -37,14 +37,23 @@ func validateCreateSubjectsRequest(req dto.CreateSubjectsRequest) error {
 	return nil
 }
 
-func (s *subjectsUsecase) Browse(page, limit int, search, sortColumn, sortOrder string) (interface{}, int64, error) {
-	blogs, total, err := s.subjectsRepository.Browse(page, limit, search, sortColumn, sortOrder)
+func (s *subjectsUsecase) Browse(page, limit int, search, sortColumn, sortOrder string) ([]dto.GetSubjectsResponse, int64, error) {
+	subjects, total, err := s.subjectsRepository.Browse(page, limit, search, sortColumn, sortOrder)
 
 	if err != nil {
 		return nil, total, err
 	}
 
-	return blogs, total, nil
+	responses := []dto.GetSubjectsResponse{}
+	for _, subject := range subjects {
+		responses = append(responses, dto.GetSubjectsResponse{
+			ID:   subject.ID,
+			Name: subject.DisplayName,
+			Code: subject.Code,
+		})
+	}
+
+	return responses, total, nil
 }
 
 func (s *subjectsUsecase) Create(subject dto.CreateSubjectsRequest) error {
@@ -55,8 +64,9 @@ func (s *subjectsUsecase) Create(subject dto.CreateSubjectsRequest) error {
 	}
 
 	subjectData := models.Subjects{
-		Code: subject.Code,
-		Name: subject.Code + " - " + subject.Name,
+		DisplayName: subject.Code + " - " + subject.Name,
+		Code:        subject.Code,
+		Name:        subject.Name,
 	}
 	subjectResult := s.subjectsRepository.FindByCode(subject.Code)
 	if subjectResult.ID != 0 {
@@ -72,14 +82,20 @@ func (s *subjectsUsecase) Create(subject dto.CreateSubjectsRequest) error {
 	return nil
 }
 
-func (s *subjectsUsecase) Find(id int) (interface{}, error) {
+func (s *subjectsUsecase) Find(id int) (dto.GetSubjectsResponse, error) {
 	subject, err := s.subjectsRepository.Find(id)
 
 	if err != nil {
-		return nil, err
+		return dto.GetSubjectsResponse{}, err
 	}
 
-	return subject, nil
+	response := dto.GetSubjectsResponse{
+		ID:   subject.ID,
+		Name: subject.DisplayName,
+		Code: subject.Code,
+	}
+
+	return response, nil
 }
 
 func (s *subjectsUsecase) Update(id int, subject dto.CreateSubjectsRequest) (models.Subjects, error) {
@@ -89,6 +105,7 @@ func (s *subjectsUsecase) Update(id int, subject dto.CreateSubjectsRequest) (mod
 		return models.Subjects{}, err
 	}
 
+	subjectData.DisplayName = subject.Code + " - " + subject.Name
 	subjectData.Name = subject.Name
 	subjectData.Code = subject.Code
 

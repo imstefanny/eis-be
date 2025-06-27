@@ -48,8 +48,8 @@ type AcademicStudents struct {
 	Academic        Academics      `json:"academic" gorm:"foreignKey:AcademicsID"`
 	StudentsID      uint           `json:"students_id" gorm:"index"`
 	Student         Students       `json:"student" gorm:"foreignKey:StudentsID"`
-	FirstTermNotes  string         `json:"first_term_notes"`
-	SecondTermNotes string         `json:"second_term_notes"`
+	FirstTermNotes  string         `json:"first_term_notes" gorm:"type:text"`
+	SecondTermNotes string         `json:"second_term_notes" gorm:"type:text"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`

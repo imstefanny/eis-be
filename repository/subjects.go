@@ -30,7 +30,7 @@ func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrd
 	offset := (page - 1) * limit
 
 	allowedColumns := map[string]bool{
-		"id": true, "name": true, "code": true, "created_at": true,
+		"id": true, "display_name": true, "code": true, "created_at": true,
 	}
 	if !allowedColumns[sortColumn] {
 		sortColumn = "created_at"
@@ -40,7 +40,7 @@ func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrd
 
 	query := r.db.Model(&models.Subjects{})
 	if search != "" {
-		query = query.Where("name LIKE ?", "%"+search+"%")
+		query = query.Where("display_name LIKE ?", "%"+search+"%")
 	}
 
 	if err := query.Count(&total).Error; err != nil {
