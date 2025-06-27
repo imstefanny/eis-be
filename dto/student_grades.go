@@ -123,6 +123,7 @@ type GetPrintReportByStudent struct {
 	Absent           int                             `json:"absent"`
 	HomeRoomTeacher  string                          `json:"home_room_teacher"`
 	Principal        string                          `json:"principal"`
+	EndDate          string                          `json:"end_date"`
 	TeacherNotes     string                          `json:"teacher_notes"`
 }
 type GetPrintReportGrade struct {

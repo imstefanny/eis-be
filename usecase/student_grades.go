@@ -437,6 +437,7 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 			Permission:       attsMap["Permission"],
 			HomeRoomTeacher:  term.Academic.HomeroomTeacher.Name,
 			Principal:        principal,
+			EndDate:          termDate,
 			TeacherNotes:     teacherNotes,
 		}
 		responses = append(responses, response)
