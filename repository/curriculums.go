@@ -106,7 +106,7 @@ func (r *curriculumsRepository) UnDelete(id int) error {
 
 func (r *curriculumsRepository) GetCurriculumnsByLevelIDandGrade(levelID int, grade string) ([]models.Curriculums, error) {
 	var curriculums []models.Curriculums
-	if err := r.db.Where("level_id = ? AND grade = ?", levelID, grade).Find(&curriculums).Error; err != nil {
+	if err := r.db.Where("level_id = ? AND grade = ?", levelID, grade).Order("created_at DESC").Find(&curriculums).Error; err != nil {
 		return nil, err
 	}
 	return curriculums, nil
