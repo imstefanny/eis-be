@@ -147,6 +147,7 @@ func (s *teachersUsecase) Update(id int, teacher dto.CreateTeachersRequest) (mod
 		return models.Teachers{}, eUser
 	}
 
+	teacherData.IdentityNo = teacher.IdentityNo
 	teacherData.Name = teacher.Name
 	teacherData.NUPTK = teacher.NUPTK
 	teacherData.Phone = teacher.Phone
