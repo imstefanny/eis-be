@@ -8,19 +8,27 @@ import (
 )
 
 type CreateAcademicsRequest struct {
-	DisplayName       string `json:"display_name"`
-	StartYear         string `json:"start_year" validate:"required"`
-	EndYear           string `json:"end_year" validate:"required"`
-	ClassroomID       uint   `json:"classroom_id" validate:"required"`
-	CurriculumID      uint   `json:"curriculum_id" validate:"required"`
-	Major             string `json:"major"`
-	HomeroomTeacherID uint   `json:"homeroom_teacher_id" validate:"required"`
-	Students          []int  `json:"students"`
+	DisplayName         string `json:"display_name"`
+	StartYear           string `json:"start_year" validate:"required"`
+	EndYear             string `json:"end_year" validate:"required"`
+	ClassroomID         uint   `json:"classroom_id" validate:"required"`
+	CurriculumID        uint   `json:"curriculum_id" validate:"required"`
+	Major               string `json:"major"`
+	HomeroomTeacherID   uint   `json:"homeroom_teacher_id" validate:"required"`
+	FirstTermStartDate  string `json:"first_term_start_date" validate:"required"`
+	FirstTermEndDate    string `json:"first_term_end_date" validate:"required"`
+	SecondTermStartDate string `json:"second_term_start_date" validate:"required"`
+	SecondTermEndDate   string `json:"second_term_end_date" validate:"required"`
+	Students            []int  `json:"students"`
 }
 
 type CreateBatchAcademicsRequest struct {
-	StartYear string `json:"start_year" validate:"required"`
-	EndYear   string `json:"end_year" validate:"required"`
+	StartYear           string `json:"start_year" validate:"required"`
+	EndYear             string `json:"end_year" validate:"required"`
+	FirstTermStartDate  string `json:"first_term_start_date" validate:"required"`
+	FirstTermEndDate    string `json:"first_term_end_date" validate:"required"`
+	SecondTermStartDate string `json:"second_term_start_date" validate:"required"`
+	SecondTermEndDate   string `json:"second_term_end_date" validate:"required"`
 }
 
 type GetAcademicsResponse struct {

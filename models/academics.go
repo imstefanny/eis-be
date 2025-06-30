@@ -33,6 +33,8 @@ type Terms struct {
 	Name            string         `json:"name" gorm:"size:255;uniqueIndex:academic_term"`
 	AcademicID      uint           `json:"academic_id" gorm:"size:255;uniqueIndex:academic_term"`
 	Academic        Academics      `json:"academic" gorm:"foreignKey:AcademicID"`
+	StartDate       time.Time      `json:"start_date" gorm:"default:null"`
+	EndDate         time.Time      `json:"end_date" gorm:"default:null"`
 	FirstStartDate  time.Time      `json:"first_start_date" gorm:"default:null"`
 	FirstEndDate    time.Time      `json:"first_end_date" gorm:"default:null"`
 	SecondStartDate time.Time      `json:"second_start_date" gorm:"default:null"`

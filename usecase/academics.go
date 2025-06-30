@@ -5,6 +5,7 @@ import (
 	"eis-be/models"
 	"eis-be/repository"
 	"fmt"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -115,12 +116,20 @@ func (s *academicsUsecase) Create(academic dto.CreateAcademicsRequest) error {
 		students = studentsData
 	}
 
+	parsedFirstTermStartDate, _ := time.Parse("2006-01-02", academic.FirstTermStartDate)
+	parsedFirstTermEndDate, _ := time.Parse("2006-01-02", academic.FirstTermEndDate)
+	parsedSecondTermStartDate, _ := time.Parse("2006-01-02", academic.SecondTermStartDate)
+	parsedSecondTermEndDate, _ := time.Parse("2006-01-02", academic.SecondTermEndDate)
 	terms := []models.Terms{
 		{
-			Name: "Semester 1",
+			Name:      "Semester 1",
+			StartDate: parsedFirstTermStartDate,
+			EndDate:   parsedFirstTermEndDate,
 		},
 		{
-			Name: "Semester 2",
+			Name:      "Semester 2",
+			StartDate: parsedSecondTermStartDate,
+			EndDate:   parsedSecondTermEndDate,
 		},
 	}
 
@@ -166,12 +175,20 @@ func (s *academicsUsecase) CreateBatch(batch dto.CreateBatchAcademicsRequest) er
 				},
 			}
 		}
+		parsedFirstTermStartDate, _ := time.Parse("2006-01-02", batch.FirstTermStartDate)
+		parsedFirstTermEndDate, _ := time.Parse("2006-01-02", batch.FirstTermEndDate)
+		parsedSecondTermStartDate, _ := time.Parse("2006-01-02", batch.SecondTermStartDate)
+		parsedSecondTermEndDate, _ := time.Parse("2006-01-02", batch.SecondTermEndDate)
 		terms := []models.Terms{
 			{
-				Name: "Semester 1",
+				Name:      "Semester 1",
+				StartDate: parsedFirstTermStartDate,
+				EndDate:   parsedFirstTermEndDate,
 			},
 			{
-				Name: "Semester 2",
+				Name:      "Semester 2",
+				StartDate: parsedSecondTermStartDate,
+				EndDate:   parsedSecondTermEndDate,
 			},
 		}
 		academic := models.Academics{
