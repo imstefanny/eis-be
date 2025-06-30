@@ -392,12 +392,10 @@ func (s *studentGradesUsecase) GetAllByStudent(termID int, studentIDs []int) ([]
 		academicStudent, _ := s.academicStudentsRepository.FindByAcademicIDAndStudentID(term.AcademicID, student.ID)
 		teacherNotes := ""
 		principal := ""
-		termDate := ""
+		termDate := term.EndDate.Format("2006-01-02")
 		if term.Name == "Semester 1" {
-			termDate = fmt.Sprintf("%s-12-31", term.Academic.StartYear)
 			teacherNotes = academicStudent.FirstTermNotes
 		} else {
-			termDate = fmt.Sprintf("%s-06-30", term.Academic.EndYear)
 			teacherNotes = academicStudent.SecondTermNotes
 		}
 		levelHistories, _ := s.levelHistoriesRepository.GetAllByLevelID(term.Academic.Classroom.LevelID)
@@ -463,10 +461,10 @@ func (s *studentGradesUsecase) GetMonthlyReportByStudent(academicID int, student
 			ndTerm = term
 		}
 	}
-	stFirstDate := stTerm.FirstStartDate
-	stSecondDate := stTerm.SecondStartDate
-	ndFirstDate := ndTerm.FirstStartDate
-	ndSecondDate := ndTerm.SecondStartDate
+	stFirstDate := stTerm.FirstEndDate
+	stSecondDate := stTerm.SecondEndDate
+	ndFirstDate := ndTerm.FirstEndDate
+	ndSecondDate := ndTerm.SecondEndDate
 	responses := []dto.GetPrintMonthlyReportByStudent{}
 	for _, studentID := range studentsIDs {
 		student, err := s.studentsRepository.Find(studentID)
