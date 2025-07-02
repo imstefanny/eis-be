@@ -18,6 +18,7 @@ type ApplicantsUsecase interface {
 	GetByToken(id int) (interface{}, error)
 	Update(id int, claims jwt.MapClaims, applicant dto.CreateApplicantsRequest) (models.Applicants, error)
 	ApproveRegistration(id int, claims jwt.MapClaims) error
+	ApproveDocument(id int, claims jwt.MapClaims) error
 	RejectRegistration(id int, claims jwt.MapClaims, applicant dto.RejectApplicantsRequest) error
 	Delete(id int) error
 }
@@ -257,6 +258,27 @@ func (s *applicantsUsecase) RejectRegistration(id int, claims jwt.MapClaims, rej
 	applicant.State = "rejected"
 	applicant.UpdatedBy = uint(claims["userId"].(float64))
 	applicant.Reason = rejectDto.Reason
+
+	e := s.applicantsRepository.Update(id, applicant)
+	if e != nil {
+		return e
+	}
+
+	return nil
+}
+
+func (s *applicantsUsecase) ApproveDocument(id int, claims jwt.MapClaims) error {
+	applicant, err := s.applicantsRepository.Find(id)
+	if err != nil {
+		return err
+	}
+
+	if applicant.State == "approved" {
+		return fmt.Errorf("applicant with ID %d is already approved", id)
+	}
+
+	applicant.State = "draft_payment"
+	applicant.UpdatedBy = uint(claims["userId"].(float64))
 
 	e := s.applicantsRepository.Update(id, applicant)
 	if e != nil {

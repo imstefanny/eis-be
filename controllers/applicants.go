@@ -168,6 +168,28 @@ func (u *applicantsController) ApproveRegistration(c echo.Context) error {
 	})
 }
 
+func (u *applicantsController) ApproveDocument(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	claims, errToken := helpers.GetTokenClaims(c)
+	if errToken != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": errToken.Error(),
+		})
+	}
+
+	err := u.useCase.ApproveDocument(id, claims)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "Registration Document approved successfully",
+	})
+}
+
 func (u *applicantsController) RejectRegistration(c echo.Context) error {
 	applicant := dto.RejectApplicantsRequest{}
 	id, _ := strconv.Atoi(c.Param("id"))

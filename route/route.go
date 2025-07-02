@@ -168,6 +168,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eApplicants.PUT("/:id", applicantsController.Update)
 	eApplicants.DELETE("/:id", applicantsController.Delete)
 	eApplicants.POST("/approve/:id", applicantsController.ApproveRegistration)
+	eApplicants.POST("/approve-document/:id", applicantsController.ApproveDocument)
 	eApplicants.POST("/reject/:id", applicantsController.RejectRegistration)
 
 	eGuardians := e.Group("/guardians")
