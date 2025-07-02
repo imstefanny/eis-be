@@ -12,6 +12,7 @@ type TeachersRepository interface {
 	Find(id int) (models.Teachers, error)
 	GetByMachineID(machineID int) (models.Teachers, error)
 	GetByToken(id int) (models.Teachers, error)
+	GetAvailableHomeroomTeachers(start_year, end_year string, academic_id int) ([]models.Teachers, error)
 	Create(tx *gorm.DB, teachers models.Teachers) error
 	Update(id int, teacher models.Teachers) error
 	UndeleteTeacher(id int) error
@@ -94,4 +95,28 @@ func (r *teachersRepository) Delete(id int) error {
 		return err
 	}
 	return nil
+}
+
+func (r *teachersRepository) GetAvailableHomeroomTeachers(start_year, end_year string, academic_id int) ([]models.Teachers, error) {
+	var teachers []models.Teachers
+	var rawSQL = `
+		SELECT 
+			teachers.id,
+			teachers.name,
+			teachers.nuptk,
+			users.email,
+			users.role_id,
+			acd.id as academic_id,
+			acd.display_name
+		FROM teachers
+		INNER JOIN users ON users.id = teachers.user_id
+		LEFT JOIN academics acd ON acd.homeroom_teacher_id = teachers.id AND start_year = ? AND end_year = ?
+		WHERE role_id != 2 AND role_id != 1 AND role_id != 5
+		AND acd.display_name IS NULL OR acd.id = ?
+	`
+	if err := r.db.Raw(rawSQL, start_year, end_year, academic_id).Scan(&teachers).Error; err != nil {
+		return nil, err
+	}
+
+	return teachers, nil
 }

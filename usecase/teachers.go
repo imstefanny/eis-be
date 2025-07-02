@@ -14,6 +14,7 @@ import (
 type TeachersUsecase interface {
 	Browse(page, limit int, search string) (interface{}, int64, error)
 	GetByToken(id int) (interface{}, error)
+	GetAvailableHomeroomTeachers(start_year, end_year string, academic_id int) (interface{}, error)
 	Create(teacher dto.CreateTeachersRequest, claims jwt.MapClaims) error
 	Find(id int) (interface{}, error)
 	Update(id int, teacher dto.CreateTeachersRequest) (models.Teachers, error)
@@ -47,6 +48,16 @@ func (s *teachersUsecase) Browse(page, limit int, search string) (interface{}, i
 	}
 
 	return teachers, total, nil
+}
+
+func (s *teachersUsecase) GetAvailableHomeroomTeachers(start_year, end_year string, academic_id int) (interface{}, error) {
+	teachers, err := s.teachersRepository.GetAvailableHomeroomTeachers(start_year, end_year, academic_id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return teachers, nil
 }
 
 func (s *teachersUsecase) GetByToken(id int) (interface{}, error) {

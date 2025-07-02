@@ -51,6 +51,29 @@ func (u *teachersController) Browse(c echo.Context) error {
 	})
 }
 
+func (u *teachersController) GetAvailableHomeroomTeachers(c echo.Context) error {
+	start_year := c.QueryParam("start_year")
+	end_year := c.QueryParam("end_year")
+	academic_id, err := strconv.Atoi(c.QueryParam("academic_id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"error": "Invalid academic_id",
+		})
+	}
+
+	teachers, err := u.useCase.GetAvailableHomeroomTeachers(start_year, end_year, academic_id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"data": teachers,
+	})
+}
+
 func (u *teachersController) GetByToken(c echo.Context) error {
 	claims, errToken := helpers.GetTokenClaims(c)
 	if errToken != nil {

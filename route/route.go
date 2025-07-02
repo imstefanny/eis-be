@@ -256,6 +256,7 @@ func Route(e *echo.Echo, db *gorm.DB) {
 	eTeachers.Use(echojwt.JWT([]byte(constants.SECRET_KEY)))
 	eTeachers.GET("", teachersController.Browse)
 	eTeachers.GET("/my", teachersController.GetByToken)
+	eTeachers.GET("/available-homeroom", teachersController.GetAvailableHomeroomTeachers)
 	eTeachers.GET("/:id", teachersController.Find)
 	eTeachers.POST("", teachersController.Create)
 	eTeachers.PUT("/:id", teachersController.Update)
