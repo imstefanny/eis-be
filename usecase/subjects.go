@@ -2,15 +2,13 @@ package usecase
 
 import (
 	"eis-be/dto"
-	"eis-be/helpers"
 	"eis-be/models"
 	"eis-be/repository"
 	"errors"
-	"reflect"
 )
 
 type SubjectsUsecase interface {
-	Browse(page, limit int, search, sortColumn, sortOrder string) ([]dto.GetSubjectsResponse, int64, error)
+	Browse(page, limit int, search, sortColumn, sortOrder string, isExtracurricular *bool) ([]dto.GetSubjectsResponse, int64, error)
 	Create(subject dto.CreateSubjectsRequest) error
 	Find(id int) (dto.GetSubjectsResponse, error)
 	Update(id int, subject dto.CreateSubjectsRequest) (models.Subjects, error)
@@ -27,18 +25,8 @@ func NewSubjectsUsecase(subjectsRepo repository.SubjectsRepository) *subjectsUse
 	}
 }
 
-func validateCreateSubjectsRequest(req dto.CreateSubjectsRequest) error {
-	val := reflect.ValueOf(req)
-	for i := 0; i < val.NumField(); i++ {
-		if helpers.IsEmptyField(val.Field(i)) {
-			return errors.New("field can't be empty")
-		}
-	}
-	return nil
-}
-
-func (s *subjectsUsecase) Browse(page, limit int, search, sortColumn, sortOrder string) ([]dto.GetSubjectsResponse, int64, error) {
-	subjects, total, err := s.subjectsRepository.Browse(page, limit, search, sortColumn, sortOrder)
+func (s *subjectsUsecase) Browse(page, limit int, search, sortColumn, sortOrder string, isExtracurricular *bool) ([]dto.GetSubjectsResponse, int64, error) {
+	subjects, total, err := s.subjectsRepository.Browse(page, limit, search, sortColumn, sortOrder, isExtracurricular)
 
 	if err != nil {
 		return nil, total, err
@@ -47,9 +35,10 @@ func (s *subjectsUsecase) Browse(page, limit int, search, sortColumn, sortOrder 
 	responses := []dto.GetSubjectsResponse{}
 	for _, subject := range subjects {
 		responses = append(responses, dto.GetSubjectsResponse{
-			ID:   subject.ID,
-			Name: subject.DisplayName,
-			Code: subject.Code,
+			ID:                subject.ID,
+			Name:              subject.DisplayName,
+			Code:              subject.Code,
+			IsExtracurricular: subject.IsExtracurricular,
 		})
 	}
 
@@ -57,16 +46,11 @@ func (s *subjectsUsecase) Browse(page, limit int, search, sortColumn, sortOrder 
 }
 
 func (s *subjectsUsecase) Create(subject dto.CreateSubjectsRequest) error {
-	e := validateCreateSubjectsRequest(subject)
-
-	if e != nil {
-		return e
-	}
-
 	subjectData := models.Subjects{
-		DisplayName: subject.Code + " - " + subject.Name,
-		Code:        subject.Code,
-		Name:        subject.Name,
+		DisplayName:       subject.Code + " - " + subject.Name,
+		Code:              subject.Code,
+		Name:              subject.Name,
+		IsExtracurricular: subject.IsExtracurricular,
 	}
 	subjectResult := s.subjectsRepository.FindByCode(subject.Code)
 	if subjectResult.ID != 0 {
@@ -108,6 +92,7 @@ func (s *subjectsUsecase) Update(id int, subject dto.CreateSubjectsRequest) (mod
 	subjectData.DisplayName = subject.Code + " - " + subject.Name
 	subjectData.Name = subject.Name
 	subjectData.Code = subject.Code
+	subjectData.IsExtracurricular = subject.IsExtracurricular
 
 	e := s.subjectsRepository.Update(id, subjectData)
 

@@ -8,7 +8,7 @@ import (
 )
 
 type SubjectsRepository interface {
-	Browse(page, limit int, search, sortColumn, sortOrder string) ([]models.Subjects, int64, error)
+	Browse(page, limit int, search, sortColumn, sortOrder string, isExtracurricular *bool) ([]models.Subjects, int64, error)
 	Create(subjects models.Subjects) error
 	Find(id int) (models.Subjects, error)
 	FindByCode(code string) models.Subjects
@@ -24,7 +24,7 @@ func NewSubjectsRepository(db *gorm.DB) *subjectsRepository {
 	return &subjectsRepository{db}
 }
 
-func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrder string) ([]models.Subjects, int64, error) {
+func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrder string, isExtracurricular *bool) ([]models.Subjects, int64, error) {
 	var subjects []models.Subjects
 	var total int64
 	offset := (page - 1) * limit
@@ -41,6 +41,9 @@ func (r *subjectsRepository) Browse(page, limit int, search, sortColumn, sortOrd
 	query := r.db.Model(&models.Subjects{})
 	if search != "" {
 		query = query.Where("display_name LIKE ?", "%"+search+"%")
+	}
+	if isExtracurricular != nil {
+		query = query.Where("is_extracurricular = ?", *isExtracurricular)
 	}
 
 	if err := query.Count(&total).Error; err != nil {

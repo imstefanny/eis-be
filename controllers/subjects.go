@@ -31,6 +31,19 @@ func (u *subjectsController) Browse(c echo.Context) error {
 		limit = 10
 	}
 	search := c.QueryParam("search")
+	var isExtracurricular *bool
+	isExtracurricularStr := c.QueryParam("is_extracurricular")
+
+	if isExtracurricularStr != "" {
+		parsed, err := strconv.ParseBool(isExtracurricularStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"error": "invalid value for is_extracurricular",
+			})
+		}
+		isExtracurricular = &parsed
+	}
+
 	sortColumn := c.QueryParam("sortColumn")
 	if sortColumn == "" {
 		sortColumn = "created_at"
@@ -40,7 +53,7 @@ func (u *subjectsController) Browse(c echo.Context) error {
 		sortOrder = "desc"
 	}
 
-	blogs, total, err := u.useCase.Browse(page, limit, search, sortColumn, sortOrder)
+	blogs, total, err := u.useCase.Browse(page, limit, search, sortColumn, sortOrder, isExtracurricular)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
