@@ -13,9 +13,9 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"https://landing-page-school.web.app", "https://eis-letjen.web.app", "http://localhost:5174", "http://localhost:5173"},
+		AllowOrigins:     []string{"https://landing-page-school.web.app", "https://eis-letjen.web.app", "http://localhost:5174", "http://localhost:5173", "https://currently-big-flea.ngrok-free.app"},
 		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "ngrok-skip-browser-warning"},
 		AllowCredentials: true,
 	}))
 
