@@ -116,7 +116,7 @@ func (r *teacherAttsRepository) Update(id int, teacherAtt models.TeacherAttendan
 
 func (r *teacherAttsRepository) Delete(id int) error {
 	teacherAtt := models.TeacherAttendances{}
-	if err := r.db.Delete(&teacherAtt, id).Error; err != nil {
+	if err := r.db.Unscoped().Delete(&teacherAtt, id).Error; err != nil {
 		return err
 	}
 	return nil
